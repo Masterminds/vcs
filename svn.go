@@ -6,9 +6,21 @@ import (
 	"strings"
 )
 
+// NewSvnRepo creates a new instance of SvnRepo. The remote and local directories
+// need to be passed in. The remote location should include the branch for SVN.
+// For example, if the package is https://github.com/Masterminds/cookoo/ the remote
+// should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
+func NewSvnRepo(remote, local string) *SvnRepo {
+	r := &SvnRepo{
+		remote: remote,
+		local:  local,
+	}
+
+	return r
+}
+
 // SvnRepo implements the Repo interface for the Svn source control.
 type SvnRepo struct {
-	helpers
 	remote, local string
 }
 
@@ -27,7 +39,7 @@ func (s *SvnRepo) LocalPath() string {
 // a clone.
 func (s *SvnRepo) Get() error {
 	out, err := exec.Command("svn", "checkout", s.remote, s.local).CombinedOutput()
-	s.logger.Print(out)
+	l(out)
 	return err
 }
 
@@ -42,7 +54,7 @@ func (s *SvnRepo) Update() error {
 	defer os.Chdir(oldDir)
 
 	out, err := exec.Command("svn", "update").CombinedOutput()
-	s.logger.Print(out)
+	l(out)
 	return err
 }
 
@@ -57,7 +69,7 @@ func (s *SvnRepo) UpdateVersion(version string) error {
 	defer os.Chdir(oldDir)
 
 	out, err := exec.Command("svn", "update", "-r", version).CombinedOutput()
-	s.logger.Print(out)
+	l(out)
 	return err
 }
 
@@ -72,7 +84,7 @@ func (s *SvnRepo) Version() (string, error) {
 	defer os.Chdir(oldDir)
 
 	out, err := exec.Command("svnversion", ".").CombinedOutput()
-	s.logger.Print(out)
+	l(out)
 	if err != nil {
 		return "", err
 	}

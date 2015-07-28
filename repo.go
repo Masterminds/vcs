@@ -1,12 +1,15 @@
 package vcs
 
 import (
+	"io/ioutil"
 	"log"
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,
-// where verbose output from each VCS will be written.
-var Logger log.Logger
+// where verbose output from each VCS will be written. The default logger does
+// not log data. To log data supply your own logger or change the output location
+// of the provided logger.
+var Logger *log.Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
 
 // Repo provides an interface to work with repositories using different source
 // control systems such as Git, Bzr, Mercurial, and SVN. For implementations
@@ -32,6 +35,6 @@ type Repo interface {
 	Version() (string, error)
 }
 
-type helpers struct {
-	logger log.Logger
+func l(v interface{}) {
+	Logger.Printf("%s", v)
 }
