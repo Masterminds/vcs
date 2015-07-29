@@ -26,13 +26,13 @@ func TestSvn(t *testing.T) {
 		}
 	}()
 
-	repo := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/cookoo")
+	repo := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
 
 	// Check the basic getters.
 	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo/trunk" {
 		t.Error("Remote not set properly")
 	}
-	if repo.LocalPath() != tempDir+"/cookoo" {
+	if repo.LocalPath() != tempDir+"/VCSTestRepo" {
 		t.Error("Local disk location not set properly")
 	}
 
@@ -46,7 +46,7 @@ func TestSvn(t *testing.T) {
 
 	// Verify SVN repo is a SVN repo
 	if repo.CheckLocal() == false {
-		t.Error("Problem checking out repo or CheckLocal is not working")
+		t.Error("Problem checking out repo or SVN CheckLocal is not working")
 	}
 
 	// Update the version to a previous version.
@@ -58,7 +58,7 @@ func TestSvn(t *testing.T) {
 	// Use Version to verify we are on the right version.
 	v, err := repo.Version()
 	if v != "2" {
-		t.Error("Error checking checked out version")
+		t.Error("Error checking checked SVN out version")
 	}
 	if err != nil {
 		t.Error(err)

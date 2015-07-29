@@ -1,10 +1,16 @@
 package vcs
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+)
+
+var (
+	// ErrWrongVCS is returned when an action is tried on the wrong VCS.
+	ErrWrongVCS = errors.New("Wrong VCS detected")
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,
