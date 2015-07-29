@@ -33,6 +33,9 @@ type Repo interface {
 
 	// Version retrieves the current version.
 	Version() (string, error)
+
+	// CheckLocal verifies the local location is of the correct VCS type
+	CheckLocal() bool
 }
 
 func l(v interface{}) {

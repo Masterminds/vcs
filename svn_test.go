@@ -44,6 +44,11 @@ func TestSvn(t *testing.T) {
 		t.Errorf("Unable to checkout SVN repo. Err was %s", err)
 	}
 
+	// Verify SVN repo is a SVN repo
+	if repo.CheckLocal() == false {
+		t.Error("Problem checking out repo or CheckLocal is not working")
+	}
+
 	// Update the version to a previous version.
 	err = repo.UpdateVersion("r2")
 	if err != nil {
@@ -73,5 +78,24 @@ func TestSvn(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
 
+func TestSvnCheckLocal(t *testing.T) {
+	// Verify repo.CheckLocal fails for non-SVN directories.
+	// TestSvn is already checking on a valid repo
+	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo := NewSvnRepo("", tempDir)
+	if repo.CheckLocal() == true {
+		t.Error("SVN CheckLocal does not identify non-SVN location")
+	}
 }

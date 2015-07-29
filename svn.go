@@ -90,3 +90,13 @@ func (s *SvnRepo) Version() (string, error) {
 	}
 	return strings.TrimSpace(string(out)), nil
 }
+
+// CheckLocal verifies the local location is an SVN repo.
+func (s *SvnRepo) CheckLocal() bool {
+	if _, err := os.Stat(s.local + "/.svn"); err == nil {
+		return true
+	}
+
+	return false
+
+}
