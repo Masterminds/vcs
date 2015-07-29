@@ -3,6 +3,8 @@ package vcs
 import (
 	"io/ioutil"
 	"log"
+	"os"
+	"os/exec"
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,
@@ -40,4 +42,45 @@ type Repo interface {
 
 func l(v interface{}) {
 	Logger.Printf("%s", v)
+}
+
+type base struct {
+	remote, local string
+}
+
+// Remote retrieves the remote location for a repo.
+func (b *base) Remote() string {
+	return b.remote
+}
+
+// LocalPath retrieves the local file system location for a repo.
+func (b *base) LocalPath() string {
+	return b.local
+}
+
+func (b *base) setRemote(remote string) {
+	b.remote = remote
+}
+
+func (b *base) setLocalPath(local string) {
+	b.local = local
+}
+
+func (b base) run(cmd string, args ...string) error {
+	out, err := exec.Command(cmd, args...).CombinedOutput()
+	l(out)
+	return err
+}
+
+func (b *base) runFromDir(cmd string, args ...string) error {
+	oldDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	os.Chdir(b.local)
+	defer os.Chdir(oldDir)
+
+	err = b.run(cmd, args...)
+
+	return err
 }

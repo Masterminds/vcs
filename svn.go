@@ -11,66 +11,33 @@ import (
 // For example, if the package is https://github.com/Masterminds/cookoo/ the remote
 // should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
 func NewSvnRepo(remote, local string) *SvnRepo {
-	r := &SvnRepo{
-		remote: remote,
-		local:  local,
-	}
+	r := &SvnRepo{}
+	r.setRemote(remote)
+	r.setLocalPath(local)
 
 	return r
 }
 
 // SvnRepo implements the Repo interface for the Svn source control.
 type SvnRepo struct {
-	remote, local string
-}
-
-// Remote retrieves the remote location for a repo.
-func (s *SvnRepo) Remote() string {
-	return s.remote
-}
-
-// LocalPath retrieves the local file system location for a repo.
-func (s *SvnRepo) LocalPath() string {
-	return s.local
+	base
 }
 
 // Get is used to perform an initial checkout of a repository.
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
 func (s *SvnRepo) Get() error {
-	out, err := exec.Command("svn", "checkout", s.remote, s.local).CombinedOutput()
-	l(out)
-	return err
+	return s.run("svn", "checkout", s.Remote(), s.LocalPath())
 }
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	os.Chdir(s.local)
-	defer os.Chdir(oldDir)
-
-	out, err := exec.Command("svn", "update").CombinedOutput()
-	l(out)
-	return err
+	return s.runFromDir("svn", "update")
 }
 
 // UpdateVersion sets the version of a package currently checked out via SVN.
 func (s *SvnRepo) UpdateVersion(version string) error {
-
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	os.Chdir(s.local)
-	defer os.Chdir(oldDir)
-
-	out, err := exec.Command("svn", "update", "-r", version).CombinedOutput()
-	l(out)
-	return err
+	return s.runFromDir("svn", "update", "-r", version)
 }
 
 // Version retrieves the current version.
@@ -80,7 +47,7 @@ func (s *SvnRepo) Version() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	os.Chdir(s.local)
+	os.Chdir(s.LocalPath())
 	defer os.Chdir(oldDir)
 
 	out, err := exec.Command("svnversion", ".").CombinedOutput()
@@ -93,7 +60,7 @@ func (s *SvnRepo) Version() (string, error) {
 
 // CheckLocal verifies the local location is an SVN repo.
 func (s *SvnRepo) CheckLocal() bool {
-	if _, err := os.Stat(s.local + "/.svn"); err == nil {
+	if _, err := os.Stat(s.LocalPath() + "/.svn"); err == nil {
 		return true
 	}
 
