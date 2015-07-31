@@ -1,92 +1,68 @@
 package vcs
 
-// import (
-// 	"fmt"
-// 	"os"
-// 	"os/exec"
-// 	"strings"
-// )
+import (
+	"os"
+	"os/exec"
+	"strings"
+)
 
-// // BzrVCS describes the BZR version control backend.
-// type BzrVCS struct{}
+// NewBzrRepo creates a new instance of BzrRepo. The remote and local directories
+// need to be passed in.
+func NewBzrRepo(remote, local string) *BzrRepo {
+	r := &BzrRepo{}
+	r.setRemote(remote)
+	r.setLocalPath(local)
 
-// // We're not big Bazaar users, so we don't know whether we got this right.
-// // If you can help, please submit patches.
+	return r
+}
 
-// // Get implements the logic for the initial checkout of a codebase from Bzr.
-// func (b *BzrVCS) Get(dep *Dependency) error {
-// 	dest := fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), dep.Name)
-// 	//fmt.Printf("[INFO] Cloning %s into %s\n", dep.Repository, dest)
-// 	Info("Bzr: ")
-// 	out, err := exec.Command("bzr", "branch", dep.Repository, dest).CombinedOutput()
-// 	fmt.Print(string(out))
-// 	return err
-// }
+// BzrRepo implements the Repo interface for the Bzr source control.
+type BzrRepo struct {
+	base
+}
 
-// // Update performs an Bzr update to an existing checkout.
-// func (b *BzrVCS) Update(dep *Dependency) error {
-// 	dest := fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), dep.Name)
+// Get is used to perform an initial clone of a repository.
+func (s *BzrRepo) Get() error {
+	return s.run("bzr", "branch", s.Remote(), s.LocalPath())
+}
 
-// 	if _, err := os.Stat(dest); err != nil {
-// 		// Assume a new package?
-// 		Info("Looks like %s is a new package. Cloning.", dep.Name)
-// 		return exec.Command("bzr", "branch", dep.Repository, dest).Run()
-// 	}
+// Update performs a Bzr pull and update to an existing checkout.
+func (s *BzrRepo) Update() error {
+	err := s.runFromDir("bzr", "pull")
+	if err != nil {
+		return err
+	}
+	return s.runFromDir("bzr", "update")
+}
 
-// 	oldDir, err := os.Getwd()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	os.Chdir(dest)
-// 	defer os.Chdir(oldDir)
+// UpdateVersion sets the version of a package currently checked out via Bzr.
+func (s *BzrRepo) UpdateVersion(version string) error {
+	return s.runFromDir("bzr", "update", "-r", version)
+}
 
-// 	// Because we can't predict which branch we want to be on, and since
-// 	// we want to set checkouts explicitly, we should probably fetch.
-// 	out, err := exec.Command("bzr", "pull", "--overwrite").CombinedOutput()
-// 	fmt.Print(string(out))
-// 	return err
-// }
+// Version retrieves the current version.
+func (s *BzrRepo) Version() (string, error) {
 
-// // Version sets the version of a package currently checked out via Bzr. For
-// // more detail see the SetReference function.
-// func (b *BzrVCS) Version(dep *Dependency) error {
-// 	dest := fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), dep.Name)
+	oldDir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	os.Chdir(s.LocalPath())
+	defer os.Chdir(oldDir)
 
-// 	oldDir, err := os.Getwd()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	os.Chdir(dest)
-// 	defer os.Chdir(oldDir)
+	out, err := exec.Command("bzr", "revno", "--tree").CombinedOutput()
+	if err != nil {
+		return "", err
+	}
 
-// 	if len(dep.Reference) > 0 {
-// 		// Now get to the right reference.
-// 		tag := fmt.Sprintf("tag:%s", dep.Reference)
-// 		//if out, err := exec.Command("bzr", "checkout", "-r", tag, dep.Repository).CombinedOutput(); err != nil {
-// 		if out, err := exec.Command("bzr", "revert", "-r", tag).CombinedOutput(); err != nil {
-// 			fmt.Println(string(out))
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
+	return strings.TrimSpace(string(out)), nil
+}
 
-// // LastCommit retrieves the current version.
-// func (b *BzrVCS) LastCommit(dep *Dependency) (string, error) {
-// 	dest := fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), dep.Name)
+// CheckLocal verifies the local location is a Bzr repo.
+func (s *BzrRepo) CheckLocal() bool {
+	if _, err := os.Stat(s.LocalPath() + "/.bzr"); err == nil {
+		return true
+	}
 
-// 	oldDir, err := os.Getwd()
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	os.Chdir(dest)
-// 	defer os.Chdir(oldDir)
-// 	out, err := exec.Command("bzr", "revno").CombinedOutput()
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	parts := strings.SplitN(string(out), " ", 2)
-
-// 	revno := parts[0]
-// 	return revno, nil
-// }
+	return false
+}
