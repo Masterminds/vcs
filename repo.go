@@ -11,6 +11,9 @@ import (
 var (
 	// ErrWrongVCS is returned when an action is tried on the wrong VCS.
 	ErrWrongVCS = errors.New("Wrong VCS detected")
+
+	// ErrCannotDetectVCS is returned when VCS cannot be detected from URI string.
+	ErrCannotDetectVCS = errors.New("Cannot detect VCS")
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,
@@ -18,6 +21,17 @@ var (
 // not log data. To log data supply your own logger or change the output location
 // of the provided logger.
 var Logger *log.Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
+
+// VcsType descripbes the type of VCS
+type VcsType string
+
+// VCS types
+const (
+	GitType VcsType = "git"
+	SvnType VcsType = "svn"
+	BzrType VcsType = "bzr"
+	HgType  VcsType = "hg"
+)
 
 // Repo provides an interface to work with repositories using different source
 // control systems such as Git, Bzr, Mercurial, and SVN. For implementations
@@ -45,6 +59,15 @@ type Repo interface {
 	// CheckLocal verifies the local location is of the correct VCS type
 	CheckLocal() bool
 }
+
+// NewRepo returns a Repo based on trying to detect the source control from the
+// remote and local locations. The appropriate implementation will be returned
+// or an ErrCannotDetectVCS if the VCS type cannot be detected.
+// Note, this function may make calls to the Internet to determind help determine
+// the VCS.
+// func NewRepo(remote, local string) (*Repo, error) {
+// 	u := url.Parse(remote)
+// }
 
 func l(v interface{}) {
 	Logger.Printf("%s", v)
