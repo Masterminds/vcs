@@ -29,6 +29,16 @@ var vcsList = []*vcsInfo{
 		pattern:  `^(bitbucket\.org/(?P<name>[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+))(/[A-Za-z0-9_.\-]+)*$`,
 		addCheck: checkBitbucket,
 	},
+	{
+		host:    "launchpad.net",
+		pattern: `^(launchpad\.net/(([A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)?|~[A-Za-z0-9_.\-]+/(\+junk|[A-Za-z0-9_.\-]+)/[A-Za-z0-9_.\-]+))(/[A-Za-z0-9_.\-]+)*$`,
+		vcs:     BzrType,
+	},
+	{
+		host:    "git.launchpad.net",
+		vcs:     GitType,
+		pattern: `^(git\.launchpad\.net/(([A-Za-z0-9_.\-]+)|~[A-Za-z0-9_.\-]+/(\+git|[A-Za-z0-9_.\-]+)/[A-Za-z0-9_.\-]+))$`,
+	},
 }
 
 func init() {
@@ -119,10 +129,8 @@ func checkBitbucket(i map[string]string) (VcsType, error) {
 
 }
 
-var client = http.DefaultClient
-
 func get(url string) ([]byte, error) {
-	resp, err := client.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
