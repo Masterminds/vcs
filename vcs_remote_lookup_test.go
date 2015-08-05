@@ -22,6 +22,10 @@ func TestVCSLookup(t *testing.T) {
 		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: SvnType},
 		"https://code.google.com/p/farbtastic":                             {work: false, t: SvnType},
 		"https://code.google.com/p/plotinum":                               {work: true, t: HgType},
+		"https://example.com/foo/bar.git":                                  {work: true, t: GitType},
+		"https://example.com/foo/bar.svn":                                  {work: true, t: SvnType},
+		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: BzrType},
+		"https://example.com/foo/bar/baz.hg":                               {work: true, t: HgType},
 	}
 
 	for u, c := range urlList {

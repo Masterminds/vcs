@@ -52,8 +52,14 @@ var vcsList = []*vcsInfo{
 	},
 	// Alternative Google setup. This is the previous structure but it still works... until Google Code goes away.
 	{
-		addCheck: checkOldGoogle,
+		addCheck: checkUrl,
 		pattern:  `^([a-z0-9_\-.]+)\.googlecode\.com/(?P<type>git|hg|svn)(/.*)?$`,
+	},
+	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
+	// by the extension to the path.
+	{
+		addCheck: checkUrl,
+		pattern:  `\.(?P<type>git|hg|svn|bzr)$`,
 	},
 }
 
@@ -90,7 +96,11 @@ func detectVcsFromUrl(vcsUrl string) (VcsType, error) {
 		uCheck := u.Host + u.Path
 		m := v.regex.FindStringSubmatch(uCheck)
 		if m == nil {
-			return "", ErrCannotDetectVCS
+			if v.host != "" {
+				return "", ErrCannotDetectVCS
+			}
+
+			continue
 		}
 
 		// If we are here the host matches. If the host has a singular
@@ -115,9 +125,6 @@ func detectVcsFromUrl(vcsUrl string) (VcsType, error) {
 		return t, nil
 
 	}
-
-	// If the url to the endpoint is not for one of the known services attempt
-	// to figure it out.
 
 	// Unable to determine the vcs from the url.
 	return "", ErrCannotDetectVCS
@@ -176,11 +183,8 @@ func checkGoogle(i map[string]string) (VcsType, error) {
 	return "", ErrCannotDetectVCS
 }
 
-// Where the newer structure doesn't support SVN, this one supports
-// Git, Hg, and Svn.
-func checkOldGoogle(i map[string]string) (VcsType, error) {
-	// To have passed the regex the type needs to be one of the supported
-	// ones that can be returned. Otherwise it fails detection prior to this.
+// Expect a type key on i with the exact type detected from the regex.
+func checkUrl(i map[string]string) (VcsType, error) {
 	return VcsType(i["type"]), nil
 }
 
