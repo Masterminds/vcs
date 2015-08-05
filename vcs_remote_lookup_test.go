@@ -18,6 +18,10 @@ func TestVCSLookup(t *testing.T) {
 		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo/trunk": {work: true, t: BzrType},
 		"https://git.launchpad.net/govcstestgitrepo":                       {work: true, t: GitType},
 		"https://git.launchpad.net/~mattfarina/+git/mygovcstestgitrepo":    {work: true, t: GitType},
+		"http://farbtastic.googlecode.com/svn/":                            {work: true, t: SvnType},
+		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: SvnType},
+		"https://code.google.com/p/farbtastic":                             {work: false, t: SvnType},
+		"https://code.google.com/p/plotinum":                               {work: true, t: HgType},
 	}
 
 	for u, c := range urlList {

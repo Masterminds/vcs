@@ -39,6 +39,22 @@ var vcsList = []*vcsInfo{
 		vcs:     GitType,
 		pattern: `^(git\.launchpad\.net/(([A-Za-z0-9_.\-]+)|~[A-Za-z0-9_.\-]+/(\+git|[A-Za-z0-9_.\-]+)/[A-Za-z0-9_.\-]+))$`,
 	},
+	{
+		host:    "go.googlesource.com",
+		vcs:     GitType,
+		pattern: `^(go\.googlesource\.com/[A-Za-z0-9_.\-]+/?)$`,
+	},
+	// TODO: Once Google Code becomes fully deprecated this can be removed.
+	{
+		host:     "code.google.com",
+		addCheck: checkGoogle,
+		pattern:  `^(code\.google\.com/[pr]/(?P<project>[a-z0-9\-]+)(\.(?P<repo>[a-z0-9\-]+))?)(/[A-Za-z0-9_.\-]+)*$`,
+	},
+	// Alternative Google setup. This is the previous structure but it still works... until Google Code goes away.
+	{
+		addCheck: checkOldGoogle,
+		pattern:  `^([a-z0-9_\-.]+)\.googlecode\.com/(?P<type>git|hg|svn)(/.*)?$`,
+	},
 }
 
 func init() {
@@ -64,7 +80,7 @@ func detectVcsFromUrl(vcsUrl string) (VcsType, error) {
 
 	// Try to detect from known hosts, such as Github
 	for _, v := range vcsList {
-		if v.host != u.Host {
+		if v.host != "" && v.host != u.Host {
 			continue
 		}
 
@@ -127,6 +143,45 @@ func checkBitbucket(i map[string]string) (VcsType, error) {
 
 	return response.SCM, nil
 
+}
+
+// Google supports Git, Hg, and Svn. The SVN style is only
+// supported through their legacy setup at <project>.googlecode.com.
+// I wonder if anyone is actually using SVN support.
+func checkGoogle(i map[string]string) (VcsType, error) {
+
+	// To figure out which of the VCS types is used in Google Code you need
+	// to parse a web page and find it. Ugh. I mean... ugh.
+	var hack = regexp.MustCompile(`id="checkoutcmd">(hg|git|svn)`)
+
+	d, err := get(expand(i, "https://code.google.com/p/{project}/source/checkout?repo={repo}"))
+	if err != nil {
+		return "", err
+	}
+
+	if m := hack.FindSubmatch(d); m != nil {
+		if vcs := string(m[1]); vcs != "" {
+			if vcs == "svn" {
+				// While Google supports SVN it can only be used with the legacy
+				// urls of <project>.googlecode.com. I considered creating a new
+				// error for this problem but Google Code is going away and there
+				// is support for the legacy structure.
+				return "", ErrCannotDetectVCS
+			}
+
+			return VcsType(vcs), nil
+		}
+	}
+
+	return "", ErrCannotDetectVCS
+}
+
+// Where the newer structure doesn't support SVN, this one supports
+// Git, Hg, and Svn.
+func checkOldGoogle(i map[string]string) (VcsType, error) {
+	// To have passed the regex the type needs to be one of the supported
+	// ones that can be returned. Otherwise it fails detection prior to this.
+	return VcsType(i["type"]), nil
 }
 
 func get(url string) ([]byte, error) {
