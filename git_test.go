@@ -49,6 +49,15 @@ func TestGit(t *testing.T) {
 		t.Error("Problem checking out repo or Git CheckLocal is not working")
 	}
 
+	// Test internal lookup mechanism used outside of Git specific functionality.
+	ltype, err := detectVcsFromFS(tempDir + "/VCSTestRepo")
+	if err != nil {
+		t.Error("detectVcsFromFS unable to Git repo")
+	}
+	if ltype != GitType {
+		t.Errorf("detectVcsFromFS detected %s instead of Git type", ltype)
+	}
+
 	// Perform an update.
 	err = repo.Update()
 	if err != nil {

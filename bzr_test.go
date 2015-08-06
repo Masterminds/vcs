@@ -49,6 +49,15 @@ func TestBzr(t *testing.T) {
 		t.Error("Problem checking out repo or Bzr CheckLocal is not working")
 	}
 
+	// Test internal lookup mechanism used outside of Bzr specific functionality.
+	ltype, err := detectVcsFromFS(tempDir + "/govcstestbzrrepo")
+	if err != nil {
+		t.Error("detectVcsFromFS unable to Bzr repo")
+	}
+	if ltype != BzrType {
+		t.Errorf("detectVcsFromFS detected %s instead of Bzr type", ltype)
+	}
+
 	err = repo.UpdateVersion("2")
 	if err != nil {
 		t.Errorf("Unable to update Bzr repo version. Err was %s", err)

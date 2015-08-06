@@ -49,6 +49,15 @@ func TestSvn(t *testing.T) {
 		t.Error("Problem checking out repo or SVN CheckLocal is not working")
 	}
 
+	// Test internal lookup mechanism used outside of Hg specific functionality.
+	ltype, err := detectVcsFromFS(tempDir + "/VCSTestRepo")
+	if err != nil {
+		t.Error("detectVcsFromFS unable to Svn repo")
+	}
+	if ltype != SvnType {
+		t.Errorf("detectVcsFromFS detected %s instead of Svn type", ltype)
+	}
+
 	// Update the version to a previous version.
 	err = repo.UpdateVersion("r2")
 	if err != nil {

@@ -49,6 +49,15 @@ func TestHg(t *testing.T) {
 		t.Error("Problem checking out repo or Hg CheckLocal is not working")
 	}
 
+	// Test internal lookup mechanism used outside of Hg specific functionality.
+	ltype, err := detectVcsFromFS(tempDir + "/testhgrepo")
+	if err != nil {
+		t.Error("detectVcsFromFS unable to Hg repo")
+	}
+	if ltype != HgType {
+		t.Errorf("detectVcsFromFS detected %s instead of Hg type", ltype)
+	}
+
 	// Set the version using the short hash.
 	err = repo.UpdateVersion("a5494ba2177f")
 	if err != nil {
