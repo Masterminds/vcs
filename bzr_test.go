@@ -26,7 +26,10 @@ func TestBzr(t *testing.T) {
 		}
 	}()
 
-	repo := NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/govcstestbzrrepo")
+	repo, err := NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/govcstestbzrrepo")
+	if err != nil {
+		t.Error(err)
+	}
 
 	// Check the basic getters.
 	if repo.Remote() != "https://launchpad.net/govcstestbzrrepo" {
@@ -102,7 +105,7 @@ func TestBzrCheckLocal(t *testing.T) {
 		}
 	}()
 
-	repo := NewBzrRepo("", tempDir)
+	repo, _ := NewBzrRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Bzr CheckLocal does not identify non-Bzr location")
 	}

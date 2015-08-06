@@ -26,7 +26,10 @@ func TestSvn(t *testing.T) {
 		}
 	}()
 
-	repo := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	repo, err := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	if err != nil {
+		t.Error(err)
+	}
 
 	// Check the basic getters.
 	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo/trunk" {
@@ -103,7 +106,7 @@ func TestSvnCheckLocal(t *testing.T) {
 		}
 	}()
 
-	repo := NewSvnRepo("", tempDir)
+	repo, _ := NewSvnRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("SVN CheckLocal does not identify non-SVN location")
 	}

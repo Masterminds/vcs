@@ -8,13 +8,20 @@ import (
 
 // NewGitRepo creates a new instance of GitRepo. The remote and local directories
 // need to be passed in.
-func NewGitRepo(remote, local string) *GitRepo {
+func NewGitRepo(remote, local string) (*GitRepo, error) {
+	ltype, err := detectVcsFromFS(local)
+
+	// Found a VCS other than Git. Need to report an error.
+	if err == nil && ltype != GitType {
+		return nil, ErrWrongVCS
+	}
+
 	r := &GitRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.RemoteLocation = "origin"
 
-	return r
+	return r, nil
 }
 
 // GitRepo implements the Repo interface for the Git source control.

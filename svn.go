@@ -10,12 +10,19 @@ import (
 // need to be passed in. The remote location should include the branch for SVN.
 // For example, if the package is https://github.com/Masterminds/cookoo/ the remote
 // should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
-func NewSvnRepo(remote, local string) *SvnRepo {
+func NewSvnRepo(remote, local string) (*SvnRepo, error) {
+	ltype, err := detectVcsFromFS(local)
+
+	// Found a VCS other than Svn. Need to report an error.
+	if err == nil && ltype != SvnType {
+		return nil, ErrWrongVCS
+	}
+
 	r := &SvnRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
 
-	return r
+	return r, nil
 }
 
 // SvnRepo implements the Repo interface for the Svn source control.

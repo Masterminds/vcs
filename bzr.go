@@ -8,12 +8,19 @@ import (
 
 // NewBzrRepo creates a new instance of BzrRepo. The remote and local directories
 // need to be passed in.
-func NewBzrRepo(remote, local string) *BzrRepo {
+func NewBzrRepo(remote, local string) (*BzrRepo, error) {
+	ltype, err := detectVcsFromFS(local)
+
+	// Found a VCS other than Bzr. Need to report an error.
+	if err == nil && ltype != BzrType {
+		return nil, ErrWrongVCS
+	}
+
 	r := &BzrRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
 
-	return r
+	return r, nil
 }
 
 // BzrRepo implements the Repo interface for the Bzr source control.

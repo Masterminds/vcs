@@ -26,7 +26,10 @@ func TestGit(t *testing.T) {
 		}
 	}()
 
-	repo := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
+	repo, err := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
+	if err != nil {
+		t.Error(err)
+	}
 
 	// Check the basic getters.
 	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo" {
@@ -112,7 +115,7 @@ func TestGitCheckLocal(t *testing.T) {
 		}
 	}()
 
-	repo := NewGitRepo("", tempDir)
+	repo, _ := NewGitRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Git CheckLocal does not identify non-Git location")
 	}

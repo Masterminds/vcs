@@ -8,12 +8,19 @@ import (
 
 // NewHgRepo creates a new instance of HgRepo. The remote and local directories
 // need to be passed in.
-func NewHgRepo(remote, local string) *HgRepo {
+func NewHgRepo(remote, local string) (*HgRepo, error) {
+	ltype, err := detectVcsFromFS(local)
+
+	// Found a VCS other than Hg. Need to report an error.
+	if err == nil && ltype != HgType {
+		return nil, ErrWrongVCS
+	}
+
 	r := &HgRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
 
-	return r
+	return r, nil
 }
 
 // HgRepo implements the Repo interface for the Mercurial source control.

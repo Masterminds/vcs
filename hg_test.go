@@ -26,7 +26,10 @@ func TestHg(t *testing.T) {
 		}
 	}()
 
-	repo := NewHgRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	repo, err := NewHgRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	if err != nil {
+		t.Error(err)
+	}
 
 	// Check the basic getters.
 	if repo.Remote() != "https://bitbucket.org/mattfarina/testhgrepo" {
@@ -103,7 +106,7 @@ func TestHgCheckLocal(t *testing.T) {
 		}
 	}()
 
-	repo := NewHgRepo("", tempDir)
+	repo, _ := NewHgRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Hg CheckLocal does not identify non-Hg location")
 	}
