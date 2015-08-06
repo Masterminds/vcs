@@ -65,9 +65,34 @@ type Repo interface {
 // or an ErrCannotDetectVCS if the VCS type cannot be detected.
 // Note, this function may make calls to the Internet to determind help determine
 // the VCS.
-// func NewRepo(remote, local string) (*Repo, error) {
-// 	u := url.Parse(remote)
-// }
+func NewRepo(remote, local string) (Repo, error) {
+	vtype, err := detectVcsFromFS(local)
+
+	// When the VCS cannot be detected from the local checkout attempt to
+	// determine the type from the remote url. Note, some remote urls such
+	// as bitbucket require going out to the Internet to detect the type.
+	if err == ErrCannotDetectVCS {
+		vtype, err = detectVcsFromUrl(remote)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	switch vtype {
+	case GitType:
+		return NewGitRepo(remote, local)
+	case SvnType:
+		return NewSvnRepo(remote, local)
+	case HgType:
+		return NewHgRepo(remote, local)
+	case BzrType:
+		return NewBzrRepo(remote, local)
+	}
+
+	// Should never fall through to here but just in case.
+	return nil, ErrCannotDetectVCS
+}
 
 func l(v interface{}) {
 	Logger.Printf("%s", v)

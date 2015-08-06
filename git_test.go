@@ -61,6 +61,17 @@ func TestGit(t *testing.T) {
 		t.Errorf("detectVcsFromFS detected %s instead of Git type", ltype)
 	}
 
+	// Test NewRepo on existing checkout. This should simply provide a working
+	// instance without error based on looking at the local directory.
+	nrepo, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
+	if nrerr != nil {
+		t.Error(nrerr)
+	}
+	// Verify the right oject is returned. It will check the local repo type.
+	if nrepo.CheckLocal() == false {
+		t.Error("Wrong version returned from NewRepo")
+	}
+
 	// Perform an update.
 	err = repo.Update()
 	if err != nil {
@@ -118,5 +129,12 @@ func TestGitCheckLocal(t *testing.T) {
 	repo, _ := NewGitRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Git CheckLocal does not identify non-Git location")
+	}
+
+	// Test NewRepo when there's no local. This should simply provide a working
+	// instance without error based on looking at the remote localtion.
+	_, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
+	if nrerr != nil {
+		t.Error(nrerr)
 	}
 }

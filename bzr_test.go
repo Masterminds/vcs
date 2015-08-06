@@ -61,6 +61,17 @@ func TestBzr(t *testing.T) {
 		t.Errorf("detectVcsFromFS detected %s instead of Bzr type", ltype)
 	}
 
+	// Test NewRepo on existing checkout. This should simply provide a working
+	// instance without error based on looking at the local directory.
+	nrepo, nrerr := NewRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/govcstestbzrrepo")
+	if nrerr != nil {
+		t.Error(nrerr)
+	}
+	// Verify the right oject is returned. It will check the local repo type.
+	if nrepo.CheckLocal() == false {
+		t.Error("Wrong version returned from NewRepo")
+	}
+
 	err = repo.UpdateVersion("2")
 	if err != nil {
 		t.Errorf("Unable to update Bzr repo version. Err was %s", err)
@@ -108,5 +119,12 @@ func TestBzrCheckLocal(t *testing.T) {
 	repo, _ := NewBzrRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Bzr CheckLocal does not identify non-Bzr location")
+	}
+
+	// Test NewRepo when there's no local. This should simply provide a working
+	// instance without error based on looking at the remote localtion.
+	_, nrerr := NewRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/govcstestbzrrepo")
+	if nrerr != nil {
+		t.Error(nrerr)
 	}
 }

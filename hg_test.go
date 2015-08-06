@@ -61,6 +61,17 @@ func TestHg(t *testing.T) {
 		t.Errorf("detectVcsFromFS detected %s instead of Hg type", ltype)
 	}
 
+	// Test NewRepo on existing checkout. This should simply provide a working
+	// instance without error based on looking at the local directory.
+	nrepo, nrerr := NewRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	if nrerr != nil {
+		t.Error(nrerr)
+	}
+	// Verify the right oject is returned. It will check the local repo type.
+	if nrepo.CheckLocal() == false {
+		t.Error("Wrong version returned from NewRepo")
+	}
+
 	// Set the version using the short hash.
 	err = repo.UpdateVersion("a5494ba2177f")
 	if err != nil {
@@ -109,5 +120,12 @@ func TestHgCheckLocal(t *testing.T) {
 	repo, _ := NewHgRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("Hg CheckLocal does not identify non-Hg location")
+	}
+
+	// Test NewRepo when there's no local. This should simply provide a working
+	// instance without error based on looking at the remote localtion.
+	_, nrerr := NewRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	if nrerr != nil {
+		t.Error(nrerr)
 	}
 }

@@ -61,6 +61,17 @@ func TestSvn(t *testing.T) {
 		t.Errorf("detectVcsFromFS detected %s instead of Svn type", ltype)
 	}
 
+	// Test NewRepo on existing checkout. This should simply provide a working
+	// instance without error based on looking at the local directory.
+	nrepo, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	if nrerr != nil {
+		t.Error(nrerr)
+	}
+	// Verify the right oject is returned. It will check the local repo type.
+	if nrepo.CheckLocal() == false {
+		t.Error("Wrong version returned from NewRepo")
+	}
+
 	// Update the version to a previous version.
 	err = repo.UpdateVersion("r2")
 	if err != nil {
@@ -109,5 +120,12 @@ func TestSvnCheckLocal(t *testing.T) {
 	repo, _ := NewSvnRepo("", tempDir)
 	if repo.CheckLocal() == true {
 		t.Error("SVN CheckLocal does not identify non-SVN location")
+	}
+
+	// Test NewRepo when there's no local. This should simply provide a working
+	// instance without error based on looking at the remote localtion.
+	_, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	if nrerr != nil {
+		t.Error(nrerr)
 	}
 }
