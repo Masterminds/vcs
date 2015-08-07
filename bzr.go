@@ -28,6 +28,11 @@ type BzrRepo struct {
 	base
 }
 
+// Vcs retrieves the underlying VCS being implemented.
+func (s BzrRepo) Vcs() VcsType {
+	return BzrType
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
 	return s.run("bzr", "branch", s.Remote(), s.LocalPath())

@@ -31,6 +31,10 @@ func TestSvn(t *testing.T) {
 		t.Error(err)
 	}
 
+	if repo.Vcs() != SvnType {
+		t.Error("Svn is detecting the wrong type")
+	}
+
 	// Check the basic getters.
 	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo/trunk" {
 		t.Error("Remote not set properly")

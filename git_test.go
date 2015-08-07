@@ -31,6 +31,10 @@ func TestGit(t *testing.T) {
 		t.Error(err)
 	}
 
+	if repo.Vcs() != GitType {
+		t.Error("Git is detecting the wrong type")
+	}
+
 	// Check the basic getters.
 	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo" {
 		t.Error("Remote not set properly")

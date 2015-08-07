@@ -42,6 +42,9 @@ const (
 // of this interface see BzrRepo, GitRepo, HgRepo, and SvnRepo.
 type Repo interface {
 
+	// Vcs retrieves the underlying VCS being implemented.
+	Vcs() VcsType
+
 	// Remote retrieves the remote location for a repo.
 	Remote() string
 

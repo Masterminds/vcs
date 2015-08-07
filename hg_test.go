@@ -31,6 +31,10 @@ func TestHg(t *testing.T) {
 		t.Error(err)
 	}
 
+	if repo.Vcs() != HgType {
+		t.Error("Hg is detecting the wrong type")
+	}
+
 	// Check the basic getters.
 	if repo.Remote() != "https://bitbucket.org/mattfarina/testhgrepo" {
 		t.Error("Remote not set properly")

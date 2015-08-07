@@ -45,6 +45,11 @@ type SvnRepo struct {
 	base
 }
 
+// Vcs retrieves the underlying VCS being implemented.
+func (s SvnRepo) Vcs() VcsType {
+	return SvnType
+}
+
 // Get is used to perform an initial checkout of a repository.
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.

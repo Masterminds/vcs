@@ -30,6 +30,11 @@ type GitRepo struct {
 	RemoteLocation string
 }
 
+// Vcs retrieves the underlying VCS being implemented.
+func (s GitRepo) Vcs() VcsType {
+	return GitType
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
 	return s.run("git", "clone", s.Remote(), s.LocalPath())

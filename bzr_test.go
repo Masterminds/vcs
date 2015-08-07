@@ -31,6 +31,10 @@ func TestBzr(t *testing.T) {
 		t.Error(err)
 	}
 
+	if repo.Vcs() != BzrType {
+		t.Error("Bzr is detecting the wrong type")
+	}
+
 	// Check the basic getters.
 	if repo.Remote() != "https://launchpad.net/govcstestbzrrepo" {
 		t.Error("Remote not set properly")

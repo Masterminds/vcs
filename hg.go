@@ -28,6 +28,11 @@ type HgRepo struct {
 	base
 }
 
+// Vcs retrieves the underlying VCS being implemented.
+func (s HgRepo) Vcs() VcsType {
+	return HgType
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
 	return s.run("hg", "clone", "-U", s.Remote(), s.LocalPath())
