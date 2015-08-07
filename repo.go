@@ -14,6 +14,10 @@ var (
 
 	// ErrCannotDetectVCS is returned when VCS cannot be detected from URI string.
 	ErrCannotDetectVCS = errors.New("Cannot detect VCS")
+
+	// ErrWrongRemote occurs when the passed in remote does not match the VCS
+	// configured endpoint.
+	ErrWrongRemote = errors.New("The Remote does not match the VCS endpoint")
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,

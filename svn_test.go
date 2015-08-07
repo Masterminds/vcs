@@ -52,6 +52,12 @@ func TestSvn(t *testing.T) {
 		t.Error("Problem checking out repo or SVN CheckLocal is not working")
 	}
 
+	// Verify an incorrect remote is caught when NewSvnRepo is used on an existing location
+	_, nrerr := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/unknownbranch", tempDir+"/VCSTestRepo")
+	if nrerr != ErrWrongRemote {
+		t.Error("ErrWrongRemote was not triggered for SVN")
+	}
+
 	// Test internal lookup mechanism used outside of Hg specific functionality.
 	ltype, err := detectVcsFromFS(tempDir + "/VCSTestRepo")
 	if err != nil {
