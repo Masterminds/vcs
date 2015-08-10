@@ -1,3 +1,5 @@
+// Package vcs provides the ability to work with varying version control systems (VCS),
+// also known as source control systems (SCM) though the same interface.
 package vcs
 
 import (
