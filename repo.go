@@ -1,5 +1,28 @@
-// Package vcs provides the ability to work with varying version control systems (VCS),
-// also known as source control systems (SCM) though the same interface.
+// Package vcs provides the ability to work with varying version control systems
+// (VCS),  also known as source control systems (SCM) though the same interface.
+//
+// This package includes a function that attempts to detect the repo type from
+// the remote URL and return the proper type. For example,
+//
+//     remote := "https://github.com/Masterminds/go-vcs"
+//     local, _ := ioutil.TempDir("", "go-vcs")
+//     repo, err := NewRepo(remote, local)
+//
+// In this case repo will be a GitRepo instance. NewRepo can detect the VCS for
+// numerous popular VCS and from the URL. For example, a URL ending in .git
+// that's not from one of the popular VCS will be detected as a Git repo and
+// the correct type will be returned.
+//
+// If you know the repository type and would like to create an instance of a
+// specific type you can use one of constructors for a type. They are NewGitRepo,
+// NewSvnRepo, NewBzrRepo, and NewHgRepo. The definition and usage is the same
+// as NewRepo.
+//
+// Once you have an object implementing the Repo interface the operations are
+// the same no matter which VCS you're using. There are some caveats. For
+// example, each VCS has its own version formats that need to be respected and
+// checkout out branches, if a branch is being worked with, is different in
+// each VCS.
 package vcs
 
 import (
@@ -28,7 +51,7 @@ var (
 // of the provided logger.
 var Logger *log.Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
 
-// VcsType descripbes the type of VCS
+// VcsType describes the type of VCS
 type VcsType string
 
 // VCS types
