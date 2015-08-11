@@ -3,6 +3,8 @@
 Manage repos in varying version control systems with ease through a common
 interface.
 
+[![Build Status](https://travis-ci.org/Masterminds/go-vcs.svg)](https://travis-ci.org/Masterminds/go-vcs) [![GoDoc](https://godoc.org/github.com/Masterminds/go-vcs?status.png)](https://godoc.org/github.com/Masterminds/go-vcs)
+
 ## Quick Usage
 
 Quick usage:
