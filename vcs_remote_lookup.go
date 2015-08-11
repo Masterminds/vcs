@@ -52,13 +52,13 @@ var vcsList = []*vcsInfo{
 	},
 	// Alternative Google setup. This is the previous structure but it still works... until Google Code goes away.
 	{
-		addCheck: checkUrl,
+		addCheck: checkURL,
 		pattern:  `^([a-z0-9_\-.]+)\.googlecode\.com/(?P<type>git|hg|svn)(/.*)?$`,
 	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
 	{
-		addCheck: checkUrl,
+		addCheck: checkURL,
 		pattern:  `\.(?P<type>git|hg|svn|bzr)$`,
 	},
 }
@@ -71,8 +71,8 @@ func init() {
 }
 
 // From a remote vcs url attempt to detect the VCS.
-func detectVcsFromUrl(vcsUrl string) (VcsType, error) {
-	u, err := url.Parse(vcsUrl)
+func detectVcsFromURL(vcsURL string) (VcsType, error) {
+	u, err := url.Parse(vcsURL)
 	if err != nil {
 		return "", err
 	}
@@ -184,7 +184,7 @@ func checkGoogle(i map[string]string) (VcsType, error) {
 }
 
 // Expect a type key on i with the exact type detected from the regex.
-func checkUrl(i map[string]string) (VcsType, error) {
+func checkURL(i map[string]string) (VcsType, error) {
 	return VcsType(i["type"]), nil
 }
 

@@ -104,7 +104,7 @@ func NewRepo(remote, local string) (Repo, error) {
 	// determine the type from the remote url. Note, some remote urls such
 	// as bitbucket require going out to the Internet to detect the type.
 	if err == ErrCannotDetectVCS {
-		vtype, err = detectVcsFromUrl(remote)
+		vtype, err = detectVcsFromURL(remote)
 	}
 
 	if err != nil {

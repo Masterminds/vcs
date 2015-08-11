@@ -29,7 +29,7 @@ func TestVCSLookup(t *testing.T) {
 	}
 
 	for u, c := range urlList {
-		ty, err := detectVcsFromUrl(u)
+		ty, err := detectVcsFromURL(u)
 		if err == nil && c.work == false {
 			t.Errorf("Error detecting VCS from URL(%s)", u)
 		}
