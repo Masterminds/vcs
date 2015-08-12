@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var svnDetectUrl = regexp.MustCompile("URL: (?P<foo>.+)\n")
+var svnDetectURL = regexp.MustCompile("URL: (?P<foo>.+)\n")
 
 // NewSvnRepo creates a new instance of SvnRepo. The remote and local directories
 // need to be passed in. The remote location should include the branch for SVN.
@@ -27,7 +27,7 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 			return nil, err
 		}
 
-		m := svnDetectUrl.FindStringSubmatch(string(out))
+		m := svnDetectURL.FindStringSubmatch(string(out))
 		if m[1] != "" && m[1] != remote {
 			return nil, ErrWrongRemote
 		}
