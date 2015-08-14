@@ -2,7 +2,9 @@ package vcs
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -68,6 +70,53 @@ func init() {
 	for _, v := range vcsList {
 		v.regex = regexp.MustCompile(v.pattern)
 	}
+}
+
+func detectVcsFromRemote(vcsURL string) (Type, string, error) {
+	t, e := detectVcsFromURL(vcsURL)
+	if e == nil {
+		return t, vcsURL, nil
+	} else {
+		// Need to test for vanity or paths like golang.org/x/
+
+		// TODO: Test for 3xx redirect codes and handle appropriately.
+
+		// Pages like https://golang.org/x/net provide an html document with
+		// meta tags containing a location to work with. The go tool uses
+		// a meta tag with the name go-import which is what we use here.
+		// godoc.org also has one call go-source that we do not need to use.
+		// The value of go-import is in the form "prefix vcs repo". The prefix
+		// should match the vcsURL and the repo is a location that can be
+		// checked out. Note, to get the html document you you need to add
+		// ?go-get=1 to the url.
+		u, err := url.Parse(vcsURL)
+		if err != nil {
+			return Type(""), "", err
+		}
+		if u.RawQuery == "" {
+			u.RawQuery = "go-get=1"
+		} else {
+			u.RawQuery = u.RawQuery + "+go-get=1"
+		}
+		checkURL := u.String()
+		resp, err := http.Get(checkURL)
+		defer resp.Body.Close()
+		if err != nil {
+			return Type(""), "", ErrCannotDetectVCS
+		}
+
+		t, nu, err := parseImportFromBody(u, resp.Body)
+		if err != nil {
+			return Type(""), "", err
+		} else if t == "" || nu == "" {
+			return Type(""), "", ErrCannotDetectVCS
+		}
+
+		return t, nu, nil
+	}
+
+	// Fall through to nothing detected.
+	return Type(""), "", ErrCannotDetectVCS
 }
 
 // From a remote vcs url attempt to detect the VCS.
@@ -209,4 +258,99 @@ func expand(match map[string]string, s string) string {
 		s = strings.Replace(s, "{"+k+"}", v, -1)
 	}
 	return s
+}
+
+func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err error) {
+	d := xml.NewDecoder(r)
+	d.CharsetReader = charsetReader
+	d.Strict = false
+	var t xml.Token
+	for {
+		t, err = d.Token()
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			return
+		}
+		if e, ok := t.(xml.StartElement); ok && strings.EqualFold(e.Name.Local, "body") {
+			return
+		}
+		if e, ok := t.(xml.EndElement); ok && strings.EqualFold(e.Name.Local, "head") {
+			return
+		}
+		e, ok := t.(xml.StartElement)
+		if !ok || !strings.EqualFold(e.Name.Local, "meta") {
+			continue
+		}
+		if attrValue(e.Attr, "name") != "go-import" {
+			continue
+		}
+		if f := strings.Fields(attrValue(e.Attr, "content")); len(f) == 3 {
+
+			// If this the second time a go-import statement has been detected
+			// return an error. There should only be one import statement per
+			// html file. We don't simply return the first found in order to
+			// detect pages including more than one.
+			// Should this be a different error?
+			if tp != "" || u != "" {
+				tp = Type("")
+				u = ""
+				err = ErrCannotDetectVCS
+				return
+			}
+
+			// If the prefix is different from the import there is something
+			// happening that shouldn't be. Returning an error.
+			// Should this be a different error?
+			vcsURL := ur.Host + ur.Path
+			if f[0] != vcsURL {
+				err = ErrCannotDetectVCS
+				return
+			}
+
+			// We check to make sure the string in the html document is one of
+			// the VCS we support. Do not want to blindly trust a string value
+			// in an HTML doc.
+			switch Type(f[1]) {
+			case Git:
+				tp = Git
+			case Svn:
+				tp = Svn
+			case Bzr:
+				tp = Bzr
+			case Hg:
+				tp = Hg
+			}
+
+			u = f[2]
+		}
+	}
+
+	// The content was parsed and the VCS was not detected.
+	if tp == "" || u == "" {
+		tp = Type("")
+		u = ""
+		err = ErrCannotDetectVCS
+	}
+
+	return
+}
+
+func charsetReader(charset string, input io.Reader) (io.Reader, error) {
+	switch strings.ToLower(charset) {
+	case "ascii":
+		return input, nil
+	default:
+		return nil, fmt.Errorf("can't decode XML document using charset %q", charset)
+	}
+}
+
+func attrValue(attrs []xml.Attr, name string) string {
+	for _, a := range attrs {
+		if strings.EqualFold(a.Name.Local, name) {
+			return a.Value
+		}
+	}
+	return ""
 }

@@ -26,10 +26,12 @@ func TestVCSLookup(t *testing.T) {
 		"https://example.com/foo/bar.svn":                                  {work: true, t: Svn},
 		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: Bzr},
 		"https://example.com/foo/bar/baz.hg":                               {work: true, t: Hg},
+		"https://gopkg.in/tomb.v1":                                         {work: true, t: Git},
+		"https://golang.org/x/net":                                         {work: true, t: Git},
 	}
 
 	for u, c := range urlList {
-		ty, err := detectVcsFromURL(u)
+		ty, _, err := detectVcsFromRemote(u)
 		if err == nil && c.work == false {
 			t.Errorf("Error detecting VCS from URL(%s)", u)
 		}
