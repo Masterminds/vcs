@@ -31,7 +31,7 @@ func TestSvn(t *testing.T) {
 		t.Error(err)
 	}
 
-	if repo.Vcs() != SvnType {
+	if repo.Vcs() != Svn {
 		t.Error("Svn is detecting the wrong type")
 	}
 
@@ -67,7 +67,7 @@ func TestSvn(t *testing.T) {
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Svn repo")
 	}
-	if ltype != SvnType {
+	if ltype != Svn {
 		t.Errorf("detectVcsFromFS detected %s instead of Svn type", ltype)
 	}
 

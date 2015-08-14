@@ -12,7 +12,7 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	ltype, err := detectVcsFromFS(local)
 
 	// Found a VCS other than Bzr. Need to report an error.
-	if err == nil && ltype != BzrType {
+	if err == nil && ltype != Bzr {
 		return nil, ErrWrongVCS
 	}
 
@@ -30,8 +30,8 @@ type BzrRepo struct {
 }
 
 // Vcs retrieves the underlying VCS being implemented.
-func (s BzrRepo) Vcs() VcsType {
-	return BzrType
+func (s BzrRepo) Vcs() Type {
+	return Bzr
 }
 
 // Get is used to perform an initial clone of a repository.

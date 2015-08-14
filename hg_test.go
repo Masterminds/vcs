@@ -31,7 +31,7 @@ func TestHg(t *testing.T) {
 		t.Error(err)
 	}
 
-	if repo.Vcs() != HgType {
+	if repo.Vcs() != Hg {
 		t.Error("Hg is detecting the wrong type")
 	}
 
@@ -61,7 +61,7 @@ func TestHg(t *testing.T) {
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Hg repo")
 	}
-	if ltype != HgType {
+	if ltype != Hg {
 		t.Errorf("detectVcsFromFS detected %s instead of Hg type", ltype)
 	}
 

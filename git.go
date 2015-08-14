@@ -12,7 +12,7 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 	ltype, err := detectVcsFromFS(local)
 
 	// Found a VCS other than Git. Need to report an error.
-	if err == nil && ltype != GitType {
+	if err == nil && ltype != Git {
 		return nil, ErrWrongVCS
 	}
 
@@ -32,8 +32,8 @@ type GitRepo struct {
 }
 
 // Vcs retrieves the underlying VCS being implemented.
-func (s GitRepo) Vcs() VcsType {
-	return GitType
+func (s GitRepo) Vcs() Type {
+	return Git
 }
 
 // Get is used to perform an initial clone of a repository.

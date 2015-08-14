@@ -11,5 +11,5 @@ func ExampleNewRepo() {
 	// Returns: instance of GitRepo
 
 	repo.Vcs()
-	// Returns GitType as this is a Git repo
+	// Returns Git as this is a Git repo
 }

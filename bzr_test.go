@@ -31,7 +31,7 @@ func TestBzr(t *testing.T) {
 		t.Error(err)
 	}
 
-	if repo.Vcs() != BzrType {
+	if repo.Vcs() != Bzr {
 		t.Error("Bzr is detecting the wrong type")
 	}
 
@@ -61,7 +61,7 @@ func TestBzr(t *testing.T) {
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Bzr repo")
 	}
-	if ltype != BzrType {
+	if ltype != Bzr {
 		t.Errorf("detectVcsFromFS detected %s instead of Bzr type", ltype)
 	}
 

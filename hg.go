@@ -12,7 +12,7 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 	ltype, err := detectVcsFromFS(local)
 
 	// Found a VCS other than Hg. Need to report an error.
-	if err == nil && ltype != HgType {
+	if err == nil && ltype != Hg {
 		return nil, ErrWrongVCS
 	}
 
@@ -30,8 +30,8 @@ type HgRepo struct {
 }
 
 // Vcs retrieves the underlying VCS being implemented.
-func (s HgRepo) Vcs() VcsType {
-	return HgType
+func (s HgRepo) Vcs() Type {
+	return Hg
 }
 
 // Get is used to perform an initial clone of a repository.

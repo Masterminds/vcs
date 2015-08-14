@@ -31,7 +31,7 @@ func TestGit(t *testing.T) {
 		t.Error(err)
 	}
 
-	if repo.Vcs() != GitType {
+	if repo.Vcs() != Git {
 		t.Error("Git is detecting the wrong type")
 	}
 
@@ -61,7 +61,7 @@ func TestGit(t *testing.T) {
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Git repo")
 	}
-	if ltype != GitType {
+	if ltype != Git {
 		t.Errorf("detectVcsFromFS detected %s instead of Git type", ltype)
 	}
 

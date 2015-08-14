@@ -17,7 +17,7 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 	ltype, err := detectVcsFromFS(local)
 
 	// Found a VCS other than Svn. Need to report an error.
-	if err == nil && ltype != SvnType {
+	if err == nil && ltype != Svn {
 		return nil, ErrWrongVCS
 	} else if err == nil {
 		// An SVN repo was found so test that the URL there matches
@@ -47,8 +47,8 @@ type SvnRepo struct {
 }
 
 // Vcs retrieves the underlying VCS being implemented.
-func (s SvnRepo) Vcs() VcsType {
-	return SvnType
+func (s SvnRepo) Vcs() Type {
+	return Svn
 }
 
 // Get is used to perform an initial checkout of a repository.

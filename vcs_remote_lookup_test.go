@@ -8,24 +8,24 @@ func TestVCSLookup(t *testing.T) {
 	// TODO: Expand to make sure it detected the right vcs.
 	urlList := map[string]struct {
 		work bool
-		t    VcsType
+		t    Type
 	}{
-		"https://github.com/masterminds":                                   {work: false, t: GitType},
-		"https://github.com/Masterminds/VCSTestRepo":                       {work: true, t: GitType},
-		"https://bitbucket.org/mattfarina/testhgrepo":                      {work: true, t: HgType},
-		"https://launchpad.net/govcstestbzrrepo/trunk":                     {work: true, t: BzrType},
-		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo":       {work: true, t: BzrType},
-		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo/trunk": {work: true, t: BzrType},
-		"https://git.launchpad.net/govcstestgitrepo":                       {work: true, t: GitType},
-		"https://git.launchpad.net/~mattfarina/+git/mygovcstestgitrepo":    {work: true, t: GitType},
-		"http://farbtastic.googlecode.com/svn/":                            {work: true, t: SvnType},
-		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: SvnType},
-		"https://code.google.com/p/farbtastic":                             {work: false, t: SvnType},
-		"https://code.google.com/p/plotinum":                               {work: true, t: HgType},
-		"https://example.com/foo/bar.git":                                  {work: true, t: GitType},
-		"https://example.com/foo/bar.svn":                                  {work: true, t: SvnType},
-		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: BzrType},
-		"https://example.com/foo/bar/baz.hg":                               {work: true, t: HgType},
+		"https://github.com/masterminds":                                   {work: false, t: Git},
+		"https://github.com/Masterminds/VCSTestRepo":                       {work: true, t: Git},
+		"https://bitbucket.org/mattfarina/testhgrepo":                      {work: true, t: Hg},
+		"https://launchpad.net/govcstestbzrrepo/trunk":                     {work: true, t: Bzr},
+		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo":       {work: true, t: Bzr},
+		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo/trunk": {work: true, t: Bzr},
+		"https://git.launchpad.net/govcstestgitrepo":                       {work: true, t: Git},
+		"https://git.launchpad.net/~mattfarina/+git/mygovcstestgitrepo":    {work: true, t: Git},
+		"http://farbtastic.googlecode.com/svn/":                            {work: true, t: Svn},
+		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: Svn},
+		"https://code.google.com/p/farbtastic":                             {work: false, t: Svn},
+		"https://code.google.com/p/plotinum":                               {work: true, t: Hg},
+		"https://example.com/foo/bar.git":                                  {work: true, t: Git},
+		"https://example.com/foo/bar.svn":                                  {work: true, t: Svn},
+		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: Bzr},
+		"https://example.com/foo/bar/baz.hg":                               {work: true, t: Hg},
 	}
 
 	for u, c := range urlList {

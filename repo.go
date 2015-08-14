@@ -58,15 +58,15 @@ func init() {
 	Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
 }
 
-// VcsType describes the type of VCS
-type VcsType string
+// Type describes the type of VCS
+type Type string
 
 // VCS types
 const (
-	GitType VcsType = "git"
-	SvnType VcsType = "svn"
-	BzrType VcsType = "bzr"
-	HgType  VcsType = "hg"
+	Git Type = "git"
+	Svn Type = "svn"
+	Bzr Type = "bzr"
+	Hg  Type = "hg"
 )
 
 // Repo provides an interface to work with repositories using different source
@@ -75,7 +75,7 @@ const (
 type Repo interface {
 
 	// Vcs retrieves the underlying VCS being implemented.
-	Vcs() VcsType
+	Vcs() Type
 
 	// Remote retrieves the remote location for a repo.
 	Remote() string
@@ -119,13 +119,13 @@ func NewRepo(remote, local string) (Repo, error) {
 	}
 
 	switch vtype {
-	case GitType:
+	case Git:
 		return NewGitRepo(remote, local)
-	case SvnType:
+	case Svn:
 		return NewSvnRepo(remote, local)
-	case HgType:
+	case Hg:
 		return NewHgRepo(remote, local)
-	case BzrType:
+	case Bzr:
 		return NewBzrRepo(remote, local)
 	}
 
