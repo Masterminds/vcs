@@ -76,47 +76,44 @@ func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 	t, e := detectVcsFromURL(vcsURL)
 	if e == nil {
 		return t, vcsURL, nil
-	} else {
-		// Need to test for vanity or paths like golang.org/x/
-
-		// TODO: Test for 3xx redirect codes and handle appropriately.
-
-		// Pages like https://golang.org/x/net provide an html document with
-		// meta tags containing a location to work with. The go tool uses
-		// a meta tag with the name go-import which is what we use here.
-		// godoc.org also has one call go-source that we do not need to use.
-		// The value of go-import is in the form "prefix vcs repo". The prefix
-		// should match the vcsURL and the repo is a location that can be
-		// checked out. Note, to get the html document you you need to add
-		// ?go-get=1 to the url.
-		u, err := url.Parse(vcsURL)
-		if err != nil {
-			return Type(""), "", err
-		}
-		if u.RawQuery == "" {
-			u.RawQuery = "go-get=1"
-		} else {
-			u.RawQuery = u.RawQuery + "+go-get=1"
-		}
-		checkURL := u.String()
-		resp, err := http.Get(checkURL)
-		defer resp.Body.Close()
-		if err != nil {
-			return Type(""), "", ErrCannotDetectVCS
-		}
-
-		t, nu, err := parseImportFromBody(u, resp.Body)
-		if err != nil {
-			return Type(""), "", err
-		} else if t == "" || nu == "" {
-			return Type(""), "", ErrCannotDetectVCS
-		}
-
-		return t, nu, nil
 	}
 
-	// Fall through to nothing detected.
-	return Type(""), "", ErrCannotDetectVCS
+	// Need to test for vanity or paths like golang.org/x/
+
+	// TODO: Test for 3xx redirect codes and handle appropriately.
+
+	// Pages like https://golang.org/x/net provide an html document with
+	// meta tags containing a location to work with. The go tool uses
+	// a meta tag with the name go-import which is what we use here.
+	// godoc.org also has one call go-source that we do not need to use.
+	// The value of go-import is in the form "prefix vcs repo". The prefix
+	// should match the vcsURL and the repo is a location that can be
+	// checked out. Note, to get the html document you you need to add
+	// ?go-get=1 to the url.
+	u, err := url.Parse(vcsURL)
+	if err != nil {
+		return Type(""), "", err
+	}
+	if u.RawQuery == "" {
+		u.RawQuery = "go-get=1"
+	} else {
+		u.RawQuery = u.RawQuery + "+go-get=1"
+	}
+	checkURL := u.String()
+	resp, err := http.Get(checkURL)
+	defer resp.Body.Close()
+	if err != nil {
+		return Type(""), "", ErrCannotDetectVCS
+	}
+
+	t, nu, err := parseImportFromBody(u, resp.Body)
+	if err != nil {
+		return Type(""), "", err
+	} else if t == "" || nu == "" {
+		return Type(""), "", ErrCannotDetectVCS
+	}
+
+	return t, nu, nil
 }
 
 // From a remote vcs url attempt to detect the VCS.
@@ -326,15 +323,6 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 			u = f[2]
 		}
 	}
-
-	// The content was parsed and the VCS was not detected.
-	if tp == "" || u == "" {
-		tp = Type("")
-		u = ""
-		err = ErrCannotDetectVCS
-	}
-
-	return
 }
 
 func charsetReader(charset string, input io.Reader) (io.Reader, error) {
