@@ -36,6 +36,7 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 	r := &SvnRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
+	r.Logger = Logger
 
 	return r, nil
 }
@@ -78,7 +79,7 @@ func (s *SvnRepo) Version() (string, error) {
 	defer os.Chdir(oldDir)
 
 	out, err := exec.Command("svnversion", ".").CombinedOutput()
-	l(out)
+	s.log(out)
 	if err != nil {
 		return "", err
 	}

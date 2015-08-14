@@ -20,6 +20,7 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.RemoteLocation = "origin"
+	r.Logger = Logger
 
 	return r, nil
 }

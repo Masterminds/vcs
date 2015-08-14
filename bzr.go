@@ -19,6 +19,7 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	r := &BzrRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
+	r.Logger = Logger
 
 	return r, nil
 }

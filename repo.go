@@ -49,7 +49,14 @@ var (
 // where verbose output from each VCS will be written. The default logger does
 // not log data. To log data supply your own logger or change the output location
 // of the provided logger.
-var Logger *log.Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
+var Logger *log.Logger
+
+func init() {
+	// Initialize the logger to one that does not actually log anywhere. This is
+	// to be overridden by the package user by setting vcs.Logger to a different
+	// logger.
+	Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
+}
 
 // VcsType describes the type of VCS
 type VcsType string
@@ -126,12 +133,13 @@ func NewRepo(remote, local string) (Repo, error) {
 	return nil, ErrCannotDetectVCS
 }
 
-func l(v interface{}) {
-	Logger.Printf("%s", v)
-}
-
 type base struct {
 	remote, local string
+	Logger        *log.Logger
+}
+
+func (b *base) log(v interface{}) {
+	b.Logger.Printf("%s", v)
 }
 
 // Remote retrieves the remote location for a repo.
@@ -154,7 +162,7 @@ func (b *base) setLocalPath(local string) {
 
 func (b base) run(cmd string, args ...string) error {
 	out, err := exec.Command(cmd, args...).CombinedOutput()
-	l(out)
+	b.log(out)
 	return err
 }
 

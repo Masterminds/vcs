@@ -19,6 +19,7 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 	r := &HgRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
+	r.Logger = Logger
 
 	return r, nil
 }
