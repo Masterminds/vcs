@@ -4,7 +4,7 @@
 // This package includes a function that attempts to detect the repo type from
 // the remote URL and return the proper type. For example,
 //
-//     remote := "https://github.com/Masterminds/go-vcs"
+//     remote := "https://github.com/Masterminds/vcs"
 //     local, _ := ioutil.TempDir("", "go-vcs")
 //     repo, err := NewRepo(remote, local)
 //

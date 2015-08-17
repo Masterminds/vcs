@@ -5,7 +5,7 @@ import (
 )
 
 func ExampleNewRepo() {
-	remote := "https://github.com/Masterminds/go-vcs"
+	remote := "https://github.com/Masterminds/vcs"
 	local, _ := ioutil.TempDir("", "go-vcs")
 	repo, _ := NewRepo(remote, local)
 	// Returns: instance of GitRepo
