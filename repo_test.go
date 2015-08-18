@@ -2,6 +2,8 @@ package vcs
 
 import (
 	"io/ioutil"
+	"os"
+	"testing"
 )
 
 func ExampleNewRepo() {
@@ -12,4 +14,34 @@ func ExampleNewRepo() {
 
 	repo.Vcs()
 	// Returns Git as this is a Git repo
+}
+
+func TestTypeSwitch(t *testing.T) {
+
+	// To test repo type switching we checkout as SVN and then try to get it as
+	// a git repo afterwards.
+	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.Get()
+	if err != nil {
+		t.Errorf("Unable to checkout SVN repo for repo switching tests. Err was %s", err)
+	}
+
+	_, err = NewRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
+	if err != ErrWrongVCS {
+		t.Errorf("Not detecting repo switch from SVN to Git")
+	}
 }
