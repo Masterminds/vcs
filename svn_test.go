@@ -71,16 +71,20 @@ func TestSvn(t *testing.T) {
 		t.Errorf("detectVcsFromFS detected %s instead of Svn type", ltype)
 	}
 
+	// Commenting out auto-detection tests for SVN. NewRepo automatically detects
+	// GitHub to be a Git repo and that's an issue for this test. Need an
+	// SVN host that can autodetect from before using this test again.
+	//
 	// Test NewRepo on existing checkout. This should simply provide a working
 	// instance without error based on looking at the local directory.
-	nrepo, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
-	if nrerr != nil {
-		t.Error(nrerr)
-	}
-	// Verify the right oject is returned. It will check the local repo type.
-	if nrepo.CheckLocal() == false {
-		t.Error("Wrong version returned from NewRepo")
-	}
+	// nrepo, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	// if nrerr != nil {
+	// 	t.Error(nrerr)
+	// }
+	// // Verify the right oject is returned. It will check the local repo type.
+	// if nrepo.CheckLocal() == false {
+	// 	t.Error("Wrong version returned from NewRepo")
+	// }
 
 	// Update the version to a previous version.
 	err = repo.UpdateVersion("r2")
