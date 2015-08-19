@@ -22,6 +22,32 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 	r.RemoteLocation = "origin"
 	r.Logger = Logger
 
+	// Make sure the local Git repo is configured the same as the remote when
+	// A remote value was passed in.
+	if err == nil && r.CheckLocal() == true {
+		oldDir, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		os.Chdir(local)
+		defer os.Chdir(oldDir)
+		out, err := exec.Command("git", "config", "--get", "remote.origin.url").CombinedOutput()
+		if err != nil {
+			return nil, err
+		}
+
+		localRemote := strings.TrimSpace(string(out))
+		if remote != "" && localRemote != remote {
+			return nil, ErrWrongRemote
+		}
+
+		// If no remote was passed in but one is configured for the locally
+		// checked out Git repo use that one.
+		if remote == "" && localRemote != "" {
+			r.setRemote(localRemote)
+		}
+	}
+
 	return r, nil
 }
 

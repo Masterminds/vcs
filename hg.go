@@ -3,8 +3,11 @@ package vcs
 import (
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
+
+var hgDetectURL = regexp.MustCompile("default = (?P<foo>.+)\n")
 
 // NewHgRepo creates a new instance of HgRepo. The remote and local directories
 // need to be passed in.
@@ -20,6 +23,34 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.Logger = Logger
+
+	// Make sure the local Hg repo is configured the same as the remote when
+	// A remote value was passed in.
+	if err == nil && r.CheckLocal() == true {
+		// An Hg repo was found so test that the URL there matches
+		// the repo passed in here.
+		oldDir, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		os.Chdir(local)
+		defer os.Chdir(oldDir)
+		out, err := exec.Command("hg", "paths").CombinedOutput()
+		if err != nil {
+			return nil, err
+		}
+
+		m := hgDetectURL.FindStringSubmatch(string(out))
+		if m[1] != "" && m[1] != remote {
+			return nil, ErrWrongRemote
+		}
+
+		// If no remote was passed in but one is configured for the locally
+		// checked out Hg repo use that one.
+		if remote == "" && m[1] != "" {
+			r.setRemote(m[1])
+		}
+	}
 
 	return r, nil
 }

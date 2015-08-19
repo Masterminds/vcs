@@ -3,8 +3,11 @@ package vcs
 import (
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
+
+var bzrDetectURL = regexp.MustCompile("parent branch: (?P<foo>.+)\n")
 
 // NewBzrRepo creates a new instance of BzrRepo. The remote and local directories
 // need to be passed in.
@@ -20,6 +23,33 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.Logger = Logger
+
+	// With the other VCS we can check if the endpoint locally is different
+	// from the one configured internally. But, with Bzr you can't. For example,
+	// if you do `bzr branch https://launchpad.net/govcstestbzrrepo` and then
+	// use `bzr info` to get the parent branch you'll find it set to
+	// http://bazaar.launchpad.net/~mattfarina/govcstestbzrrepo/trunk/. Notice
+	// the change from https to http and the path chance.
+	// Here we set the remote to be the local one if none is passed in.
+	if err == nil && r.CheckLocal() == true && remote == "" {
+		oldDir, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		os.Chdir(local)
+		defer os.Chdir(oldDir)
+		out, err := exec.Command("bzr", "info").CombinedOutput()
+		if err != nil {
+			return nil, err
+		}
+		m := bzrDetectURL.FindStringSubmatch(string(out))
+
+		// If no remote was passed in but one is configured for the locally
+		// checked out Bzr repo use that one.
+		if m[1] != "" {
+			r.setRemote(m[1])
+		}
+	}
 
 	return r, nil
 }

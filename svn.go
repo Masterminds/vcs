@@ -19,7 +19,16 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 	// Found a VCS other than Svn. Need to report an error.
 	if err == nil && ltype != Svn {
 		return nil, ErrWrongVCS
-	} else if err == nil {
+	}
+
+	r := &SvnRepo{}
+	r.setRemote(remote)
+	r.setLocalPath(local)
+	r.Logger = Logger
+
+	// Make sure the local SVN repo is configured the same as the remote when
+	// A remote value was passed in.
+	if err == nil && r.CheckLocal() == true {
 		// An SVN repo was found so test that the URL there matches
 		// the repo passed in here.
 		out, err := exec.Command("svn", "info", local).CombinedOutput()
@@ -31,12 +40,13 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 		if m[1] != "" && m[1] != remote {
 			return nil, ErrWrongRemote
 		}
-	}
 
-	r := &SvnRepo{}
-	r.setRemote(remote)
-	r.setLocalPath(local)
-	r.Logger = Logger
+		// If no remote was passed in but one is configured for the locally
+		// checked out Svn repo use that one.
+		if remote == "" && m[1] != "" {
+			r.setRemote(m[1])
+		}
+	}
 
 	return r, nil
 }
