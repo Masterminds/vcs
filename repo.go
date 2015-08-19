@@ -105,28 +105,18 @@ type Repo interface {
 // Note, this function may make calls to the Internet to determind help determine
 // the VCS.
 func NewRepo(remote, local string) (Repo, error) {
-	fsvtype, fserr := detectVcsFromFS(local)
+	vtype, remote, err := detectVcsFromRemote(remote)
 
-	rvtype, remote, rerr := detectVcsFromRemote(remote)
-
-	// If there was no error detecting the local type and remote type compare
-	// them to make sure they are the same.
-	var err error
-	if fserr == nil && rerr == nil && fsvtype != rvtype {
-		err = ErrWrongVCS
-	} else if fserr != nil && rerr != nil {
-		err = ErrCannotDetectVCS
+	// From the remote URL the VCS could not be detected. See if the local
+	// repo contains enough information to figure out the VCS. The reason the
+	// local repo is not checked first is because of the potential for VCS type
+	// switches which will be detected in each of the type builders.
+	if err == ErrCannotDetectVCS {
+		vtype, err = detectVcsFromFS(local)
 	}
 
 	if err != nil {
 		return nil, err
-	}
-
-	var vtype Type
-	if rerr == nil {
-		vtype = rvtype
-	} else {
-		vtype = fsvtype
 	}
 
 	switch vtype {
