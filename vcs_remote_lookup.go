@@ -72,6 +72,9 @@ func init() {
 	}
 }
 
+// This function is really a hack around Go redirects rather than around
+// something VCS related. Should this be moved to the glide project or a
+// helper function?
 func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 	t, e := detectVcsFromURL(vcsURL)
 	if e == nil {
