@@ -297,11 +297,13 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 				return
 			}
 
-			// If the prefix is different from the import there is something
-			// happening that shouldn't be. Returning an error.
+			// If the prefix supplied by the remote system isn't a prefix to the
+			// url we're fetching return an error. This will work for exact
+			// matches and prefixes. For example, golang.org/x/net as a prefix
+			// will match for golang.org/x/net and golang.org/x/net/context.
 			// Should this be a different error?
 			vcsURL := ur.Host + ur.Path
-			if f[0] != vcsURL {
+			if !strings.HasPrefix(vcsURL, f[0]) {
 				err = ErrCannotDetectVCS
 				return
 			}
