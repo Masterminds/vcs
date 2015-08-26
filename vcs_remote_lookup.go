@@ -104,10 +104,10 @@ func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 	}
 	checkURL := u.String()
 	resp, err := http.Get(checkURL)
-	defer resp.Body.Close()
 	if err != nil {
 		return Type(""), "", ErrCannotDetectVCS
 	}
+	defer resp.Body.Close()
 
 	t, nu, err := parseImportFromBody(u, resp.Body)
 	if err != nil {
