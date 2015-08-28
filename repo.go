@@ -63,10 +63,11 @@ type Type string
 
 // VCS types
 const (
-	Git Type = "git"
-	Svn Type = "svn"
-	Bzr Type = "bzr"
-	Hg  Type = "hg"
+	NoVCS Type = ""
+	Git   Type = "git"
+	Svn   Type = "svn"
+	Bzr   Type = "bzr"
+	Hg    Type = "hg"
 )
 
 // Repo provides an interface to work with repositories using different source
