@@ -57,7 +57,7 @@ func TestHg(t *testing.T) {
 	}
 
 	// Test internal lookup mechanism used outside of Hg specific functionality.
-	ltype, err := detectVcsFromFS(tempDir + "/testhgrepo")
+	ltype, err := DetectVcsFromFS(tempDir + "/testhgrepo")
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Hg repo")
 	}

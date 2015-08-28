@@ -63,7 +63,7 @@ func TestSvn(t *testing.T) {
 	}
 
 	// Test internal lookup mechanism used outside of Hg specific functionality.
-	ltype, err := detectVcsFromFS(tempDir + "/VCSTestRepo")
+	ltype, err := DetectVcsFromFS(tempDir + "/VCSTestRepo")
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Svn repo")
 	}

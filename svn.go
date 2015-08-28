@@ -14,7 +14,7 @@ var svnDetectURL = regexp.MustCompile("URL: (?P<foo>.+)\n")
 // For example, if the package is https://github.com/Masterminds/cookoo/ the remote
 // should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
 func NewSvnRepo(remote, local string) (*SvnRepo, error) {
-	ltype, err := detectVcsFromFS(local)
+	ltype, err := DetectVcsFromFS(local)
 
 	// Found a VCS other than Svn. Need to report an error.
 	if err == nil && ltype != Svn {

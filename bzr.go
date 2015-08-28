@@ -12,7 +12,7 @@ var bzrDetectURL = regexp.MustCompile("parent branch: (?P<foo>.+)\n")
 // NewBzrRepo creates a new instance of BzrRepo. The remote and local directories
 // need to be passed in.
 func NewBzrRepo(remote, local string) (*BzrRepo, error) {
-	ltype, err := detectVcsFromFS(local)
+	ltype, err := DetectVcsFromFS(local)
 
 	// Found a VCS other than Bzr. Need to report an error.
 	if err == nil && ltype != Bzr {

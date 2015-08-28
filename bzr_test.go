@@ -57,7 +57,7 @@ func TestBzr(t *testing.T) {
 	}
 
 	// Test internal lookup mechanism used outside of Bzr specific functionality.
-	ltype, err := detectVcsFromFS(tempDir + "/govcstestbzrrepo")
+	ltype, err := DetectVcsFromFS(tempDir + "/govcstestbzrrepo")
 	if err != nil {
 		t.Error("detectVcsFromFS unable to Bzr repo")
 	}

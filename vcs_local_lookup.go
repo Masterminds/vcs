@@ -4,8 +4,9 @@ import (
 	"os"
 )
 
-// Detect the type from the local path. Is there a better way to do this?
-func detectVcsFromFS(vcsPath string) (Type, error) {
+// DetectVcsFromFS detects the type from the local path.
+// Is there a better way to do this?
+func DetectVcsFromFS(vcsPath string) (Type, error) {
 
 	// When the local directory to the package doesn't exist
 	// it's not yet downloaded so we can't detect the type
