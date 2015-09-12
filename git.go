@@ -74,6 +74,18 @@ func (s *GitRepo) Update() error {
 	if err != nil {
 		return err
 	}
+	// When in a detached head state, such as when an individual commit is checked
+	// out do not attempt a pull. It will cause an error.
+	detached, err := isDetachedHead(s.LocalPath())
+
+	if err != nil {
+		return err
+	}
+
+	if detached == true {
+		return nil
+	}
+
 	return s.runFromDir("git", "pull")
 }
 
@@ -107,5 +119,20 @@ func (s *GitRepo) CheckLocal() bool {
 	}
 
 	return false
+}
 
+func isDetachedHead(dir string) (bool, error) {
+	oldDir, err := os.Getwd()
+	if err != nil {
+		return false, err
+	}
+	os.Chdir(dir)
+	defer os.Chdir(oldDir)
+	out, err := exec.Command("git", "status", "-uno").CombinedOutput()
+	if err != nil {
+		return false, err
+	}
+	detached := strings.Contains(string(out), "HEAD detached at")
+
+	return detached, nil
 }

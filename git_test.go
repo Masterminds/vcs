@@ -88,6 +88,15 @@ func TestGit(t *testing.T) {
 		t.Errorf("Unable to update Git repo version. Err was %s", err)
 	}
 
+	// Once a ref has been checked out the repo is in a detached head state.
+	// Trying to pull in an update in this state will cause an error. Update
+	// should cleanly handle this. Pulling on a branch (tested elsewhere) and
+	// skipping that here.
+	err = repo.Update()
+	if err != nil {
+		t.Error(err)
+	}
+
 	// Use Version to verify we are on the right version.
 	v, err := repo.Version()
 	if v != "806b07b08faa21cfbdae93027904f80174679402" {
