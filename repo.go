@@ -162,21 +162,21 @@ func (b *base) setLocalPath(local string) {
 	b.local = local
 }
 
-func (b base) run(cmd string, args ...string) error {
+func (b base) run(cmd string, args ...string) ([]byte, error) {
 	out, err := exec.Command(cmd, args...).CombinedOutput()
 	b.log(out)
-	return err
+	return out, err
 }
 
-func (b *base) runFromDir(cmd string, args ...string) error {
+func (b *base) runFromDir(cmd string, args ...string) ([]byte, error) {
 	oldDir, err := os.Getwd()
 	if err != nil {
-		return err
+		return []byte(""), err
 	}
 	os.Chdir(b.local)
 	defer os.Chdir(oldDir)
 
-	err = b.run(cmd, args...)
+	out, err := b.run(cmd, args...)
 
-	return err
+	return out, err
 }

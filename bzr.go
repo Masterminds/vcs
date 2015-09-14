@@ -66,34 +66,39 @@ func (s BzrRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
-	return s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	return err
 }
 
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	err := s.runFromDir("bzr", "pull")
+	_, err := s.runFromDir("bzr", "pull")
 	if err != nil {
 		return err
 	}
-	return s.runFromDir("bzr", "update")
+	_, err = s.runFromDir("bzr", "update")
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Bzr.
 func (s *BzrRepo) UpdateVersion(version string) error {
-	return s.runFromDir("bzr", "update", "-r", version)
+	_, err := s.runFromDir("bzr", "update", "-r", version)
+	return err
 }
 
 // Version retrieves the current version.
 func (s *BzrRepo) Version() (string, error) {
 
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	os.Chdir(s.LocalPath())
-	defer os.Chdir(oldDir)
+	// oldDir, err := os.Getwd()
+	// if err != nil {
+	// 	return "", err
+	// }
+	// os.Chdir(s.LocalPath())
+	// defer os.Chdir(oldDir)
+	//
+	// out, err := exec.Command("bzr", "revno", "--tree").CombinedOutput()
 
-	out, err := exec.Command("bzr", "revno", "--tree").CombinedOutput()
+	out, err := s.runFromDir("bzr", "revno", "--tree")
 	if err != nil {
 		return "", err
 	}

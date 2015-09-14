@@ -67,30 +67,25 @@ func (s HgRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
-	return s.run("hg", "clone", "-U", s.Remote(), s.LocalPath())
+	_, err := s.run("hg", "clone", "-U", s.Remote(), s.LocalPath())
+	return err
 }
 
 // Update performs a Mercurial pull to an existing checkout.
 func (s *HgRepo) Update() error {
-	return s.runFromDir("hg", "update")
+	_, err := s.runFromDir("hg", "update")
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Hg.
 func (s *HgRepo) UpdateVersion(version string) error {
-	return s.runFromDir("hg", "update", version)
+	_, err := s.runFromDir("hg", "update", version)
+	return err
 }
 
 // Version retrieves the current version.
 func (s *HgRepo) Version() (string, error) {
-
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	os.Chdir(s.LocalPath())
-	defer os.Chdir(oldDir)
-
-	out, err := exec.Command("hg", "identify").CombinedOutput()
+	out, err := s.runFromDir("hg", "identify")
 	if err != nil {
 		return "", err
 	}
