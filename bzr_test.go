@@ -11,7 +11,8 @@ import (
 var _ Repo = &BzrRepo{}
 
 // To verify bzr is working we perform intergration testing
-// with a known bzr service.
+// with a known bzr service. Due to the long time of repeatedly checking out
+// repos these tests are structured to work together.
 
 func TestBzr(t *testing.T) {
 
@@ -102,6 +103,16 @@ func TestBzr(t *testing.T) {
 	}
 	if err != nil {
 		t.Error(err)
+	}
+
+	tags := repo.Tags()
+	if tags[0] != "1.0.0" {
+		t.Error("Bzr tags is not reporting the correct version")
+	}
+
+	branches := repo.Branches()
+	if len(branches) != 0 {
+		t.Error("Bzr is incorrectly returning branches")
 	}
 
 }

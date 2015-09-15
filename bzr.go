@@ -89,15 +89,6 @@ func (s *BzrRepo) UpdateVersion(version string) error {
 // Version retrieves the current version.
 func (s *BzrRepo) Version() (string, error) {
 
-	// oldDir, err := os.Getwd()
-	// if err != nil {
-	// 	return "", err
-	// }
-	// os.Chdir(s.LocalPath())
-	// defer os.Chdir(oldDir)
-	//
-	// out, err := exec.Command("bzr", "revno", "--tree").CombinedOutput()
-
 	out, err := s.runFromDir("bzr", "revno", "--tree")
 	if err != nil {
 		return "", err
@@ -113,4 +104,28 @@ func (s *BzrRepo) CheckLocal() bool {
 	}
 
 	return false
+}
+
+// Branches returns a list of available branches on the repository.
+// In Bazaar (Bzr) clones and branches are the same. A different branch will
+// have a different URL location which we cannot detect from the repo. This
+// is a little different from other VCS.
+func (s *BzrRepo) Branches() []string {
+	var branches []string
+	return branches
+}
+
+// Tags returns a list of available tags on the repository.
+func (s *BzrRepo) Tags() []string {
+	out, _ := s.runFromDir("bzr", "tags")
+	// if err != nil {
+	// 	return "", err
+	// }
+	var tags []string
+	r := regexp.MustCompile(`(?m-s)^(\S+)`)
+	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
+		tags = append(tags, m[1])
+	}
+
+	return tags
 }

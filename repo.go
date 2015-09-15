@@ -98,6 +98,12 @@ type Repo interface {
 
 	// CheckLocal verifies the local location is of the correct VCS type
 	CheckLocal() bool
+
+	// // Branches returns a list of available branches on the repository.
+	// Branches() []string
+	//
+	// // Tags returns a list of available tags on the repository.
+	// Tags() []string
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
