@@ -31,6 +31,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 )
 
 var (
@@ -185,4 +186,14 @@ func (b *base) runFromDir(cmd string, args ...string) ([]byte, error) {
 	out, err := b.run(cmd, args...)
 
 	return out, err
+}
+
+func (b *base) referenceList(c, r string) []string {
+	var out []string
+	re := regexp.MustCompile(r)
+	for _, m := range re.FindAllStringSubmatch(c, -1) {
+		out = append(out, m[1])
+	}
+
+	return out
 }

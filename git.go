@@ -1,10 +1,8 @@
 package vcs
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 )
 
@@ -103,12 +101,7 @@ func (s *GitRepo) Branches() ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	var branches []string
-	r := regexp.MustCompile(`(?m-s)(?:` + s.RemoteLocation + `)/(\S+)$`)
-	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
-		branches = append(branches, m[1])
-	}
-	fmt.Println(branches)
+	branches := s.referenceList(string(out), `(?m-s)(?:`+s.RemoteLocation+`)/(\S+)$`)
 	return branches, nil
 }
 
@@ -118,12 +111,7 @@ func (s *GitRepo) Tags() ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	var tags []string
-	r := regexp.MustCompile(`(?m-s)(?:tags)/(\S+)$`)
-	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
-		tags = append(tags, m[1])
-	}
-
+	tags := s.referenceList(string(out), `(?m-s)(?:tags)/(\S+)$`)
 	return tags, nil
 }
 

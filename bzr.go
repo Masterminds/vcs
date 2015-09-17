@@ -121,11 +121,6 @@ func (s *BzrRepo) Tags() ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	var tags []string
-	r := regexp.MustCompile(`(?m-s)^(\S+)`)
-	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
-		tags = append(tags, m[1])
-	}
-
+	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
 }
