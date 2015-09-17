@@ -1,8 +1,10 @@
 package vcs
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -93,6 +95,36 @@ func (s *GitRepo) Version() (string, error) {
 	}
 
 	return strings.TrimSpace(string(out)), nil
+}
+
+// Branches returns a list of available branches on the RemoteLocation
+func (s *GitRepo) Branches() ([]string, error) {
+	out, err := s.runFromDir("git", "show-ref")
+	if err != nil {
+		return []string{}, err
+	}
+	var branches []string
+	r := regexp.MustCompile(`(?m-s)(?:` + s.RemoteLocation + `)/(\S+)$`)
+	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
+		branches = append(branches, m[1])
+	}
+	fmt.Println(branches)
+	return branches, nil
+}
+
+// Tags returns a list of available tags on the RemoteLocation
+func (s *GitRepo) Tags() ([]string, error) {
+	out, err := s.runFromDir("git", "show-ref")
+	if err != nil {
+		return []string{}, err
+	}
+	var tags []string
+	r := regexp.MustCompile(`(?m-s)(?:tags)/(\S+)$`)
+	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
+		tags = append(tags, m[1])
+	}
+
+	return tags, nil
 }
 
 // CheckLocal verifies the local location is a Git repo.

@@ -105,12 +105,18 @@ func TestBzr(t *testing.T) {
 		t.Error(err)
 	}
 
-	tags := repo.Tags()
+	tags, err := repo.Tags()
+	if err != nil {
+		t.Error(err)
+	}
 	if tags[0] != "1.0.0" {
 		t.Error("Bzr tags is not reporting the correct version")
 	}
 
-	branches := repo.Branches()
+	branches, err := repo.Branches()
+	if err != nil {
+		t.Error(err)
+	}
 	if len(branches) != 0 {
 		t.Error("Bzr is incorrectly returning branches")
 	}

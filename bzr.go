@@ -110,22 +110,22 @@ func (s *BzrRepo) CheckLocal() bool {
 // In Bazaar (Bzr) clones and branches are the same. A different branch will
 // have a different URL location which we cannot detect from the repo. This
 // is a little different from other VCS.
-func (s *BzrRepo) Branches() []string {
+func (s *BzrRepo) Branches() ([]string, error) {
 	var branches []string
-	return branches
+	return branches, nil
 }
 
 // Tags returns a list of available tags on the repository.
-func (s *BzrRepo) Tags() []string {
-	out, _ := s.runFromDir("bzr", "tags")
-	// if err != nil {
-	// 	return "", err
-	// }
+func (s *BzrRepo) Tags() ([]string, error) {
+	out, err := s.runFromDir("bzr", "tags")
+	if err != nil {
+		return []string{}, err
+	}
 	var tags []string
 	r := regexp.MustCompile(`(?m-s)^(\S+)`)
 	for _, m := range r.FindAllStringSubmatch(string(out), -1) {
 		tags = append(tags, m[1])
 	}
 
-	return tags
+	return tags, nil
 }

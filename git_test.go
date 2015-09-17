@@ -114,6 +114,23 @@ func TestGit(t *testing.T) {
 		t.Error(err)
 	}
 
+	tags, err := repo.Tags()
+	if err != nil {
+		t.Error(err)
+	}
+	if tags[0] != "1.0.0" {
+		t.Error("Git tags is not reporting the correct version")
+	}
+
+	branches, err := repo.Branches()
+	if err != nil {
+		t.Error(err)
+	}
+	// The branches should be HEAD, master, and test.
+	if branches[2] != "test" {
+		t.Error("Git is incorrectly returning branches")
+	}
+
 }
 
 func TestGitCheckLocal(t *testing.T) {
