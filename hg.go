@@ -102,5 +102,24 @@ func (s *HgRepo) CheckLocal() bool {
 	}
 
 	return false
+}
 
+// Branches returns a list of available branches
+func (s *HgRepo) Branches() ([]string, error) {
+	out, err := s.runFromDir("hg", "branches")
+	if err != nil {
+		return []string{}, err
+	}
+	branches := s.referenceList(string(out), `(?m-s)^(\S+)`)
+	return branches, nil
+}
+
+// Tags returns a list of available tags
+func (s *HgRepo) Tags() ([]string, error) {
+	out, err := s.runFromDir("hg", "tags")
+	if err != nil {
+		return []string{}, err
+	}
+	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
+	return tags, nil
 }

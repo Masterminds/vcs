@@ -98,11 +98,28 @@ func TestHg(t *testing.T) {
 	}
 
 	v, err = repo.Version()
-	if v != "d680e82228d2" {
+	if v != "9c6ccbca73e8" {
 		t.Error("Error checking checked out Hg version")
 	}
 	if err != nil {
 		t.Error(err)
+	}
+
+	tags, err := repo.Tags()
+	if err != nil {
+		t.Error(err)
+	}
+	if tags[1] != "1.0.0" {
+		t.Error("Hg tags is not reporting the correct version")
+	}
+
+	branches, err := repo.Branches()
+	if err != nil {
+		t.Error(err)
+	}
+	// The branches should be HEAD, master, and test.
+	if branches[0] != "test" {
+		t.Error("Hg is incorrectly returning branches")
 	}
 
 }
