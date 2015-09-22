@@ -65,30 +65,25 @@ func (s SvnRepo) Vcs() Type {
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
 func (s *SvnRepo) Get() error {
-	return s.run("svn", "checkout", s.Remote(), s.LocalPath())
+	_, err := s.run("svn", "checkout", s.Remote(), s.LocalPath())
+	return err
 }
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-	return s.runFromDir("svn", "update")
+	_, err := s.runFromDir("svn", "update")
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via SVN.
 func (s *SvnRepo) UpdateVersion(version string) error {
-	return s.runFromDir("svn", "update", "-r", version)
+	_, err := s.runFromDir("svn", "update", "-r", version)
+	return err
 }
 
 // Version retrieves the current version.
 func (s *SvnRepo) Version() (string, error) {
-
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	os.Chdir(s.LocalPath())
-	defer os.Chdir(oldDir)
-
-	out, err := exec.Command("svnversion", ".").CombinedOutput()
+	out, err := s.runFromDir("svnversion", ".")
 	s.log(out)
 	if err != nil {
 		return "", err
@@ -104,4 +99,24 @@ func (s *SvnRepo) CheckLocal() bool {
 
 	return false
 
+}
+
+// Tags returns []string{} as there are no formal tags in SVN. Tags are a
+// convention in SVN. They are typically implemented as a copy of the trunk and
+// placed in the /tags/[tag name] directory. Since this is a convention the
+// expectation is to checkout a tag the correct subdirectory will be used
+// as the path. For more information see:
+// http://svnbook.red-bean.com/en/1.7/svn.branchmerge.tags.html
+func (s *SvnRepo) Tags() ([]string, error) {
+	return []string{}, nil
+}
+
+// Branches returns []string{} as there are no formal branches in SVN. Branches
+// are a convention. They are typically implemented as a copy of the trunk and
+// placed in the /branches/[tag name] directory. Since this is a convention the
+// expectation is to checkout a branch the correct subdirectory will be used
+// as the path. For more information see:
+// http://svnbook.red-bean.com/en/1.7/svn.branchmerge.using.html
+func (s *SvnRepo) Branches() ([]string, error) {
+	return []string{}, nil
 }

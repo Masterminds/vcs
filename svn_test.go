@@ -115,6 +115,22 @@ func TestSvn(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	tags, err := repo.Tags()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 0 {
+		t.Error("Svn is incorrectly returning tags")
+	}
+
+	branches, err := repo.Branches()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(branches) != 0 {
+		t.Error("Svn is incorrectly returning branches")
+	}
 }
 
 func TestSvnCheckLocal(t *testing.T) {

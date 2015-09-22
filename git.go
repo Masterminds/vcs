@@ -64,16 +64,18 @@ func (s GitRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	return s.run("git", "clone", s.Remote(), s.LocalPath())
+	_, err := s.run("git", "clone", s.Remote(), s.LocalPath())
+	return err
 }
 
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	err := s.runFromDir("git", "fetch", s.RemoteLocation)
+	_, err := s.runFromDir("git", "fetch", s.RemoteLocation)
 	if err != nil {
 		return err
 	}
+
 	// When in a detached head state, such as when an individual commit is checked
 	// out do not attempt a pull. It will cause an error.
 	detached, err := isDetachedHead(s.LocalPath())
@@ -86,30 +88,44 @@ func (s *GitRepo) Update() error {
 		return nil
 	}
 
-	return s.runFromDir("git", "pull")
+	_, err = s.runFromDir("git", "pull")
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
 func (s *GitRepo) UpdateVersion(version string) error {
-	return s.runFromDir("git", "checkout", version)
+	_, err := s.runFromDir("git", "checkout", version)
+	return err
 }
 
 // Version retrieves the current version.
 func (s *GitRepo) Version() (string, error) {
-
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	os.Chdir(s.LocalPath())
-	defer os.Chdir(oldDir)
-
-	out, err := exec.Command("git", "rev-parse", "HEAD").CombinedOutput()
+	out, err := s.runFromDir("git", "rev-parse", "HEAD")
 	if err != nil {
 		return "", err
 	}
 
 	return strings.TrimSpace(string(out)), nil
+}
+
+// Branches returns a list of available branches on the RemoteLocation
+func (s *GitRepo) Branches() ([]string, error) {
+	out, err := s.runFromDir("git", "show-ref")
+	if err != nil {
+		return []string{}, err
+	}
+	branches := s.referenceList(string(out), `(?m-s)(?:`+s.RemoteLocation+`)/(\S+)$`)
+	return branches, nil
+}
+
+// Tags returns a list of available tags on the RemoteLocation
+func (s *GitRepo) Tags() ([]string, error) {
+	out, err := s.runFromDir("git", "show-ref")
+	if err != nil {
+		return []string{}, err
+	}
+	tags := s.referenceList(string(out), `(?m-s)(?:tags)/(\S+)$`)
+	return tags, nil
 }
 
 // CheckLocal verifies the local location is a Git repo.
