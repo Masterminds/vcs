@@ -100,3 +100,23 @@ func (s *SvnRepo) CheckLocal() bool {
 	return false
 
 }
+
+// Tags returns []string{} as there are no formal tags in SVN. Tags are a
+// convention in SVN. They are typically implemented as a copy of the trunk and
+// placed in the /tags/[tag name] directory. Since this is a convention the
+// expectation is to checkout a tag the correct subdirectory will be used
+// as the path. For more information see:
+// http://svnbook.red-bean.com/en/1.7/svn.branchmerge.tags.html
+func (s *SvnRepo) Tags() ([]string, error) {
+	return []string{}, nil
+}
+
+// Branches returns []string{} as there are no formal branches in SVN. Branches
+// are a convention. They are typically implemented as a copy of the trunk and
+// placed in the /branches/[tag name] directory. Since this is a convention the
+// expectation is to checkout a branch the correct subdirectory will be used
+// as the path. For more information see:
+// http://svnbook.red-bean.com/en/1.7/svn.branchmerge.using.html
+func (s *SvnRepo) Branches() ([]string, error) {
+	return []string{}, nil
+}
