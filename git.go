@@ -137,6 +137,17 @@ func (s *GitRepo) CheckLocal() bool {
 	return false
 }
 
+// IsReference returns if a string is a reference. A reference can be a
+// commit id, branch, or tag.
+func (s *GitRepo) IsReference(r string) bool {
+	_, err := s.runFromDir("git", "rev-parse", r)
+	if err == nil {
+		return true
+	}
+
+	return false
+}
+
 func isDetachedHead(dir string) (bool, error) {
 	oldDir, err := os.Getwd()
 	if err != nil {

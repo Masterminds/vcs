@@ -121,6 +121,14 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr is incorrectly returning branches")
 	}
 
+	if repo.IsReference("1.0.0") != true {
+		t.Error("Bzr is reporting a reference is not one")
+	}
+
+	if repo.IsReference("foo") == true {
+		t.Error("Bzr is reporting a non-existant reference is one")
+	}
+
 }
 
 func TestBzrCheckLocal(t *testing.T) {

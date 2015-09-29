@@ -131,6 +131,14 @@ func TestSvn(t *testing.T) {
 	if len(branches) != 0 {
 		t.Error("Svn is incorrectly returning branches")
 	}
+
+	if repo.IsReference("r4") != true {
+		t.Error("Svn is reporting a reference is not one")
+	}
+
+	if repo.IsReference("55") == true {
+		t.Error("Svn is reporting a non-existant reference is one")
+	}
 }
 
 func TestSvnCheckLocal(t *testing.T) {

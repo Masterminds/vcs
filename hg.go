@@ -123,3 +123,14 @@ func (s *HgRepo) Tags() ([]string, error) {
 	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
 }
+
+// IsReference returns if a string is a reference. A reference can be a
+// commit id, branch, or tag.
+func (s *HgRepo) IsReference(r string) bool {
+	_, err := s.runFromDir("hg", "log", "-r", r)
+	if err == nil {
+		return true
+	}
+
+	return false
+}

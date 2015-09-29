@@ -120,3 +120,21 @@ func (s *SvnRepo) Tags() ([]string, error) {
 func (s *SvnRepo) Branches() ([]string, error) {
 	return []string{}, nil
 }
+
+// IsReference returns if a string is a reference. A reference is a commit id.
+// Branches and tags are part of the path.
+func (s *SvnRepo) IsReference(r string) bool {
+	out, err := s.runFromDir("svn", "log", "-r", r)
+
+	// This is a complete hack. There must be a better way to do this. Pull
+	// requests welcome. When the reference isn't real you get a line of
+	// repeated - followed by an empty line. If the reference is real there
+	// is commit information in addition to those. So, we look for responses
+	// over 2 lines long.
+	lines := strings.Split(string(out), "\n")
+	if err == nil && len(lines) > 2 {
+		return true
+	}
+
+	return false
+}

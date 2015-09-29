@@ -124,3 +124,14 @@ func (s *BzrRepo) Tags() ([]string, error) {
 	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
 }
+
+// IsReference returns if a string is a reference. A reference can be a
+// commit id or tag.
+func (s *BzrRepo) IsReference(r string) bool {
+	_, err := s.runFromDir("bzr", "revno", "-r", r)
+	if err == nil {
+		return true
+	}
+
+	return false
+}

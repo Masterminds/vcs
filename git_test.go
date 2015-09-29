@@ -140,6 +140,14 @@ func TestGit(t *testing.T) {
 		t.Error("Git is incorrectly returning branches")
 	}
 
+	if repo.IsReference("1.0.0") != true {
+		t.Error("Git is reporting a reference is not one")
+	}
+
+	if repo.IsReference("foo") == true {
+		t.Error("Git is reporting a non-existant reference is one")
+	}
+
 }
 
 func TestGitCheckLocal(t *testing.T) {

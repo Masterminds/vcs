@@ -105,6 +105,13 @@ type Repo interface {
 
 	// Tags returns a list of available tags on the repository.
 	Tags() ([]string, error)
+
+	// TODO: Provide a consistent manner to get reference information across
+	// multiple VCS.
+
+	// IsReference returns if a string is a reference. A reference can be a
+	// commit id, branch, or tag.
+	IsReference(string) bool
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
