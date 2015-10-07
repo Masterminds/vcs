@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -14,6 +15,20 @@ func ExampleNewRepo() {
 
 	repo.Vcs()
 	// Returns Git as this is a Git repo
+
+	err := repo.Get()
+	// Pulls down a repo, or a checkout in the case of SVN, and returns an
+	// error if that didn't happen successfully.
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = repo.UpdateVersion("master")
+	// Checkouts out a specific version. In most cases this can be a commit id,
+	// branch, or tag.
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestTypeSwitch(t *testing.T) {
