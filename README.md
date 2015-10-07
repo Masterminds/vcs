@@ -24,6 +24,18 @@ have their own type (e.g., `GitRepo`) that follow a simple naming pattern. Each
 type implements the `Repo` interface and has a constructor (e.g., `NewGitRepo`).
 The constructors have the same signature as `NewRepo`.
 
+## Features
+
+- Clone or checkout a repository depending on the version control system.
+- Pull updates to a repository.
+- Get the currently checked out commit id.
+- Checkout a commit id, branch, or tag (depending on the availability in the VCS).
+- Get a list of tags and branches in the VCS.
+- Check if a string value is a valid reference within the VCS.
+- More...
+
+For more details see [the documentation](https://godoc.org/github.com/Masterminds/vcs).
+
 ## Motivation
 
 The package `golang.org/x/tools/go/vcs` provides some valuable functionality
