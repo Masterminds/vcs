@@ -27,6 +27,7 @@ package vcs
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -179,6 +180,9 @@ func (b *base) setLocalPath(local string) {
 func (b base) run(cmd string, args ...string) ([]byte, error) {
 	out, err := exec.Command(cmd, args...).CombinedOutput()
 	b.log(out)
+	if err != nil {
+		err = fmt.Errorf("%s: %s", out, err)
+	}
 	return out, err
 }
 
