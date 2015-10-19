@@ -29,13 +29,10 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 	if err == nil && r.CheckLocal() == true {
 		// An Hg repo was found so test that the URL there matches
 		// the repo passed in here.
-		oldDir, err := os.Getwd()
-		if err != nil {
-			return nil, err
-		}
-		os.Chdir(local)
-		defer os.Chdir(oldDir)
-		out, err := exec.Command("hg", "paths").CombinedOutput()
+		c := exec.Command("hg", "paths")
+		c.Dir = local
+		c.Env = envForDir(c.Dir)
+		out, err := c.CombinedOutput()
 		if err != nil {
 			return nil, err
 		}

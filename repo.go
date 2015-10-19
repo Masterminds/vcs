@@ -33,6 +33,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -187,15 +188,10 @@ func (b base) run(cmd string, args ...string) ([]byte, error) {
 }
 
 func (b *base) runFromDir(cmd string, args ...string) ([]byte, error) {
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return []byte(""), err
-	}
-	os.Chdir(b.local)
-	defer os.Chdir(oldDir)
-
-	out, err := b.run(cmd, args...)
-
+	c := exec.Command(cmd, args...)
+	c.Dir = b.local
+	c.Env = envForDir(c.Dir)
+	out, err := c.CombinedOutput()
 	return out, err
 }
 
@@ -206,5 +202,25 @@ func (b *base) referenceList(c, r string) []string {
 		out = append(out, m[1])
 	}
 
+	return out
+}
+
+func envForDir(dir string) []string {
+	env := os.Environ()
+	return mergeEnvLists([]string{"PWD=" + dir}, env)
+}
+
+func mergeEnvLists(in, out []string) []string {
+NextVar:
+	for _, inkv := range in {
+		k := strings.SplitAfterN(inkv, "=", 2)[0]
+		for i, outkv := range out {
+			if strings.HasPrefix(outkv, k) {
+				out[i] = inkv
+				continue NextVar
+			}
+		}
+		out = append(out, inkv)
+	}
 	return out
 }

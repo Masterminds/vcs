@@ -32,13 +32,10 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	// the change from https to http and the path chance.
 	// Here we set the remote to be the local one if none is passed in.
 	if err == nil && r.CheckLocal() == true && remote == "" {
-		oldDir, err := os.Getwd()
-		if err != nil {
-			return nil, err
-		}
-		os.Chdir(local)
-		defer os.Chdir(oldDir)
-		out, err := exec.Command("bzr", "info").CombinedOutput()
+		c := exec.Command("bzr", "info")
+		c.Dir = local
+		c.Env = envForDir(c.Dir)
+		out, err := c.CombinedOutput()
 		if err != nil {
 			return nil, err
 		}

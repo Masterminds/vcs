@@ -25,13 +25,10 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 	// Make sure the local Git repo is configured the same as the remote when
 	// A remote value was passed in.
 	if err == nil && r.CheckLocal() == true {
-		oldDir, err := os.Getwd()
-		if err != nil {
-			return nil, err
-		}
-		os.Chdir(local)
-		defer os.Chdir(oldDir)
-		out, err := exec.Command("git", "config", "--get", "remote.origin.url").CombinedOutput()
+		c := exec.Command("git", "config", "--get", "remote.origin.url")
+		c.Dir = local
+		c.Env = envForDir(c.Dir)
+		out, err := c.CombinedOutput()
 		if err != nil {
 			return nil, err
 		}
@@ -149,13 +146,10 @@ func (s *GitRepo) IsReference(r string) bool {
 }
 
 func isDetachedHead(dir string) (bool, error) {
-	oldDir, err := os.Getwd()
-	if err != nil {
-		return false, err
-	}
-	os.Chdir(dir)
-	defer os.Chdir(oldDir)
-	out, err := exec.Command("git", "status", "-uno").CombinedOutput()
+	c := exec.Command("git", "status", "-uno")
+	c.Dir = dir
+	c.Env = envForDir(c.Dir)
+	out, err := c.CombinedOutput()
 	if err != nil {
 		return false, err
 	}
