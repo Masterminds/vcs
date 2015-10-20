@@ -1,3 +1,7 @@
+# 1.1.2 (2015-10-20)
+
+- Fixes #7: hg not checking out code when Get is called
+
 # 1.1.1 (2015-10-20)
 
 - Issue #6: Allow VCS commands to be run concurrently.
