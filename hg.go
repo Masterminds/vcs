@@ -64,7 +64,7 @@ func (s HgRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
-	_, err := s.run("hg", "clone", "-U", s.Remote(), s.LocalPath())
+	_, err := s.run("hg", "clone", s.Remote(), s.LocalPath())
 	return err
 }
 
@@ -76,7 +76,11 @@ func (s *HgRepo) Update() error {
 
 // UpdateVersion sets the version of a package currently checked out via Hg.
 func (s *HgRepo) UpdateVersion(version string) error {
-	_, err := s.runFromDir("hg", "update", version)
+	_, err := s.runFromDir("hg", "pull")
+	if err != nil {
+		return err
+	}
+	_, err = s.runFromDir("hg", "update", version)
 	return err
 }
 
