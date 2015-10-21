@@ -269,7 +269,9 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 		t, err = d.Token()
 		if err != nil {
 			if err == io.EOF {
-				err = nil
+				// When the end is reached it could not detect a VCS if it
+				// got here.
+				err = ErrCannotDetectVCS
 			}
 			return
 		}
@@ -287,45 +289,29 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 			continue
 		}
 		if f := strings.Fields(attrValue(e.Attr, "content")); len(f) == 3 {
-
-			// If this the second time a go-import statement has been detected
-			// return an error. There should only be one import statement per
-			// html file. We don't simply return the first found in order to
-			// detect pages including more than one.
-			// Should this be a different error?
-			if tp != "" || u != "" {
-				tp = NoVCS
-				u = ""
-				err = ErrCannotDetectVCS
-				return
-			}
-
 			// If the prefix supplied by the remote system isn't a prefix to the
-			// url we're fetching return an error. This will work for exact
-			// matches and prefixes. For example, golang.org/x/net as a prefix
-			// will match for golang.org/x/net and golang.org/x/net/context.
-			// Should this be a different error?
+			// url we're fetching continue to look for other imports.
+			// This will work for exact matches and prefixes. For example,
+			// golang.org/x/net as a prefix will match for golang.org/x/net and
+			// golang.org/x/net/context.
 			vcsURL := ur.Host + ur.Path
 			if !strings.HasPrefix(vcsURL, f[0]) {
-				err = ErrCannotDetectVCS
+				continue
+			} else {
+				switch Type(f[1]) {
+				case Git:
+					tp = Git
+				case Svn:
+					tp = Svn
+				case Bzr:
+					tp = Bzr
+				case Hg:
+					tp = Hg
+				}
+
+				u = f[2]
 				return
 			}
-
-			// We check to make sure the string in the html document is one of
-			// the VCS we support. Do not want to blindly trust a string value
-			// in an HTML doc.
-			switch Type(f[1]) {
-			case Git:
-				tp = Git
-			case Svn:
-				tp = Svn
-			case Bzr:
-				tp = Bzr
-			case Hg:
-				tp = Hg
-			}
-
-			u = f[2]
 		}
 	}
 }
