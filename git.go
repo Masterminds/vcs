@@ -137,7 +137,15 @@ func (s *GitRepo) CheckLocal() bool {
 // IsReference returns if a string is a reference. A reference can be a
 // commit id, branch, or tag.
 func (s *GitRepo) IsReference(r string) bool {
-	_, err := s.runFromDir("git", "rev-parse", r)
+	_, err := s.runFromDir("git", "rev-parse", "--verify", r)
+	if err == nil {
+		return true
+	}
+
+	// Some refs will fail rev-parse. For example, a remote branch that has
+	// not been checked out yet. This next step should pickup the other
+	// possible references.
+	_, err = s.runFromDir("git", "show-ref", r)
 	if err == nil {
 		return true
 	}

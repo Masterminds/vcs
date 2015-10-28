@@ -1,3 +1,8 @@
+# 1.1.4 (2015-10-28)
+
+- Fixed #8: Git IsReference not detecting branches that have not been checked
+  out yet.
+
 # 1.1.3 (2015-10-21)
 
 - Fixing issue where there are multiple go-import statements for go redirects
