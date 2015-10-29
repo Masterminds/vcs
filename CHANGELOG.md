@@ -1,3 +1,7 @@
+# 1.2.0 (2015-10-29)
+
+- Adding IsDirty method to detect a checkout with uncommitted changes.
+
 # 1.1.4 (2015-10-28)
 
 - Fixed #8: Git IsReference not detecting branches that have not been checked
