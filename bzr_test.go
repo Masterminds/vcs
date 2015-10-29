@@ -129,6 +129,10 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr is reporting a non-existant reference is one")
 	}
 
+	if repo.IsDirty() == true {
+		t.Error("Bzr incorrectly reporting dirty")
+	}
+
 }
 
 func TestBzrCheckLocal(t *testing.T) {

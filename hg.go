@@ -135,3 +135,10 @@ func (s *HgRepo) IsReference(r string) bool {
 
 	return false
 }
+
+// IsDirty returns if the checkout has been modified from the checked
+// out reference.
+func (s *HgRepo) IsDirty() bool {
+	out, err := s.runFromDir("hg", "diff")
+	return err != nil || len(out) != 0
+}

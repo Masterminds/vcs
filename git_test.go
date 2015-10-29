@@ -148,6 +148,10 @@ func TestGit(t *testing.T) {
 		t.Error("Git is reporting a non-existant reference is one")
 	}
 
+	if repo.IsDirty() == true {
+		t.Error("Git incorrectly reporting dirty")
+	}
+
 }
 
 func TestGitCheckLocal(t *testing.T) {

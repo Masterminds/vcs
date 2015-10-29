@@ -139,6 +139,10 @@ func TestSvn(t *testing.T) {
 	if repo.IsReference("55") == true {
 		t.Error("Svn is reporting a non-existant reference is one")
 	}
+
+	if repo.IsDirty() == true {
+		t.Error("Svn incorrectly reporting dirty")
+	}
 }
 
 func TestSvnCheckLocal(t *testing.T) {

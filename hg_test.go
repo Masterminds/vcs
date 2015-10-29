@@ -123,15 +123,19 @@ func TestHg(t *testing.T) {
 	}
 
 	if repo.IsReference("1.0.0") != true {
-		t.Error("Git is reporting a reference is not one")
+		t.Error("Hg is reporting a reference is not one")
 	}
 
 	if repo.IsReference("test") != true {
-		t.Error("Git is reporting a reference is not one")
+		t.Error("Hg is reporting a reference is not one")
 	}
 
 	if repo.IsReference("foo") == true {
-		t.Error("Git is reporting a non-existant reference is one")
+		t.Error("Hg is reporting a non-existant reference is one")
+	}
+
+	if repo.IsDirty() == true {
+		t.Error("Hg incorrectly reporting dirty")
 	}
 
 }

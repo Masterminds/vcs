@@ -138,3 +138,10 @@ func (s *SvnRepo) IsReference(r string) bool {
 
 	return false
 }
+
+// IsDirty returns if the checkout has been modified from the checked
+// out reference.
+func (s *SvnRepo) IsDirty() bool {
+	out, err := s.runFromDir("svn", "diff")
+	return err != nil || len(out) != 0
+}

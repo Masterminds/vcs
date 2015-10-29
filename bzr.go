@@ -132,3 +132,10 @@ func (s *BzrRepo) IsReference(r string) bool {
 
 	return false
 }
+
+// IsDirty returns if the checkout has been modified from the checked
+// out reference.
+func (s *BzrRepo) IsDirty() bool {
+	out, err := s.runFromDir("bzr", "diff")
+	return err != nil || len(out) != 0
+}

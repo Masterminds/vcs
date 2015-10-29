@@ -153,6 +153,13 @@ func (s *GitRepo) IsReference(r string) bool {
 	return false
 }
 
+// IsDirty returns if the checkout has been modified from the checked
+// out reference.
+func (s *GitRepo) IsDirty() bool {
+	out, err := s.runFromDir("git", "diff")
+	return err != nil || len(out) != 0
+}
+
 func isDetachedHead(dir string) (bool, error) {
 	c := exec.Command("git", "status", "-uno")
 	c.Dir = dir

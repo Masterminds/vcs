@@ -114,6 +114,10 @@ type Repo interface {
 	// IsReference returns if a string is a reference. A reference can be a
 	// commit id, branch, or tag.
 	IsReference(string) bool
+
+	// IsDirty returns if the checkout has been modified from the checked
+	// out reference.
+	IsDirty() bool
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
