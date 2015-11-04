@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var svnDetectURL = regexp.MustCompile("URL: (?P<foo>.+)\n")
@@ -89,6 +90,24 @@ func (s *SvnRepo) Version() (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+// Date retrieves last commit date.
+func (s *SvnRepo) Date() (time.Time, error) {
+	version, err := s.Version()
+	if err != nil {
+		return time.Time{}, err
+	}
+	out, err := s.runFromDir("svn", "pget", "svn:date", "--revprop", "-r", version)
+	if err != nil {
+		return time.Time{}, err
+	}
+	const longForm = "2006-01-02T15:04:05.000000Z\n"
+	t, err := time.Parse(longForm, string(out))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return t, nil
 }
 
 // CheckLocal verifies the local location is an SVN repo.
