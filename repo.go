@@ -62,6 +62,8 @@ func init() {
 	Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
 }
 
+const longForm = "2006-01-02 15:04:05 -0700"
+
 // Type describes the type of VCS
 type Type string
 
@@ -100,7 +102,7 @@ type Repo interface {
 	// Version retrieves the current version.
 	Version() (string, error)
 
-	// Date retrieves last commit date.
+	// Date retrieves the date on the latest commit.
 	Date() (time.Time, error)
 
 	// CheckLocal verifies the local location is of the correct VCS type

@@ -1,3 +1,7 @@
+# 1.3.0 (2015-11-09)
+
+- Issue #9: Added Date method to get the date/time of latest commit (thanks kamilchm).
+
 # 1.2.0 (2015-10-29)
 
 - Adding IsDirty method to detect a checkout with uncommitted changes.

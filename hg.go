@@ -97,7 +97,7 @@ func (s *HgRepo) Version() (string, error) {
 	return strings.TrimSpace(sha), nil
 }
 
-// Date retrieves last commit date.
+// Date retrieves the date on the latest commit.
 func (s *HgRepo) Date() (time.Time, error) {
 	version, err := s.Version()
 	if err != nil {
@@ -107,7 +107,6 @@ func (s *HgRepo) Date() (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	const longForm = "2006-01-02 15:04:05 -0700"
 	t, err := time.Parse(longForm, string(out))
 	if err != nil {
 		return time.Time{}, err

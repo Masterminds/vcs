@@ -92,7 +92,7 @@ func (s *SvnRepo) Version() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// Date retrieves last commit date.
+// Date retrieves the date on the latest commit.
 func (s *SvnRepo) Date() (time.Time, error) {
 	version, err := s.Version()
 	if err != nil {

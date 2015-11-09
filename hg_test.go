@@ -96,7 +96,7 @@ func TestHg(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if d.Format("2006-01-02 15:04:05 -0700") != "2015-07-30 16:14:08 -0400" {
+	if d.Format(longForm) != "2015-07-30 16:14:08 -0400" {
 		t.Error("Error checking checked out Hg commit date. Got wrong date:", d)
 	}
 

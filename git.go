@@ -106,13 +106,12 @@ func (s *GitRepo) Version() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// Date retrieves last commit date.
+// Date retrieves the date on the latest commit.
 func (s *GitRepo) Date() (time.Time, error) {
 	out, err := s.runFromDir("git", "log", "-1", "--date=iso", "--pretty=format:%cd")
 	if err != nil {
 		return time.Time{}, err
 	}
-	const longForm = "2006-01-02 15:04:05 -0700"
 	t, err := time.Parse(longForm, string(out))
 	if err != nil {
 		return time.Time{}, err
