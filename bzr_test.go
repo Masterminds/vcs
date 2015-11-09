@@ -91,6 +91,15 @@ func TestBzr(t *testing.T) {
 		t.Error(err)
 	}
 
+	// Use Date to verify we are on the right commit.
+	d, err := repo.Date()
+	if d.Format("2006-01-02 15:04:05 -0700") != "2015-07-31 09:50:42 -0400" {
+		t.Error("Error checking checked out Bzr commit date")
+	}
+	if err != nil {
+		t.Error(err)
+	}
+
 	// Perform an update.
 	err = repo.Update()
 	if err != nil {

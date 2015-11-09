@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var hgDetectURL = regexp.MustCompile("default = (?P<foo>.+)\n")
@@ -94,6 +95,24 @@ func (s *HgRepo) Version() (string, error) {
 	parts := strings.SplitN(string(out), " ", 2)
 	sha := parts[0]
 	return strings.TrimSpace(sha), nil
+}
+
+// Date retrieves last commit date.
+func (s *HgRepo) Date() (time.Time, error) {
+	version, err := s.Version()
+	if err != nil {
+		return time.Time{}, err
+	}
+	out, err := s.runFromDir("hg", "log", "-r", version, "--template", "{date|isodatesec}")
+	if err != nil {
+		return time.Time{}, err
+	}
+	const longForm = "2006-01-02 15:04:05 -0700"
+	t, err := time.Parse(longForm, string(out))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return t, nil
 }
 
 // CheckLocal verifies the local location is a Git repo.

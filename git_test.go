@@ -106,6 +106,15 @@ func TestGit(t *testing.T) {
 		t.Error(err)
 	}
 
+	// Use Date to verify we are on the right commit.
+	d, err := repo.Date()
+	if d.Format("2006-01-02 15:04:05 -0700") != "2015-07-29 09:46:39 -0400" {
+		t.Error("Error checking checked out Git commit date")
+	}
+	if err != nil {
+		t.Error(err)
+	}
+
 	// Verify that we can set the version something other than short hash
 	err = repo.UpdateVersion("master")
 	if err != nil {

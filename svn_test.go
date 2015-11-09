@@ -116,6 +116,15 @@ func TestSvn(t *testing.T) {
 		t.Error(err)
 	}
 
+	// Use Date to verify we are on the right commit.
+	d, err := repo.Date()
+	if d.Format("2006-01-02 15:04:05 -0700") != "2015-07-29 13:47:03 +0000" {
+		t.Error("Error checking checked out Svn commit date")
+	}
+	if err != nil {
+		t.Error(err)
+	}
+
 	tags, err := repo.Tags()
 	if err != nil {
 		t.Error(err)

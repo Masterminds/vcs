@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var bzrDetectURL = regexp.MustCompile("parent branch: (?P<foo>.+)\n")
@@ -92,6 +93,20 @@ func (s *BzrRepo) Version() (string, error) {
 	}
 
 	return strings.TrimSpace(string(out)), nil
+}
+
+// Date retrieves last commit date.
+func (s *BzrRepo) Date() (time.Time, error) {
+	out, err := s.runFromDir("bzr", "version-info", "--custom", "--template={date}")
+	if err != nil {
+		return time.Time{}, err
+	}
+	const longForm = "2006-01-02 15:04:05 -0700"
+	t, err := time.Parse(longForm, string(out))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return t, nil
 }
 
 // CheckLocal verifies the local location is a Bzr repo.
