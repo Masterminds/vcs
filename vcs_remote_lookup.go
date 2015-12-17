@@ -24,7 +24,7 @@ var vcsList = []*vcsInfo{
 	{
 		host:    "github.com",
 		vcs:     Git,
-		pattern: `^(github\.com/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)*$`,
+		pattern: `^(github\.com[/|:][A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)*$`,
 	},
 	{
 		host:     "bitbucket.org",
