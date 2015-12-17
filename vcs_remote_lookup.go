@@ -121,6 +121,14 @@ func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 
 // From a remote vcs url attempt to detect the VCS.
 func detectVcsFromURL(vcsURL string) (Type, error) {
+	vcsURL = strings.Replace(vcsURL, ":", "/", 1)
+	vcsURL = strings.Replace(vcsURL, "git@", "", 1)
+	vcsURL = strings.Replace(vcsURL, ".git", "", 1)
+
+	if !strings.Contains(vcsURL, "://") {
+		vcsURL = "https://" + vcsURL
+	}
+
 	u, err := url.Parse(vcsURL)
 	if err != nil {
 		return "", err
