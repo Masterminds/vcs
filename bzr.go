@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"path"
 	"os"
 	"os/exec"
 	"regexp"
@@ -24,6 +25,11 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.Logger = Logger
+	
+	basePath := path.Join(r.LocalPath(), "..")
+	if _, err := os.Stat(basePath); err != nil {
+		err = os.MkdirAll(basePath, 0777)
+	}
 
 	// With the other VCS we can check if the endpoint locally is different
 	// from the one configured internally. But, with Bzr you can't. For example,
