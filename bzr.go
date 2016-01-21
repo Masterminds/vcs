@@ -25,11 +25,6 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.Logger = Logger
-	
-	basePath := path.Join(r.LocalPath(), "..")
-	if _, err := os.Stat(basePath); err != nil {
-		err = os.MkdirAll(basePath, 0777)
-	}
 
 	// With the other VCS we can check if the endpoint locally is different
 	// from the one configured internally. But, with Bzr you can't. For example,
@@ -70,6 +65,12 @@ func (s BzrRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
+
+	basePath := path.Join(s.LocalPath(), "..")
+	if _, err := os.Stat(basePath); err != nil {
+		err = os.MkdirAll(basePath, 0755)
+	}
+	
 	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
 	return err
 }
