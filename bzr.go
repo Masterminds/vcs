@@ -1,9 +1,9 @@
 package vcs
 
 import (
-	"path"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -66,11 +66,13 @@ func (s BzrRepo) Vcs() Type {
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
 
-	basePath := path.Join(s.LocalPath(), "..")
+	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
 	if _, err := os.Stat(basePath); err != nil {
-		err = os.MkdirAll(basePath, 0755)
+		if os.IsNotExist(err) {
+			err = os.MkdirAll(basePath, 0755)
+		}
 	}
-	
+
 	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
 	return err
 }
