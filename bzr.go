@@ -67,10 +67,8 @@ func (s BzrRepo) Vcs() Type {
 func (s *BzrRepo) Get() error {
 
 	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-	if _, err := os.Stat(basePath); err != nil {
-		if os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-		}
+	if _, err := os.Stat(basePath); os.IsNotExist(err) {
+		err = os.MkdirAll(basePath, 0755)
 	}
 
 	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())

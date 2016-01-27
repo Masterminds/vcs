@@ -1,3 +1,8 @@
+# 1.3.1 (2016-01-27)
+
+- Issue #12: Failed to checkout Bzr repo when parent directory didn't
+  exist (thanks cyrilleverrier).
+
 # 1.3.0 (2015-11-09)
 
 - Issue #9: Added Date method to get the date/time of latest commit (thanks kamilchm).
