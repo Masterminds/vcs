@@ -20,8 +20,6 @@ func TestVCSLookup(t *testing.T) {
 		"https://git.launchpad.net/~mattfarina/+git/mygovcstestgitrepo":    {work: true, t: Git},
 		"http://farbtastic.googlecode.com/svn/":                            {work: true, t: Svn},
 		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: Svn},
-		"https://code.google.com/p/farbtastic":                             {work: false, t: Svn},
-		"https://code.google.com/p/plotinum":                               {work: true, t: Hg},
 		"https://example.com/foo/bar.git":                                  {work: true, t: Git},
 		"https://example.com/foo/bar.svn":                                  {work: true, t: Svn},
 		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: Bzr},
