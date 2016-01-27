@@ -15,8 +15,6 @@ install:
   - choco install -y bzr
   - set PATH=C:\Program Files (x86)\Bazaar;%PATH%
   - bzr --version
-  - choco install -y svn
-  - set PATH=C:\Program Files (x86)\Subversion\bin;%PATH%
 
 build_script:
   - go install -v ./...
