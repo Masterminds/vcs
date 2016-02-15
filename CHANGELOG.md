@@ -1,3 +1,7 @@
+# 1.4.0 (2016-02-15)
+
+- Adding support for IBM JazzHub.
+
 # 1.3.1 (2016-01-27)
 
 - Issue #12: Failed to checkout Bzr repo when parent directory didn't
