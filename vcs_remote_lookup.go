@@ -20,6 +20,10 @@ type vcsInfo struct {
 	regex    *regexp.Regexp
 }
 
+// scpSyntaxRe matches the SCP-like addresses used by Git to access
+// repositories by SSH.
+var scpSyntaxRe = regexp.MustCompile(`^([a-zA-Z0-9_]+)@([a-zA-Z0-9._-]+):(.*)$`)
+
 var vcsList = []*vcsInfo{
 	{
 		host:    "github.com",
@@ -121,22 +125,28 @@ func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 
 // From a remote vcs url attempt to detect the VCS.
 func detectVcsFromURL(vcsURL string) (Type, error) {
-	vcsURL = strings.Replace(vcsURL, ":", "/", 1)
-	vcsURL = strings.Replace(vcsURL, "git@", "", 1)
-	vcsURL = strings.Replace(vcsURL, ".git", "", 1)
 
-	if !strings.Contains(vcsURL, "://") {
-		vcsURL = "https://" + vcsURL
+	var u *url.URL
+	var err error
+
+	if m := scpSyntaxRe.FindStringSubmatch(vcsURL); m != nil {
+		// Match SCP-like syntax and convert it to a URL.
+		// Eg, "git@github.com:user/repo" becomes
+		// "ssh://git@github.com/user/repo".
+		u = &url.URL{
+			Scheme:  "ssh",
+			User:    url.User(m[1]),
+			Host:    m[2],
+			RawPath: m[3],
+			Path:    "/" + m[3],
+		}
+	} else {
+		u, err = url.Parse(vcsURL)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	u, err := url.Parse(vcsURL)
-	if err != nil {
-		return "", err
-	}
-
-	// If there is no host found we cannot detect the VCS from
-	// the url. Note, URIs beginning with git@github using the ssh
-	// syntax fail this check.
 	if u.Host == "" {
 		return "", ErrCannotDetectVCS
 	}
