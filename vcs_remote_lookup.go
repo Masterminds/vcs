@@ -137,7 +137,6 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 			Scheme:  "ssh",
 			User:    url.User(m[1]),
 			Host:    m[2],
-			RawPath: m[3],
 			Path:    "/" + m[3],
 		}
 	} else {
