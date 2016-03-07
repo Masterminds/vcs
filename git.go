@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"path/filepath"
 )
 
 // NewGitRepo creates a new instance of GitRepo. The remote and local directories
@@ -62,6 +63,10 @@ func (s GitRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
+	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
+	if _, err := os.Stat(basePath); os.IsNotExist(err) {
+		err = os.MkdirAll(basePath, 0755)
+	}
 	_, err := s.run("git", "clone", s.Remote(), s.LocalPath())
 	return err
 }
