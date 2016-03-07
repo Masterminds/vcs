@@ -1,3 +1,7 @@
+# 1.4.1 (2016-03-07)
+
+- Fixes #16: some windows situations are unable to create parent directory.
+
 # 1.4.0 (2016-02-15)
 
 - Adding support for IBM JazzHub.
