@@ -3,6 +3,7 @@ package vcs
 import (
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -63,6 +64,25 @@ func (s GitRepo) Vcs() Type {
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
 	_, err := s.run("git", "clone", s.Remote(), s.LocalPath())
+
+	// There are some windows cases where Git cannot create the parent directory,
+	// if it does not already exist, to the location it's trying to create the
+	// repo. Catch that error and try to handle it.
+	if err != nil && s.isUnableToCreateDir(err) {
+
+		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
+		if _, err := os.Stat(basePath); os.IsNotExist(err) {
+			err = os.MkdirAll(basePath, 0755)
+			if err != nil {
+				return err
+			}
+
+			_, err = s.run("git", "clone", s.Remote(), s.LocalPath())
+			return err
+		}
+
+	}
+
 	return err
 }
 
@@ -185,4 +205,21 @@ func isDetachedHead(dir string) (bool, error) {
 	detached := strings.Contains(string(out), "HEAD detached at")
 
 	return detached, nil
+}
+
+// In a multi-langual manner check for the Git error that it couldn't create
+// the directory.
+func (s *GitRepo) isUnableToCreateDir(err error) bool {
+	msg := err.Error()
+	if strings.HasPrefix(msg, "could not create work tree dir") ||
+		strings.HasPrefix(msg, "不能创建工作区目录") ||
+		strings.HasPrefix(msg, "no s'ha pogut crear el directori d'arbre de treball") ||
+		strings.HasPrefix(msg, "impossible de créer le répertoire de la copie de travail") ||
+		strings.HasPrefix(msg, "kunde inte skapa arbetskatalogen") ||
+		(strings.HasPrefix(msg, "Konnte Arbeitsverzeichnis") && strings.Contains(msg, "nicht erstellen")) ||
+		(strings.HasPrefix(msg, "작업 디렉터리를") && strings.Contains(msg, "만들 수 없습니다")) {
+		return true
+	}
+
+	return false
 }
