@@ -10,7 +10,7 @@ import (
 // Canary test to ensure GitRepo implements the Repo interface.
 var _ Repo = &GitRepo{}
 
-// To verify git is working we perform intergration testing
+// To verify git is working we perform integration testing
 // with a known git service.
 
 func TestGit(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 // Canary test to ensure BzrRepo implements the Repo interface.
 var _ Repo = &BzrRepo{}
 
-// To verify bzr is working we perform intergration testing
+// To verify bzr is working we perform integration testing
 // with a known bzr service. Due to the long time of repeatedly checking out
 // repos these tests are structured to work together.
 

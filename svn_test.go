@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// To verify svn is working we perform intergration testing
+// To verify svn is working we perform integration testing
 // with a known svn service.
 
 // Canary test to ensure SvnRepo implements the Repo interface.

@@ -10,7 +10,7 @@ import (
 // Canary test to ensure HgRepo implements the Repo interface.
 var _ Repo = &HgRepo{}
 
-// To verify hg is working we perform intergration testing
+// To verify hg is working we perform integration testing
 // with a known hg service.
 
 func TestHg(t *testing.T) {
