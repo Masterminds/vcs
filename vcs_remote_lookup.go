@@ -16,7 +16,7 @@ type vcsInfo struct {
 	host     string
 	pattern  string
 	vcs      Type
-	addCheck func(m map[string]string) (Type, error)
+	addCheck func(m map[string]string, u *url.URL) (Type, error)
 	regex    *regexp.Regexp
 }
 
@@ -139,10 +139,10 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 		// Eg, "git@github.com:user/repo" becomes
 		// "ssh://git@github.com/user/repo".
 		u = &url.URL{
-			Scheme:  "ssh",
-			User:    url.User(m[1]),
-			Host:    m[2],
-			Path:    "/" + m[3],
+			Scheme: "ssh",
+			User:   url.User(m[1]),
+			Host:   m[2],
+			Path:   "/" + m[3],
 		}
 	} else {
 		u, err = url.Parse(vcsURL)
@@ -153,6 +153,16 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 
 	if u.Host == "" {
 		return "", ErrCannotDetectVCS
+	}
+
+	// Try to detect from the scheme
+	switch u.Scheme {
+	case "git+ssh":
+		return Git, nil
+	case "bzr+ssh":
+		return Bzr, nil
+	case "svn+ssh":
+		return Svn, nil
 	}
 
 	// Try to detect from known hosts, such as Github
@@ -188,7 +198,7 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 				info[name] = m[i]
 			}
 		}
-		t, err := v.addCheck(info)
+		t, err := v.addCheck(info, u)
 		if err != nil {
 			return "", ErrCannotDetectVCS
 		}
@@ -201,8 +211,20 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 	return "", ErrCannotDetectVCS
 }
 
-// Bitbucket provides an API for checking the VCS.
-func checkBitbucket(i map[string]string) (Type, error) {
+// Figure out the type for Bitbucket by the passed in information
+// or via the public API.
+func checkBitbucket(i map[string]string, ul *url.URL) (Type, error) {
+
+	// Fast path for ssh urls where we may not even be able to
+	// anonymously get details from the API.
+	if ul.User != nil {
+		un := ul.User.Username()
+		if un == "git" {
+			return Git, nil
+		} else if un == "hg" {
+			return Hg, nil
+		}
+	}
 
 	// The part of the response we care about.
 	var response struct {
@@ -226,7 +248,7 @@ func checkBitbucket(i map[string]string) (Type, error) {
 // Google supports Git, Hg, and Svn. The SVN style is only
 // supported through their legacy setup at <project>.googlecode.com.
 // I wonder if anyone is actually using SVN support.
-func checkGoogle(i map[string]string) (Type, error) {
+func checkGoogle(i map[string]string, u *url.URL) (Type, error) {
 
 	// To figure out which of the VCS types is used in Google Code you need
 	// to parse a web page and find it. Ugh. I mean... ugh.
@@ -255,7 +277,7 @@ func checkGoogle(i map[string]string) (Type, error) {
 }
 
 // Expect a type key on i with the exact type detected from the regex.
-func checkURL(i map[string]string) (Type, error) {
+func checkURL(i map[string]string, u *url.URL) (Type, error) {
 	return Type(i["type"]), nil
 }
 
