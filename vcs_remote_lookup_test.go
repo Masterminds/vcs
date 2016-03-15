@@ -30,6 +30,7 @@ func TestVCSLookup(t *testing.T) {
 		"https://golang.org/x/net":                                         {work: true, t: Git},
 		"https://speter.net/go/exp/math/dec/inf":                           {work: true, t: Git},
 		"git@github.com:Masterminds/vcs.git":                               {work: true, t: Git},
+		"git@example.com:foo.git":                                          {work: true, t: Git},
 	}
 
 	for u, c := range urlList {
