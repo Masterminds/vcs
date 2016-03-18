@@ -37,6 +37,8 @@ func TestVCSLookup(t *testing.T) {
 		"git+ssh://example.com/foo/bar":                                    {work: true, t: Git},
 		"bzr+ssh://example.com/foo/bar":                                    {work: true, t: Bzr},
 		"svn+ssh://example.com/foo/bar":                                    {work: true, t: Svn},
+		"git@example.com:foo/bar":                                          {work: true, t: Git},
+		"hg@example.com:foo/bar":                                           {work: true, t: Hg},
 	}
 
 	for u, c := range urlList {

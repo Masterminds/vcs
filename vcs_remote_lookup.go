@@ -204,7 +204,16 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 		}
 
 		return t, nil
+	}
 
+	// Attempt to ascertain from the username passed in.
+	if u.User != nil {
+		un := u.User.Username()
+		if un == "git" {
+			return Git, nil
+		} else if un == "hg" {
+			return Hg, nil
+		}
 	}
 
 	// Unable to determine the vcs from the url.
