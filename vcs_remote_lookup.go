@@ -159,6 +159,8 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 	switch u.Scheme {
 	case "git+ssh":
 		return Git, nil
+	case "git":
+		return Git, nil
 	case "bzr+ssh":
 		return Bzr, nil
 	case "svn+ssh":

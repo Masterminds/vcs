@@ -35,6 +35,7 @@ func TestVCSLookup(t *testing.T) {
 		"ssh://hg@bitbucket.org/mattfarina/testhgrepo":                     {work: true, t: Hg},
 		"git@bitbucket.org:mattfarina/glide-bitbucket-example.git":         {work: true, t: Git},
 		"git+ssh://example.com/foo/bar":                                    {work: true, t: Git},
+		"git://example.com/foo/bar":                                        {work: true, t: Git},
 		"bzr+ssh://example.com/foo/bar":                                    {work: true, t: Bzr},
 		"svn+ssh://example.com/foo/bar":                                    {work: true, t: Svn},
 		"git@example.com:foo/bar":                                          {work: true, t: Git},
