@@ -124,6 +124,9 @@ type Repo interface {
 	// IsDirty returns if the checkout has been modified from the checked
 	// out reference.
 	IsDirty() bool
+
+	// CommitInfo retrieves metadata about a commit.
+	//CommitInfo(string) (*CommitInfo, error)
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
@@ -159,6 +162,21 @@ func NewRepo(remote, local string) (Repo, error) {
 
 	// Should never fall through to here but just in case.
 	return nil, ErrCannotDetectVCS
+}
+
+// CommitInfo contains metadata about a commit.
+type CommitInfo struct {
+	// The commit id
+	Commit string
+
+	// Who authored the commit
+	Author string
+
+	// Date of the commit
+	Date time.Time
+
+	// Commit message
+	Message string
 }
 
 type base struct {

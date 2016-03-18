@@ -161,6 +161,19 @@ func TestGit(t *testing.T) {
 		t.Error("Git incorrectly reporting dirty")
 	}
 
+	ci, err := repo.CommitInfo("806b07b08faa21cfbdae93027904f80174679402")
+	if err != nil {
+		t.Error(err)
+	}
+	if ci.Commit != "806b07b08faa21cfbdae93027904f80174679402" {
+		t.Error("Git.CommitInfo wrong commit id")
+	}
+	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
+		t.Error("Git.CommitInfo wrong author")
+	}
+	if ci.Message != "Update-README.md" {
+		t.Error("Git.CommitInfo wrong message")
+	}
 }
 
 func TestGitCheckLocal(t *testing.T) {

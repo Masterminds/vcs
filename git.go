@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -192,6 +193,41 @@ func (s *GitRepo) IsReference(r string) bool {
 func (s *GitRepo) IsDirty() bool {
 	out, err := s.runFromDir("git", "diff")
 	return err != nil || len(out) != 0
+}
+
+// CommitInfo retrieves metadata about a commit.
+func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
+	fm := `--pretty=format:{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%aD",%n  "message": "%f"%n}`
+	out, err := s.runFromDir("git", "show", fm, id)
+	if err != nil {
+		return nil, err
+	}
+
+	cis := struct {
+		Commit  string `json:"commit"`
+		Author  string `json:"author"`
+		Date    string `json:"date"`
+		Message string `json:"message"`
+	}{}
+	lines := strings.SplitAfter(string(out), "\n}\n")
+	err = json.Unmarshal([]byte(lines[0]), &cis)
+	if err != nil {
+		return nil, err
+	}
+	const RFC2822 = "Mon, 02 Jan 2006 15:04:05 -0700"
+	t, err := time.Parse(RFC2822, cis.Date)
+	if err != nil {
+		return nil, err
+	}
+
+	ci := &CommitInfo{
+		Commit:  cis.Commit,
+		Author:  cis.Author,
+		Date:    t,
+		Message: cis.Message,
+	}
+
+	return ci, nil
 }
 
 func isDetachedHead(dir string) (bool, error) {
