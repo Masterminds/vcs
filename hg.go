@@ -164,7 +164,7 @@ func (s *HgRepo) IsDirty() bool {
 
 // CommitInfo retrieves metadata about a commit.
 func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
-	out, err := s.runFromDir("hg", "log", "-r", id, "-Tjson")
+	out, err := s.runFromDir("hg", "log", "-r"+id, "-Tjson")
 	if err != nil {
 		return nil, err
 	}
