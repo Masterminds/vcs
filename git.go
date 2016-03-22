@@ -2,7 +2,6 @@ package vcs
 
 import (
 	"encoding/xml"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -227,8 +226,6 @@ func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 		Date:    t,
 		Message: cis.Message,
 	}
-
-	fmt.Println(ci)
 
 	return ci, nil
 }
