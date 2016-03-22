@@ -1,6 +1,10 @@
-# 1.5.0 (xxxx-xx-xx)
+# 1.5.0 (2016-03-22)
 
-- Autodetect git+ssh, bzr+ssh, and svn+ssh scheme urls.
+- Add Travis CI testing for Go 1.6.
+- Issue #17: Add CommitInfo method allowing for a common way to get commit
+  metadata from all VCS.
+- Autodetect types that have git@ or hg@ users.
+- Autodetect git+ssh, bzr+ssh, git, and svn+ssh scheme urls.
 - On Bitbucket for ssh style URLs retrieve the type from the URL. This allows
   for private repo type detection.
 - Issue #14: Autodetect ssh/scp style urls (thanks chonthu).
