@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"time"
 	//"log"
 	"os"
 	"testing"
@@ -151,6 +152,27 @@ func TestSvn(t *testing.T) {
 
 	if repo.IsDirty() == true {
 		t.Error("Svn incorrectly reporting dirty")
+	}
+
+	ci, err := repo.CommitInfo("2")
+	if err != nil {
+		t.Error(err)
+	}
+	if ci.Commit != "2" {
+		t.Error("Svn.CommitInfo wrong commit id")
+	}
+	if ci.Author != "matt.farina" {
+		t.Error("Svn.CommitInfo wrong author")
+	}
+	if ci.Message != "Update README.md" {
+		t.Error("Svn.CommitInfo wrong message")
+	}
+	ti, err := time.Parse(time.RFC3339Nano, "2015-07-29T13:46:20.000000Z")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ti.Equal(ci.Date) {
+		t.Error("Svn.CommitInfo wrong date")
 	}
 }
 

@@ -47,6 +47,10 @@ var (
 	// ErrWrongRemote occurs when the passed in remote does not match the VCS
 	// configured endpoint.
 	ErrWrongRemote = errors.New("The Remote does not match the VCS endpoint")
+
+	// ErrRevisionUnavailable happens when commit revision information is
+	// unavailable.
+	ErrRevisionUnavailable = errors.New("Revision unavailable")
 )
 
 // Logger is where you can provide a logger, implementing the log.Logger interface,
@@ -126,7 +130,7 @@ type Repo interface {
 	IsDirty() bool
 
 	// CommitInfo retrieves metadata about a commit.
-	//CommitInfo(string) (*CommitInfo, error)
+	CommitInfo(string) (*CommitInfo, error)
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the

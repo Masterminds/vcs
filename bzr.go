@@ -199,5 +199,10 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	}
 	ci.Message = strings.TrimSpace(ci.Message)
 
+	// Didn't find the revision
+	if ci.Author == "" {
+		return nil, ErrRevisionUnavailable
+	}
+
 	return ci, nil
 }

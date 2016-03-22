@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"time"
 	//"log"
 	"os"
 	"testing"
@@ -171,8 +172,15 @@ func TestGit(t *testing.T) {
 	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
 		t.Error("Git.CommitInfo wrong author")
 	}
-	if ci.Message != "Update-README.md" {
+	if ci.Message != "Update README.md" {
 		t.Error("Git.CommitInfo wrong message")
+	}
+	ti, err := time.Parse(time.RFC1123Z, "Wed, 29 Jul 2015 09:46:39 -0400")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ti.Equal(ci.Date) {
+		t.Error("Git.CommitInfo wrong date")
 	}
 }
 

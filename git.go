@@ -1,7 +1,8 @@
 package vcs
 
 import (
-	"encoding/json"
+	"encoding/xml"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -197,20 +198,20 @@ func (s *GitRepo) IsDirty() bool {
 
 // CommitInfo retrieves metadata about a commit.
 func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
-	fm := `--pretty=format:{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%aD",%n  "message": "%f"%n}`
-	out, err := s.runFromDir("git", "show", fm, id)
+	fm := `--pretty=format:"<logentry><commit>%H</commit><author>%an &lt;%ae&gt;</author><date>%aD</date><message>%s</message></logentry>"`
+	//fm := `--pretty=format:{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%aD",%n  "message": "%f"%n}`
+	out, err := s.runFromDir("git", "log", id, fm, "-1")
 	if err != nil {
 		return nil, err
 	}
 
 	cis := struct {
-		Commit  string `json:"commit"`
-		Author  string `json:"author"`
-		Date    string `json:"date"`
-		Message string `json:"message"`
+		Commit  string `xml:"commit"`
+		Author  string `xml:"author"`
+		Date    string `xml:"date"`
+		Message string `xml:"message"`
 	}{}
-	lines := strings.SplitAfter(string(out), "\n}\n")
-	err = json.Unmarshal([]byte(lines[0]), &cis)
+	err = xml.Unmarshal(out, &cis)
 	if err != nil {
 		return nil, err
 	}
@@ -226,6 +227,8 @@ func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 		Date:    t,
 		Message: cis.Message,
 	}
+
+	fmt.Println(ci)
 
 	return ci, nil
 }

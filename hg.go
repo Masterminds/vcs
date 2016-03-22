@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"regexp"
@@ -159,4 +160,39 @@ func (s *HgRepo) IsReference(r string) bool {
 func (s *HgRepo) IsDirty() bool {
 	out, err := s.runFromDir("hg", "diff")
 	return err != nil || len(out) != 0
+}
+
+// CommitInfo retrieves metadata about a commit.
+func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
+	out, err := s.runFromDir("hg", "log", "-r", id, "-Tjson")
+	if err != nil {
+		return nil, err
+	}
+
+	type cis struct {
+		Commit  string  `json:"node"`
+		Author  string  `json:"user"`
+		Date    []int64 `json:"date"`
+		Message string  `json:"desc"`
+	}
+	var ciss []cis
+	err = json.Unmarshal(out, &ciss)
+	if err != nil {
+		return nil, err
+	}
+	if len(ciss) == 0 {
+		return nil, ErrRevisionUnavailable
+	}
+
+	ci := &CommitInfo{
+		Commit:  ciss[0].Commit,
+		Author:  ciss[0].Author,
+		Message: ciss[0].Message,
+	}
+
+	if len(ciss[0].Date) > 0 {
+		ci.Date = time.Unix(ciss[0].Date[0], 0)
+	}
+
+	return ci, nil
 }

@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"time"
 	//"log"
 	"os"
 	"testing"
@@ -154,6 +155,13 @@ func TestBzr(t *testing.T) {
 	}
 	if ci.Message != "Updated Readme with pointer." {
 		t.Error("Bzr.CommitInfo wrong message")
+	}
+	ti, err := time.Parse(time.RFC1123Z, "Fri, 31 Jul 2015 09:51:37 -0400")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ti.Equal(ci.Date) {
+		t.Error("Bzr.CommitInfo wrong date")
 	}
 }
 
