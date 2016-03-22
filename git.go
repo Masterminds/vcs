@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"encoding/xml"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -192,6 +193,40 @@ func (s *GitRepo) IsReference(r string) bool {
 func (s *GitRepo) IsDirty() bool {
 	out, err := s.runFromDir("git", "diff")
 	return err != nil || len(out) != 0
+}
+
+// CommitInfo retrieves metadata about a commit.
+func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
+	fm := `--pretty=format:"<logentry><commit>%H</commit><author>%an &lt;%ae&gt;</author><date>%aD</date><message>%s</message></logentry>"`
+	out, err := s.runFromDir("git", "log", id, fm, "-1")
+	if err != nil {
+		return nil, ErrRevisionUnavailable
+	}
+
+	cis := struct {
+		Commit  string `xml:"commit"`
+		Author  string `xml:"author"`
+		Date    string `xml:"date"`
+		Message string `xml:"message"`
+	}{}
+	err = xml.Unmarshal(out, &cis)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := time.Parse(time.RFC1123Z, cis.Date)
+	if err != nil {
+		return nil, err
+	}
+
+	ci := &CommitInfo{
+		Commit:  cis.Commit,
+		Author:  cis.Author,
+		Date:    t,
+		Message: cis.Message,
+	}
+
+	return ci, nil
 }
 
 func isDetachedHead(dir string) (bool, error) {

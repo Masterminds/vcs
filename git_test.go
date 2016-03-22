@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"time"
 	//"log"
 	"os"
 	"testing"
@@ -161,6 +162,31 @@ func TestGit(t *testing.T) {
 		t.Error("Git incorrectly reporting dirty")
 	}
 
+	ci, err := repo.CommitInfo("806b07b08faa21cfbdae93027904f80174679402")
+	if err != nil {
+		t.Error(err)
+	}
+	if ci.Commit != "806b07b08faa21cfbdae93027904f80174679402" {
+		t.Error("Git.CommitInfo wrong commit id")
+	}
+	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
+		t.Error("Git.CommitInfo wrong author")
+	}
+	if ci.Message != "Update README.md" {
+		t.Error("Git.CommitInfo wrong message")
+	}
+	ti, err := time.Parse(time.RFC1123Z, "Wed, 29 Jul 2015 09:46:39 -0400")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ti.Equal(ci.Date) {
+		t.Error("Git.CommitInfo wrong date")
+	}
+
+	_, err = repo.CommitInfo("asdfasdfasdf")
+	if err != ErrRevisionUnavailable {
+		t.Error("Git didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestGitCheckLocal(t *testing.T) {

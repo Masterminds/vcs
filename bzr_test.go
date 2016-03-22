@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"time"
 	//"log"
 	"os"
 	"testing"
@@ -142,6 +143,31 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr incorrectly reporting dirty")
 	}
 
+	ci, err := repo.CommitInfo("3")
+	if err != nil {
+		t.Error(err)
+	}
+	if ci.Commit != "3" {
+		t.Error("Bzr.CommitInfo wrong commit id")
+	}
+	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
+		t.Error("Bzr.CommitInfo wrong author")
+	}
+	if ci.Message != "Updated Readme with pointer." {
+		t.Error("Bzr.CommitInfo wrong message")
+	}
+	ti, err := time.Parse(time.RFC1123Z, "Fri, 31 Jul 2015 09:51:37 -0400")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ti.Equal(ci.Date) {
+		t.Error("Bzr.CommitInfo wrong date")
+	}
+
+	_, err = repo.CommitInfo("asdfasdfasdf")
+	if err != ErrRevisionUnavailable {
+		t.Error("Bzr didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestBzrCheckLocal(t *testing.T) {
