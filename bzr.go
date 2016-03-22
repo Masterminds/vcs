@@ -69,6 +69,9 @@ func (s *BzrRepo) Get() error {
 	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
 		err = os.MkdirAll(basePath, 0755)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
@@ -176,6 +179,8 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	const format = "Mon 2006-01-02 15:04:05 -0700"
 	var track int
 	var trackOn bool
+
+	// Note, bzr does not appear to use i18m.
 	for i, l := range lines {
 		if strings.HasPrefix(l, "committer:") {
 			ci.Author = strings.TrimSpace(strings.TrimPrefix(l, "committer:"))
