@@ -174,6 +174,11 @@ func TestSvn(t *testing.T) {
 	if !ti.Equal(ci.Date) {
 		t.Error("Svn.CommitInfo wrong date")
 	}
+
+	_, err = repo.CommitInfo("555555555")
+	if err != ErrRevisionUnavailable {
+		t.Error("Svn didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestSvnCheckLocal(t *testing.T) {

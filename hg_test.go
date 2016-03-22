@@ -166,6 +166,11 @@ func TestHg(t *testing.T) {
 	if !ti.Equal(ci.Date) {
 		t.Error("Hg.CommitInfo wrong date")
 	}
+
+	_, err = repo.CommitInfo("asdfasdfasdf")
+	if err != ErrRevisionUnavailable {
+		t.Error("Hg didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestHgCheckLocal(t *testing.T) {

@@ -166,7 +166,7 @@ func (s *HgRepo) IsDirty() bool {
 func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
 	out, err := s.runFromDir("hg", "log", "-r", id, "--style=xml")
 	if err != nil {
-		return nil, err
+		return nil, ErrRevisionUnavailable
 	}
 
 	type Author struct {

@@ -163,6 +163,11 @@ func TestBzr(t *testing.T) {
 	if !ti.Equal(ci.Date) {
 		t.Error("Bzr.CommitInfo wrong date")
 	}
+
+	_, err = repo.CommitInfo("asdfasdfasdf")
+	if err != ErrRevisionUnavailable {
+		t.Error("Bzr didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestBzrCheckLocal(t *testing.T) {

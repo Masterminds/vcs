@@ -169,7 +169,7 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	r := "-r" + id
 	out, err := s.runFromDir("bzr", "log", r, "--log-format=long")
 	if err != nil {
-		return nil, err
+		return nil, ErrRevisionUnavailable
 	}
 
 	ci := &CommitInfo{

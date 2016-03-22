@@ -182,6 +182,11 @@ func TestGit(t *testing.T) {
 	if !ti.Equal(ci.Date) {
 		t.Error("Git.CommitInfo wrong date")
 	}
+
+	_, err = repo.CommitInfo("asdfasdfasdf")
+	if err != ErrRevisionUnavailable {
+		t.Error("Git didn't return expected ErrRevisionUnavailable")
+	}
 }
 
 func TestGitCheckLocal(t *testing.T) {

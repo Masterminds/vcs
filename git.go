@@ -198,10 +198,9 @@ func (s *GitRepo) IsDirty() bool {
 // CommitInfo retrieves metadata about a commit.
 func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 	fm := `--pretty=format:"<logentry><commit>%H</commit><author>%an &lt;%ae&gt;</author><date>%aD</date><message>%s</message></logentry>"`
-	//fm := `--pretty=format:{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%aD",%n  "message": "%f"%n}`
 	out, err := s.runFromDir("git", "log", id, fm, "-1")
 	if err != nil {
-		return nil, err
+		return nil, ErrRevisionUnavailable
 	}
 
 	cis := struct {
