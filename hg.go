@@ -1,7 +1,7 @@
 package vcs
 
 import (
-	"encoding/json"
+	"encoding/xml"
 	"os"
 	"os/exec"
 	"regexp"
@@ -164,34 +164,46 @@ func (s *HgRepo) IsDirty() bool {
 
 // CommitInfo retrieves metadata about a commit.
 func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
-	out, err := s.runFromDir("hg", "log", "-r"+id, "-Tjson")
+	out, err := s.runFromDir("hg", "log", "-r", id, "--style=xml")
 	if err != nil {
 		return nil, err
 	}
 
-	type cis struct {
-		Commit  string  `json:"node"`
-		Author  string  `json:"user"`
-		Date    []int64 `json:"date"`
-		Message string  `json:"desc"`
+	type Author struct {
+		Name  string `xml:",chardata"`
+		Email string `xml:"email,attr"`
 	}
-	var ciss []cis
-	err = json.Unmarshal(out, &ciss)
+	type Logentry struct {
+		Node   string `xml:"node,attr"`
+		Author Author `xml:"author"`
+		Date   string `xml:"date"`
+		Msg    string `xml:"msg"`
+	}
+	type Log struct {
+		XMLName xml.Name   `xml:"log"`
+		Logs    []Logentry `xml:"logentry"`
+	}
+
+	logs := &Log{}
+	err = xml.Unmarshal(out, &logs)
 	if err != nil {
 		return nil, err
 	}
-	if len(ciss) == 0 {
+	if len(logs.Logs) == 0 {
 		return nil, ErrRevisionUnavailable
 	}
 
 	ci := &CommitInfo{
-		Commit:  ciss[0].Commit,
-		Author:  ciss[0].Author,
-		Message: ciss[0].Message,
+		Commit:  logs.Logs[0].Node,
+		Author:  logs.Logs[0].Author.Name + " <" + logs.Logs[0].Author.Email + ">",
+		Message: logs.Logs[0].Msg,
 	}
 
-	if len(ciss[0].Date) > 0 {
-		ci.Date = time.Unix(ciss[0].Date[0], 0)
+	if logs.Logs[0].Date != "" {
+		ci.Date, err = time.Parse(time.RFC3339, logs.Logs[0].Date)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return ci, nil
