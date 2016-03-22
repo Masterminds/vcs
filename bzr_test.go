@@ -142,6 +142,19 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr incorrectly reporting dirty")
 	}
 
+	ci, err := repo.CommitInfo("3")
+	if err != nil {
+		t.Error(err)
+	}
+	if ci.Commit != "3" {
+		t.Error("Bzr.CommitInfo wrong commit id")
+	}
+	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
+		t.Error("Bzr.CommitInfo wrong author")
+	}
+	if ci.Message != "Updated Readme with pointer." {
+		t.Error("Bzr.CommitInfo wrong message")
+	}
 }
 
 func TestBzrCheckLocal(t *testing.T) {
