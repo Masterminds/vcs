@@ -148,7 +148,7 @@ func TestHg(t *testing.T) {
 		t.Error("Hg incorrectly reporting dirty")
 	}
 
-	ci, err := repo.CommitInfo("a5494ba2177f")
+	ci, err := repo.CommitInfo("a5494ba2177ff9ef26feb3c155dfecc350b1a8ef")
 	if err != nil {
 		t.Error(err)
 	}
