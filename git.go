@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"bytes"
 	"encoding/xml"
 	"os"
 	"os/exec"
@@ -158,6 +159,55 @@ func (s *GitRepo) Tags() ([]string, error) {
 	}
 	tags := s.referenceList(string(out), `(?m-s)(?:tags)/(\S+)$`)
 	return tags, nil
+}
+
+// CurrentVersionsWithRevs returns a list of available branches and tags, and
+// their underlying revision identifiers, on the RemoteLocation. The list is
+// guaranteed to be current.
+//
+// If the operation also synchronized the local repository, the second return
+// value will be true.
+func (s *GitRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error) {
+	var out []byte
+	out, err = s.runFromDir("git", "ls-remote")
+	all := bytes.Split(bytes.TrimSpace(out), []byte("\n"))
+	if err != nil || len(all) == 0 {
+		// ls-remote failed, probably due to bad communication or a faulty
+		// upstream implementation. So fetch updates, then build the list
+		// locally
+		err = s.Update()
+		if err != nil {
+			// Definitely have a problem, now - bail out
+			return
+		}
+		// Local is now synced, so indicate that in return no matter what
+		localSynced = true
+
+		out, err = s.runFromDir("git", "show-ref")
+		if err != nil {
+			return
+		}
+
+		all = bytes.Split(bytes.TrimSpace(out), []byte("\n"))
+	}
+
+	for _, pair := range all {
+		if string(pair[46:51]) == "heads" {
+			versions = append(versions, VersionInfo{
+				Name:     string(pair[52:]),
+				Revision: string(pair[:40]),
+				IsBranch: true,
+			})
+		} else if string(pair[46:50]) == "tags" {
+			versions = append(versions, VersionInfo{
+				Name:     string(pair[51:]),
+				Revision: string(pair[:40]),
+				IsBranch: false,
+			})
+		}
+	}
+
+	return
 }
 
 // CheckLocal verifies the local location is a Git repo.

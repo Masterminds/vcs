@@ -3,6 +3,7 @@ package vcs
 import (
 	"io/ioutil"
 	"time"
+
 	//"log"
 	"os"
 	"testing"
@@ -139,6 +140,45 @@ func TestGit(t *testing.T) {
 	}
 	if tags[0] != "1.0.0" {
 		t.Error("Git tags is not reporting the correct version")
+	}
+
+	vrevs, updated, err := repo.CurrentVersionsWithRevs()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if updated {
+		t.Error("Git CurrentVersionsWithRevs updated local repo, but should not have needed to")
+	}
+
+	vr := VersionInfo{
+		IsBranch: true,
+		Name:     "master",
+		Revision: "30605f6ac35fcb075ad0bfa9296f90a7d891523e",
+	}
+
+	if vrevs[0] != vr {
+		t.Errorf("Git CurrentVersionsWithRevs reporting incorrect first version, got %v", vrevs[0])
+	}
+
+	vr = VersionInfo{
+		IsBranch: true,
+		Name:     "test",
+		Revision: "30605f6ac35fcb075ad0bfa9296f90a7d891523e",
+	}
+
+	if vrevs[1] != vr {
+		t.Errorf("Git CurrentVersionsWithRevs reporting incorrect first version, got %v", vrevs[1])
+	}
+
+	vr = VersionInfo{
+		IsBranch: false,
+		Name:     "1.0.0",
+		Revision: "30605f6ac35fcb075ad0bfa9296f90a7d891523e",
+	}
+
+	if vrevs[2] != vr {
+		t.Errorf("Git CurrentVersionsWithRevs reporting incorrect first version, got %v", vrevs[2])
 	}
 
 	branches, err := repo.Branches()

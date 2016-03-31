@@ -133,6 +133,14 @@ type Repo interface {
 	CommitInfo(string) (*CommitInfo, error)
 }
 
+// VersionInfo is a triplet of information - a version, its corresponding
+// underlying immutable revision, and a boolean indicating whether the version
+// is a branch or a tag.
+type VersionInfo struct {
+	IsBranch       bool
+	Name, Revision string
+}
+
 // NewRepo returns a Repo based on trying to detect the source control from the
 // remote and local locations. The appropriate implementation will be returned
 // or an ErrCannotDetectVCS if the VCS type cannot be detected.
