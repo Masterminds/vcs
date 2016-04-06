@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"bytes"
 	"encoding/xml"
 	"os"
 	"os/exec"
@@ -142,6 +143,80 @@ func (s *HgRepo) Tags() ([]string, error) {
 	}
 	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
+}
+
+// CurrentVersionsWithRevs returns a list of available branches and tags, and
+// their underlying revision identifiers. The list is guaranteed to be current.
+//
+// TODO currently, this only retrieves the tags known to whatever the checked
+// out branch happens to be. This is...kinda broken?
+func (s *HgRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error) {
+	var out []byte
+	err = s.Update()
+	if err != nil {
+		return
+	}
+
+	localSynced = true
+	out, err = s.runFromDir("hg", "tags", "--debug", "--verbose")
+	if err != nil {
+		return
+	}
+
+	all := bytes.Split(bytes.TrimSpace(out), []byte("\n"))
+	lbyt := []byte("local")
+	nulrev := []byte("0000000000000000000000000000000000000000")
+	for _, line := range all {
+		if bytes.Equal(lbyt, line[len(line)-len(lbyt):]) {
+			// Skip local tags
+			continue
+		}
+
+		// tip is magic, don't include it
+		if bytes.HasPrefix(line, []byte("tip")) {
+			continue
+		}
+
+		// Split on colon; this gets us the rev and the tag plus local revno
+		pair := bytes.Split(line, []byte(":"))
+		if bytes.Equal(nulrev, pair[1]) {
+			// null rev indicates this tag is marked for deletion
+			continue
+		}
+
+		idx := bytes.IndexByte(pair[0], 32) // space
+		versions = append(versions, VersionInfo{
+			Name:     string(pair[0][:idx]),
+			Revision: string(pair[1]),
+		})
+	}
+
+	out, err = s.runFromDir("hg", "branches", "--debug", "--verbose")
+	if err != nil {
+		// better nothing than incomplete
+		versions = nil
+		return
+	}
+
+	all = bytes.Split(bytes.TrimSpace(out), []byte("\n"))
+	lbyt = []byte("(inactive)")
+	for _, line := range all {
+		if bytes.Equal(lbyt, line[len(line)-len(lbyt):]) {
+			// Skip inactive branches
+			continue
+		}
+
+		// Split on colon; this gets us the rev and the branch plus local revno
+		pair := bytes.Split(line, []byte(":"))
+		idx := bytes.IndexByte(pair[0], 32) // space
+		versions = append(versions, VersionInfo{
+			IsBranch: true,
+			Name:     string(pair[0][:idx]),
+			Revision: string(pair[1]),
+		})
+	}
+
+	return
 }
 
 // IsReference returns if a string is a reference. A reference can be a

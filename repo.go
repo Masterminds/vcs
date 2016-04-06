@@ -118,6 +118,11 @@ type Repo interface {
 	// Tags returns a list of available tags on the repository.
 	Tags() ([]string, error)
 
+	// CurrentVersionWithRevs returns the most recent versions of branches and
+	// tags available from the repository. If the local repository's state (in
+	// the case of a DVCS) was updated, the second return will be true.
+	CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error)
+
 	// TODO: Provide a consistent manner to get reference information across
 	// multiple VCS.
 
@@ -131,6 +136,14 @@ type Repo interface {
 
 	// CommitInfo retrieves metadata about a commit.
 	CommitInfo(string) (*CommitInfo, error)
+}
+
+// VersionInfo is a triplet of information - a version, its corresponding
+// underlying immutable revision, and a boolean indicating whether the version
+// is a branch or a tag.
+type VersionInfo struct {
+	IsBranch       bool
+	Name, Revision string
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the

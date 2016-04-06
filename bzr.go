@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -144,6 +145,40 @@ func (s *BzrRepo) Tags() ([]string, error) {
 	}
 	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
+}
+
+// CurrentVersionsWithRevs returns a list of available branches and tags, and
+// their underlying revision identifiers. The list is guaranteed to be current.
+//
+// As the model we use for bzr interaction (and go get generally does as well)
+// involves interacting only with a bzr repository's default branch, we return
+// only tags here.
+func (s *BzrRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error) {
+	var out []byte
+	// Update the local first
+	_, err = s.runFromDir("bzr", "pull")
+	if err != nil {
+		return
+	}
+	localSynced = true
+
+	// Now, list all the tags
+	out, err = s.runFromDir("bzr", "tags", "--show-ids", "-v")
+	if err != nil {
+		return
+	}
+
+	all := bytes.Split(bytes.TrimSpace(out), []byte("\n"))
+	for _, line := range all {
+		idx := bytes.IndexByte(line, 32) // space
+		versions = append(versions, VersionInfo{
+			Name:     string(line[:idx]),
+			Revision: string(bytes.TrimSpace(line[idx:])),
+			IsBranch: false,
+		})
+	}
+
+	return
 }
 
 // IsReference returns if a string is a reference. A reference can be a
