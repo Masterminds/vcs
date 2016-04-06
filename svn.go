@@ -141,6 +141,13 @@ func (s *SvnRepo) Branches() ([]string, error) {
 	return []string{}, nil
 }
 
+// CurrentVersionsWithRevs is supposed to returns a list of available branches and tags, and
+// their underlying revision identifiers. This is mostly just untenable for SVN,
+// so for now, we're punting on it.
+func (s *SvnRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error) {
+	return nil, false, nil
+}
+
 // IsReference returns if a string is a reference. A reference is a commit id.
 // Branches and tags are part of the path.
 func (s *SvnRepo) IsReference(r string) bool {

@@ -142,6 +142,17 @@ func TestSvn(t *testing.T) {
 		t.Error("Svn is incorrectly returning branches")
 	}
 
+	vs, s, err := repo.CurrentVersionsWithRevs()
+	if err != nil {
+		t.Error(err)
+	}
+	if s {
+		t.Error("Svn is incorrectly reporting 'local' synchronization")
+	}
+	if vs != nil {
+		t.Error("Svn is incorrectly returning VersionInfo pairs")
+	}
+
 	if repo.IsReference("r4") != true {
 		t.Error("Svn is reporting a reference is not one")
 	}
