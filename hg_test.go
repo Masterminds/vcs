@@ -3,6 +3,7 @@ package vcs
 import (
 	"io/ioutil"
 	"time"
+
 	//"log"
 	"os"
 	"testing"
@@ -121,6 +122,33 @@ func TestHg(t *testing.T) {
 	}
 	if tags[1] != "1.0.0" {
 		t.Error("Hg tags is not reporting the correct version")
+	}
+
+	vs, s, err := repo.CurrentVersionsWithRevs()
+	if err != nil {
+		t.Error(err)
+	}
+	if !s {
+		t.Error("Hg version-grabbing should always sync the local")
+	}
+	if len(vs) != 2 {
+		t.Errorf("Returned versions slice is the wrong length; should be 2, got %v", len(vs))
+	} else {
+		cmp := VersionInfo{
+			Name:     "1.0.0",
+			Revision: "d680e82228d206935ab2eaa88612587abe68db07",
+		}
+		if vs[0] != cmp {
+			t.Errorf("Returned tag was incorrect; got %s", vs[0])
+		}
+		cmp = VersionInfo{
+			IsBranch: true,
+			Name:     "test",
+			Revision: "6c44ee3fe5d87763616c19bf7dbcadb24ff5a5ce",
+		}
+		if vs[1] != cmp {
+			t.Errorf("Returned branch was incorrect; got %s", vs[0])
+		}
 	}
 
 	branches, err := repo.Branches()
