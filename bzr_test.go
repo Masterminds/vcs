@@ -3,6 +3,7 @@ package vcs
 import (
 	"io/ioutil"
 	"time"
+
 	//"log"
 	"os"
 	"testing"
@@ -121,6 +122,26 @@ func TestBzr(t *testing.T) {
 	}
 	if tags[0] != "1.0.0" {
 		t.Error("Bzr tags is not reporting the correct version")
+	}
+
+	vs, s, err := repo.CurrentVersionsWithRevs()
+	if err != nil {
+		t.Error(err)
+	}
+	if !s {
+		t.Error("bzr version-grabbing should always sync the branch")
+	}
+	if len(vs) != 1 {
+		t.Errorf("Returned versions slice is the wrong length; should be 1, got %v", len(vs))
+	} else {
+		// Do this in an else branch to ensure no panic on a slice OOB error
+		cmp := VersionInfo{
+			Name:     "1.0.0",
+			Revision: "matt@mattfarina.com-20150731135137-pbphasfppmygpl68",
+		}
+		if vs[0] != cmp {
+			t.Errorf("Returned tag was incorrect; got %s", vs[0])
+		}
 	}
 
 	branches, err := repo.Branches()
