@@ -149,7 +149,7 @@ func (s *HgRepo) Tags() ([]string, error) {
 // their underlying revision identifiers. The list is guaranteed to be current.
 //
 // TODO currently, this only retrieves the tags known to whatever the checked
-// out branch happens to be. This is kinda horribly broken.
+// out branch happens to be. This is...kinda broken?
 func (s *HgRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced bool, err error) {
 	var out []byte
 	err = s.Update()
@@ -165,6 +165,7 @@ func (s *HgRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced 
 
 	all := bytes.Split(bytes.TrimSpace(out), []byte("\n"))
 	lbyt := []byte("local")
+	nulrev := []byte("0000000000000000000000000000000000000000")
 	for _, line := range all {
 		if bytes.Equal(lbyt, line[len(line)-len(lbyt):]) {
 			// Skip local tags
@@ -178,6 +179,11 @@ func (s *HgRepo) CurrentVersionsWithRevs() (versions []VersionInfo, localSynced 
 
 		// Split on colon; this gets us the rev and the tag plus local revno
 		pair := bytes.Split(line, []byte(":"))
+		if bytes.Equal(nulrev, pair[1]) {
+			// null rev indicates this tag is marked for deletion
+			continue
+		}
+
 		idx := bytes.IndexByte(pair[0], 32) // space
 		versions = append(versions, VersionInfo{
 			Name:     string(pair[0][:idx]),
