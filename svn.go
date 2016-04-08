@@ -207,3 +207,13 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 
 	return ci, nil
 }
+
+// Ping returns if remote location is accessible.
+func (s *SvnRepo) Ping() bool {
+	_, err := s.run("svn", "--non-interactive", "info", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
+}

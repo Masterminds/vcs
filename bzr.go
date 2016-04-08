@@ -206,3 +206,16 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 
 	return ci, nil
 }
+
+// Ping returns if remote location is accessible.
+func (s *BzrRepo) Ping() bool {
+
+	// This is the same command that Go itself uses but it's not fast (or fast
+	// enough by my standards). A faster method would be useful.
+	_, err := s.run("bzr", "info", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
+}
