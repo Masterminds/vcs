@@ -67,7 +67,10 @@ func (s SvnRepo) Vcs() Type {
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
 func (s *SvnRepo) Get() error {
-	_, err := s.run("svn", "checkout", s.Remote(), s.LocalPath())
+	out, err := s.run("svn", "checkout", s.Remote(), s.LocalPath())
+	if err != nil {
+		return NewGetError(err, string(out))
+	}
 	return err
 }
 

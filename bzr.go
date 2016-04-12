@@ -70,11 +70,15 @@ func (s *BzrRepo) Get() error {
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
 		err = os.MkdirAll(basePath, 0755)
 		if err != nil {
-			return err
+			return NewGetError(err, "")
 		}
 	}
 
-	_, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	out, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	if err != nil {
+		return NewGetError(err, string(out))
+	}
+
 	return err
 }
 

@@ -66,7 +66,10 @@ func (s HgRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
-	_, err := s.run("hg", "clone", s.Remote(), s.LocalPath())
+	out, err := s.run("hg", "clone", s.Remote(), s.LocalPath())
+	if err != nil {
+		return NewGetError(err, string(out))
+	}
 	return err
 }
 
