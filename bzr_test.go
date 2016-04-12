@@ -196,3 +196,36 @@ func TestBzrCheckLocal(t *testing.T) {
 		t.Error(nrerr)
 	}
 }
+
+func TestBzrPing(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping := repo.Ping()
+	if !ping {
+		t.Error("Bzr unable to ping working repo")
+	}
+
+	repo, err = NewBzrRepo("https://launchpad.net/ihopethisneverexistsbecauseitshouldnt", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping = repo.Ping()
+	if ping {
+		t.Error("Bzr got a ping response from when it should not have")
+	}
+}

@@ -208,3 +208,13 @@ func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
 
 	return ci, nil
 }
+
+// Ping returns if remote location is accessible.
+func (s *HgRepo) Ping() bool {
+	_, err := s.run("hg", "identify", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
+}

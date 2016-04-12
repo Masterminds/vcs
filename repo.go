@@ -131,6 +131,9 @@ type Repo interface {
 
 	// CommitInfo retrieves metadata about a commit.
 	CommitInfo(string) (*CommitInfo, error)
+
+	// Ping returns if remote location is accessible.
+	Ping() bool
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the

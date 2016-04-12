@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -205,4 +206,35 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	}
 
 	return ci, nil
+}
+
+// Ping returns if remote location is accessible.
+func (s *BzrRepo) Ping() bool {
+
+	// Running bzr info is slow. Many of the projects are on launchpad which
+	// has a public 1.0 API we can use.
+	u, err := url.Parse(s.Remote())
+	if err == nil {
+		if u.Host == "launchpad.net" {
+			try := strings.TrimPrefix(u.Path, "/")
+
+			// get returns the body and an err. If the status code is not a 200
+			// an error is returned. Launchpad returns a 404 for a codebase that
+			// does not exist. Otherwise it returns a JSON object describing it.
+			_, er := get("https://api.launchpad.net/1.0/" + try)
+			if er == nil {
+				return true
+			}
+			return false
+		}
+	}
+
+	// This is the same command that Go itself uses but it's not fast (or fast
+	// enough by my standards). A faster method would be useful.
+	_, err = s.run("bzr", "info", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
 }

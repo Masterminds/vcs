@@ -229,6 +229,22 @@ func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 	return ci, nil
 }
 
+// Ping returns if remote location is accessible.
+func (s *GitRepo) Ping() bool {
+	c := exec.Command("git", "ls-remote", s.Remote())
+
+	// If prompted for a username and password, which GitHub does for all things
+	// not public, it's considered not available. To make it available the
+	// remote needs to be different.
+	c.Env = mergeEnvLists([]string{"GIT_TERMINAL_PROMPT=0"}, os.Environ())
+	_, err := c.CombinedOutput()
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func isDetachedHead(dir string) (bool, error) {
 	c := exec.Command("git", "status", "-uno")
 	c.Dir = dir

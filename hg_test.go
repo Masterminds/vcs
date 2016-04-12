@@ -199,3 +199,36 @@ func TestHgCheckLocal(t *testing.T) {
 		t.Error(nrerr)
 	}
 }
+
+func TestHgPing(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewHgRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping := repo.Ping()
+	if !ping {
+		t.Error("Hg unable to ping working repo")
+	}
+
+	repo, err = NewHgRepo("https://bitbucket.org/mattfarina/ihopethisneverexistsbecauseitshouldnt", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping = repo.Ping()
+	if ping {
+		t.Error("Hg got a ping response from when it should not have")
+	}
+}
