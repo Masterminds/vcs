@@ -90,7 +90,7 @@ func (s *GitRepo) Get() error {
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	_, err := s.runFromDir("git", "fetch", s.RemoteLocation)
+	_, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
 	if err != nil {
 		return err
 	}
@@ -107,19 +107,19 @@ func (s *GitRepo) Update() error {
 		return nil
 	}
 
-	_, err = s.runFromDir("git", "pull")
+	_, err = s.RunFromDir("git", "pull")
 	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
 func (s *GitRepo) UpdateVersion(version string) error {
-	_, err := s.runFromDir("git", "checkout", version)
+	_, err := s.RunFromDir("git", "checkout", version)
 	return err
 }
 
 // Version retrieves the current version.
 func (s *GitRepo) Version() (string, error) {
-	out, err := s.runFromDir("git", "rev-parse", "HEAD")
+	out, err := s.RunFromDir("git", "rev-parse", "HEAD")
 	if err != nil {
 		return "", err
 	}
@@ -129,7 +129,7 @@ func (s *GitRepo) Version() (string, error) {
 
 // Date retrieves the date on the latest commit.
 func (s *GitRepo) Date() (time.Time, error) {
-	out, err := s.runFromDir("git", "log", "-1", "--date=iso", "--pretty=format:%cd")
+	out, err := s.RunFromDir("git", "log", "-1", "--date=iso", "--pretty=format:%cd")
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -142,7 +142,7 @@ func (s *GitRepo) Date() (time.Time, error) {
 
 // Branches returns a list of available branches on the RemoteLocation
 func (s *GitRepo) Branches() ([]string, error) {
-	out, err := s.runFromDir("git", "show-ref")
+	out, err := s.RunFromDir("git", "show-ref")
 	if err != nil {
 		return []string{}, err
 	}
@@ -152,7 +152,7 @@ func (s *GitRepo) Branches() ([]string, error) {
 
 // Tags returns a list of available tags on the RemoteLocation
 func (s *GitRepo) Tags() ([]string, error) {
-	out, err := s.runFromDir("git", "show-ref")
+	out, err := s.RunFromDir("git", "show-ref")
 	if err != nil {
 		return []string{}, err
 	}
@@ -172,7 +172,7 @@ func (s *GitRepo) CheckLocal() bool {
 // IsReference returns if a string is a reference. A reference can be a
 // commit id, branch, or tag.
 func (s *GitRepo) IsReference(r string) bool {
-	_, err := s.runFromDir("git", "rev-parse", "--verify", r)
+	_, err := s.RunFromDir("git", "rev-parse", "--verify", r)
 	if err == nil {
 		return true
 	}
@@ -180,7 +180,7 @@ func (s *GitRepo) IsReference(r string) bool {
 	// Some refs will fail rev-parse. For example, a remote branch that has
 	// not been checked out yet. This next step should pickup the other
 	// possible references.
-	_, err = s.runFromDir("git", "show-ref", r)
+	_, err = s.RunFromDir("git", "show-ref", r)
 	if err == nil {
 		return true
 	}
@@ -191,14 +191,14 @@ func (s *GitRepo) IsReference(r string) bool {
 // IsDirty returns if the checkout has been modified from the checked
 // out reference.
 func (s *GitRepo) IsDirty() bool {
-	out, err := s.runFromDir("git", "diff")
+	out, err := s.RunFromDir("git", "diff")
 	return err != nil || len(out) != 0
 }
 
 // CommitInfo retrieves metadata about a commit.
 func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 	fm := `--pretty=format:"<logentry><commit>%H</commit><author>%an &lt;%ae&gt;</author><date>%aD</date><message>%s</message></logentry>"`
-	out, err := s.runFromDir("git", "log", id, fm, "-1")
+	out, err := s.RunFromDir("git", "log", id, fm, "-1")
 	if err != nil {
 		return nil, ErrRevisionUnavailable
 	}

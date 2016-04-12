@@ -73,19 +73,19 @@ func (s *SvnRepo) Get() error {
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-	_, err := s.runFromDir("svn", "update")
+	_, err := s.RunFromDir("svn", "update")
 	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via SVN.
 func (s *SvnRepo) UpdateVersion(version string) error {
-	_, err := s.runFromDir("svn", "update", "-r", version)
+	_, err := s.RunFromDir("svn", "update", "-r", version)
 	return err
 }
 
 // Version retrieves the current version.
 func (s *SvnRepo) Version() (string, error) {
-	out, err := s.runFromDir("svnversion", ".")
+	out, err := s.RunFromDir("svnversion", ".")
 	s.log(out)
 	if err != nil {
 		return "", err
@@ -99,7 +99,7 @@ func (s *SvnRepo) Date() (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	out, err := s.runFromDir("svn", "pget", "svn:date", "--revprop", "-r", version)
+	out, err := s.RunFromDir("svn", "pget", "svn:date", "--revprop", "-r", version)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -144,7 +144,7 @@ func (s *SvnRepo) Branches() ([]string, error) {
 // IsReference returns if a string is a reference. A reference is a commit id.
 // Branches and tags are part of the path.
 func (s *SvnRepo) IsReference(r string) bool {
-	out, err := s.runFromDir("svn", "log", "-r", r)
+	out, err := s.RunFromDir("svn", "log", "-r", r)
 
 	// This is a complete hack. There must be a better way to do this. Pull
 	// requests welcome. When the reference isn't real you get a line of
@@ -162,13 +162,13 @@ func (s *SvnRepo) IsReference(r string) bool {
 // IsDirty returns if the checkout has been modified from the checked
 // out reference.
 func (s *SvnRepo) IsDirty() bool {
-	out, err := s.runFromDir("svn", "diff")
+	out, err := s.RunFromDir("svn", "diff")
 	return err != nil || len(out) != 0
 }
 
 // CommitInfo retrieves metadata about a commit.
 func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
-	out, err := s.runFromDir("svn", "log", "-r", id, "--xml")
+	out, err := s.RunFromDir("svn", "log", "-r", id, "--xml")
 	if err != nil {
 		return nil, err
 	}
