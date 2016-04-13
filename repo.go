@@ -80,6 +80,9 @@ type Repo interface {
 	// Get is used to perform an initial clone/checkout of a repository.
 	Get() error
 
+	// Initializes a new repository locally.
+	Init() error
+
 	// Update performs an update to an existing checkout of a repository.
 	Update() error
 

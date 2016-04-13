@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -81,6 +82,31 @@ func (s *BzrRepo) Get() error {
 	}
 
 	return nil
+}
+
+// Init initializees a bazaar repository at local location.
+func (s *BzrRepo) Init() error {
+	_, err := s.run("bzr", "init", s.LocalPath())
+
+	// There are some windows cases where bazaar cannot create the parent
+	// directory if it does not already exist, to the location it's trying
+	// to create the repo. Catch that error and try to handle it.
+	if err != nil && s.isUnableToCreateDir(err) {
+
+		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
+		if _, err := os.Stat(basePath); os.IsNotExist(err) {
+			err = os.MkdirAll(basePath, 0755)
+			if err != nil {
+				return err
+			}
+
+			_, err = s.run("bzr", "init", s.LocalPath())
+			return err
+		}
+
+	}
+
+	return err
 }
 
 // Update performs a Bzr pull and update to an existing checkout.
@@ -247,4 +273,19 @@ func (s *BzrRepo) Ping() bool {
 	}
 
 	return true
+}
+
+// Multi-lingual manner check for the VCS error that it couldn't create directory.
+// https://bazaar.launchpad.net/~bzr-pqm/bzr/bzr.dev/files/head:/po/
+func (s *BzrRepo) isUnableToCreateDir(err error) bool {
+	msg := err.Error()
+	if strings.HasPrefix(msg, fmt.Sprintf("Parent directory of %s does not exist.", s.LocalPath())) ||
+		strings.HasPrefix(msg, fmt.Sprintf("Nadřazený adresář %s neexistuje.", s.LocalPath())) ||
+		strings.HasPrefix(msg, fmt.Sprintf("El directorio padre de %s no existe.", s.LocalPath())) ||
+		strings.HasPrefix(msg, fmt.Sprintf("%s の親ディレクトリがありません。", s.LocalPath())) ||
+		strings.HasPrefix(msg, fmt.Sprintf("Родительская директория для %s не существует.", s.LocalPath())) {
+		return true
+	}
+
+	return false
 }

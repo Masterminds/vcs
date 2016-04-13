@@ -15,7 +15,6 @@ var _ Repo = &GitRepo{}
 // with a known git service.
 
 func TestGit(t *testing.T) {
-
 	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
 	if err != nil {
 		t.Error(err)
@@ -246,5 +245,34 @@ func TestGitPing(t *testing.T) {
 	ping = repo.Ping()
 	if ping {
 		t.Error("Git got a ping response from when it should not have")
+	}
+}
+
+func TestGitInit(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	repoDir := tempDir + "/repo"
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewGitRepo(repoDir, repoDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = repo.Init()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = repo.RunFromDir("git", "status")
+	if err != nil {
+		t.Error(err)
 	}
 }

@@ -240,3 +240,39 @@ func TestSvnPing(t *testing.T) {
 		t.Error("Svn got a ping response from when it should not have")
 	}
 }
+
+func TestSvnInit(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	remoteDir := tempDir + "/remoteDir"
+	localDir := tempDir + "/localDir"
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewSvnRepo(remoteDir, localDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = repo.Init()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = repo.Get()
+	if err != nil {
+		t.Error(err)
+	}
+
+	v, err := repo.Version()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("svn version: %s", v)
+}

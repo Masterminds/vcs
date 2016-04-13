@@ -92,6 +92,31 @@ func (s *GitRepo) Get() error {
 	return nil
 }
 
+// Init initializes a git repository at local location.
+func (s *GitRepo) Init() error {
+	_, err := s.run("git", "init", s.LocalPath())
+
+	// There are some windows cases where Git cannot create the parent directory,
+	// if it does not already exist, to the location it's trying to create the
+	// repo. Catch that error and try to handle it.
+	if err != nil && s.isUnableToCreateDir(err) {
+
+		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
+		if _, err := os.Stat(basePath); os.IsNotExist(err) {
+			err = os.MkdirAll(basePath, 0755)
+			if err != nil {
+				return err
+			}
+
+			_, err = s.run("git", "init", s.LocalPath())
+			return err
+		}
+
+	}
+
+	return err
+}
+
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
@@ -255,6 +280,7 @@ func (s *GitRepo) Ping() bool {
 	return true
 }
 
+// isDetachedHead will detect if git repo is in "detached head" state.
 func isDetachedHead(dir string) (bool, error) {
 	c := exec.Command("git", "status", "-uno")
 	c.Dir = dir
@@ -268,8 +294,9 @@ func isDetachedHead(dir string) (bool, error) {
 	return detached, nil
 }
 
-// In a multi-langual manner check for the Git error that it couldn't create
-// the directory.
+// isUnableToCreateDir checks for an error in Init() to see if an error
+// where the parent directory of the VCS local path doesn't exist. This is
+// done in a multi-lingual manner.
 func (s *GitRepo) isUnableToCreateDir(err error) bool {
 	msg := err.Error()
 	if strings.HasPrefix(msg, "could not create work tree dir") ||

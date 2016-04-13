@@ -229,3 +229,33 @@ func TestBzrPing(t *testing.T) {
 		t.Error("Bzr got a ping response from when it should not have")
 	}
 }
+
+func TestBzrInit(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	repoDir := tempDir + "/repo"
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewBzrRepo(repoDir, repoDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = repo.Init()
+	if err != nil {
+		t.Error(err)
+	}
+
+	v, err := repo.Version()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("bzr version: %v", v)
+}

@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -67,11 +68,37 @@ func (s SvnRepo) Vcs() Type {
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
 func (s *SvnRepo) Get() error {
-	out, err := s.run("svn", "checkout", s.Remote(), s.LocalPath())
+	remote := s.Remote()
+	if strings.HasPrefix(remote, "/") {
+		remote = "file://" + remote
+	}
+	out, err := s.run("svn", "checkout", remote, s.LocalPath())
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 	return nil
+}
+
+// Init will create a svn repository at remote location.
+func (s *SvnRepo) Init() error {
+	_, err := s.run("svnadmin", "create", s.Remote())
+
+	if err != nil && s.isUnableToCreateDir(err) {
+
+		basePath := filepath.Dir(filepath.FromSlash(s.Remote()))
+		if _, err := os.Stat(basePath); os.IsNotExist(err) {
+			err = os.MkdirAll(basePath, 0755)
+			if err != nil {
+				return err
+			}
+
+			_, err = s.run("svnadmin", "create", s.Remote())
+			return err
+		}
+
+	}
+
+	return err
 }
 
 // Update performs an SVN update to an existing checkout.
@@ -225,4 +252,15 @@ func (s *SvnRepo) Ping() bool {
 	}
 
 	return true
+}
+
+// isUnableToCreateDir checks for an error in Init() to see if an error
+// where the parent directory of the VCS local path doesn't exist.
+func (s *SvnRepo) isUnableToCreateDir(err error) bool {
+	msg := err.Error()
+	if strings.HasPrefix(msg, "E000002") {
+		return true
+	}
+
+	return false
 }
