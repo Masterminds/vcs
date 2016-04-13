@@ -75,23 +75,23 @@ func (s *HgRepo) Get() error {
 
 // Update performs a Mercurial pull to an existing checkout.
 func (s *HgRepo) Update() error {
-	_, err := s.runFromDir("hg", "update")
+	_, err := s.RunFromDir("hg", "update")
 	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Hg.
 func (s *HgRepo) UpdateVersion(version string) error {
-	_, err := s.runFromDir("hg", "pull")
+	_, err := s.RunFromDir("hg", "pull")
 	if err != nil {
 		return err
 	}
-	_, err = s.runFromDir("hg", "update", version)
+	_, err = s.RunFromDir("hg", "update", version)
 	return err
 }
 
 // Version retrieves the current version.
 func (s *HgRepo) Version() (string, error) {
-	out, err := s.runFromDir("hg", "identify")
+	out, err := s.RunFromDir("hg", "identify")
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +107,7 @@ func (s *HgRepo) Date() (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	out, err := s.runFromDir("hg", "log", "-r", version, "--template", "{date|isodatesec}")
+	out, err := s.RunFromDir("hg", "log", "-r", version, "--template", "{date|isodatesec}")
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -129,7 +129,7 @@ func (s *HgRepo) CheckLocal() bool {
 
 // Branches returns a list of available branches
 func (s *HgRepo) Branches() ([]string, error) {
-	out, err := s.runFromDir("hg", "branches")
+	out, err := s.RunFromDir("hg", "branches")
 	if err != nil {
 		return []string{}, err
 	}
@@ -139,7 +139,7 @@ func (s *HgRepo) Branches() ([]string, error) {
 
 // Tags returns a list of available tags
 func (s *HgRepo) Tags() ([]string, error) {
-	out, err := s.runFromDir("hg", "tags")
+	out, err := s.RunFromDir("hg", "tags")
 	if err != nil {
 		return []string{}, err
 	}
@@ -150,7 +150,7 @@ func (s *HgRepo) Tags() ([]string, error) {
 // IsReference returns if a string is a reference. A reference can be a
 // commit id, branch, or tag.
 func (s *HgRepo) IsReference(r string) bool {
-	_, err := s.runFromDir("hg", "log", "-r", r)
+	_, err := s.RunFromDir("hg", "log", "-r", r)
 	if err == nil {
 		return true
 	}
@@ -161,13 +161,13 @@ func (s *HgRepo) IsReference(r string) bool {
 // IsDirty returns if the checkout has been modified from the checked
 // out reference.
 func (s *HgRepo) IsDirty() bool {
-	out, err := s.runFromDir("hg", "diff")
+	out, err := s.RunFromDir("hg", "diff")
 	return err != nil || len(out) != 0
 }
 
 // CommitInfo retrieves metadata about a commit.
 func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
-	out, err := s.runFromDir("hg", "log", "-r", id, "--style=xml")
+	out, err := s.RunFromDir("hg", "log", "-r", id, "--style=xml")
 	if err != nil {
 		return nil, ErrRevisionUnavailable
 	}
@@ -210,4 +210,14 @@ func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
 	}
 
 	return ci, nil
+}
+
+// Ping returns if remote location is accessible.
+func (s *HgRepo) Ping() bool {
+	_, err := s.run("hg", "identify", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
 }

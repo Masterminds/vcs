@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -84,24 +85,24 @@ func (s *BzrRepo) Get() error {
 
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	_, err := s.runFromDir("bzr", "pull")
+	_, err := s.RunFromDir("bzr", "pull")
 	if err != nil {
 		return err
 	}
-	_, err = s.runFromDir("bzr", "update")
+	_, err = s.RunFromDir("bzr", "update")
 	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Bzr.
 func (s *BzrRepo) UpdateVersion(version string) error {
-	_, err := s.runFromDir("bzr", "update", "-r", version)
+	_, err := s.RunFromDir("bzr", "update", "-r", version)
 	return err
 }
 
 // Version retrieves the current version.
 func (s *BzrRepo) Version() (string, error) {
 
-	out, err := s.runFromDir("bzr", "revno", "--tree")
+	out, err := s.RunFromDir("bzr", "revno", "--tree")
 	if err != nil {
 		return "", err
 	}
@@ -111,7 +112,7 @@ func (s *BzrRepo) Version() (string, error) {
 
 // Date retrieves the date on the latest commit.
 func (s *BzrRepo) Date() (time.Time, error) {
-	out, err := s.runFromDir("bzr", "version-info", "--custom", "--template={date}")
+	out, err := s.RunFromDir("bzr", "version-info", "--custom", "--template={date}")
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -142,7 +143,7 @@ func (s *BzrRepo) Branches() ([]string, error) {
 
 // Tags returns a list of available tags on the repository.
 func (s *BzrRepo) Tags() ([]string, error) {
-	out, err := s.runFromDir("bzr", "tags")
+	out, err := s.RunFromDir("bzr", "tags")
 	if err != nil {
 		return []string{}, err
 	}
@@ -153,7 +154,7 @@ func (s *BzrRepo) Tags() ([]string, error) {
 // IsReference returns if a string is a reference. A reference can be a
 // commit id or tag.
 func (s *BzrRepo) IsReference(r string) bool {
-	_, err := s.runFromDir("bzr", "revno", "-r", r)
+	_, err := s.RunFromDir("bzr", "revno", "-r", r)
 	if err == nil {
 		return true
 	}
@@ -164,14 +165,14 @@ func (s *BzrRepo) IsReference(r string) bool {
 // IsDirty returns if the checkout has been modified from the checked
 // out reference.
 func (s *BzrRepo) IsDirty() bool {
-	out, err := s.runFromDir("bzr", "diff")
+	out, err := s.RunFromDir("bzr", "diff")
 	return err != nil || len(out) != 0
 }
 
 // CommitInfo retrieves metadata about a commit.
 func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	r := "-r" + id
-	out, err := s.runFromDir("bzr", "log", r, "--log-format=long")
+	out, err := s.RunFromDir("bzr", "log", r, "--log-format=long")
 	if err != nil {
 		return nil, ErrRevisionUnavailable
 	}
@@ -209,4 +210,35 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	}
 
 	return ci, nil
+}
+
+// Ping returns if remote location is accessible.
+func (s *BzrRepo) Ping() bool {
+
+	// Running bzr info is slow. Many of the projects are on launchpad which
+	// has a public 1.0 API we can use.
+	u, err := url.Parse(s.Remote())
+	if err == nil {
+		if u.Host == "launchpad.net" {
+			try := strings.TrimPrefix(u.Path, "/")
+
+			// get returns the body and an err. If the status code is not a 200
+			// an error is returned. Launchpad returns a 404 for a codebase that
+			// does not exist. Otherwise it returns a JSON object describing it.
+			_, er := get("https://api.launchpad.net/1.0/" + try)
+			if er == nil {
+				return true
+			}
+			return false
+		}
+	}
+
+	// This is the same command that Go itself uses but it's not fast (or fast
+	// enough by my standards). A faster method would be useful.
+	_, err = s.run("bzr", "info", s.Remote())
+	if err != nil {
+		return false
+	}
+
+	return true
 }

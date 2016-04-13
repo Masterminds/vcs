@@ -114,6 +114,12 @@ type Repo interface {
 
 	// CommitInfo retrieves metadata about a commit.
 	CommitInfo(string) (*CommitInfo, error)
+
+	// Ping returns if remote location is accessible.
+	Ping() bool
+
+	// RunFromDir executes a command from repo's directory.
+	RunFromDir(cmd string, args ...string) ([]byte, error)
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
@@ -202,7 +208,7 @@ func (b base) run(cmd string, args ...string) ([]byte, error) {
 	return out, err
 }
 
-func (b *base) runFromDir(cmd string, args ...string) ([]byte, error) {
+func (b *base) RunFromDir(cmd string, args ...string) ([]byte, error) {
 	c := exec.Command(cmd, args...)
 	c.Dir = b.local
 	c.Env = envForDir(c.Dir)

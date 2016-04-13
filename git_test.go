@@ -215,3 +215,36 @@ func TestGitCheckLocal(t *testing.T) {
 		t.Error(nrerr)
 	}
 }
+
+func TestGitPing(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	repo, err := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping := repo.Ping()
+	if !ping {
+		t.Error("Git unable to ping working repo")
+	}
+
+	repo, err = NewGitRepo("https://github.com/Masterminds/ihopethisneverexistsbecauseitshouldnt", tempDir)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ping = repo.Ping()
+	if ping {
+		t.Error("Git got a ping response from when it should not have")
+	}
+}
