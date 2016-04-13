@@ -24,16 +24,16 @@ import "errors"
 //
 //     err := repo.Get()
 //     if err != nil {
-//         // A GetError was returned. This has access to the output of the
-//         // vcs command, original error, and a consistent cross vcs error.
+//         // A RemoteError was returned. This has access to the output of the
+//         // vcs command, original error, and has a consistent cross vcs message.
 //     }
 //
 // The errors returned here can be used in type switches to detect the underlying
 // error. For example:
 //
 //     switch err.(type) {
-//     case *vcs.GetError:
-//         // This a get error
+//     case *vcs.RemoteError:
+//         // This an error connecting to a remote system.
 //     }
 //
 // For more information on using type switches to detect error types you can
