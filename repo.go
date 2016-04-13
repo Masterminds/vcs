@@ -135,7 +135,7 @@ type Repo interface {
 	// Ping returns if remote location is accessible.
 	Ping() bool
 
-	// Runs a command from repo's directory.
+	// RunFromDir executes a command from repo's directory.
 	RunFromDir(cmd string, args ...string) ([]byte, error)
 }
 
