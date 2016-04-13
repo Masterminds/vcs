@@ -40,7 +40,7 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 		c.Env = envForDir(c.Dir)
 		out, err := c.CombinedOutput()
 		if err != nil {
-			return nil, err
+			return nil, NewLocalError("Unable to retrieve local repo information", err, string(out))
 		}
 		m := bzrDetectURL.FindStringSubmatch(string(out))
 
@@ -71,32 +71,38 @@ func (s *BzrRepo) Get() error {
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
 		err = os.MkdirAll(basePath, 0755)
 		if err != nil {
-			return NewGetError(err, "")
+			return NewLocalError("Unable to create directory", err, "")
 		}
 	}
 
 	out, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
 	if err != nil {
-		return NewGetError(err, string(out))
+		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 
-	return err
+	return nil
 }
 
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	_, err := s.RunFromDir("bzr", "pull")
+	out, err := s.RunFromDir("bzr", "pull")
 	if err != nil {
-		return err
+		return NewRemoteError("Unable to update repository", err, string(out))
 	}
-	_, err = s.RunFromDir("bzr", "update")
-	return err
+	out, err = s.RunFromDir("bzr", "update")
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return nil
 }
 
 // UpdateVersion sets the version of a package currently checked out via Bzr.
 func (s *BzrRepo) UpdateVersion(version string) error {
-	_, err := s.RunFromDir("bzr", "update", "-r", version)
-	return err
+	out, err := s.RunFromDir("bzr", "update", "-r", version)
+	if err != nil {
+		return NewLocalError("Unable to update checked out version", err, string(out))
+	}
+	return nil
 }
 
 // Version retrieves the current version.
@@ -104,7 +110,7 @@ func (s *BzrRepo) Version() (string, error) {
 
 	out, err := s.RunFromDir("bzr", "revno", "--tree")
 	if err != nil {
-		return "", err
+		return "", NewLocalError("Unable to retrieve checked out version", err, string(out))
 	}
 
 	return strings.TrimSpace(string(out)), nil
@@ -114,11 +120,11 @@ func (s *BzrRepo) Version() (string, error) {
 func (s *BzrRepo) Date() (time.Time, error) {
 	out, err := s.RunFromDir("bzr", "version-info", "--custom", "--template={date}")
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, string(out))
 	}
 	t, err := time.Parse(longForm, string(out))
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, string(out))
 	}
 	return t, nil
 }
@@ -145,7 +151,7 @@ func (s *BzrRepo) Branches() ([]string, error) {
 func (s *BzrRepo) Tags() ([]string, error) {
 	out, err := s.RunFromDir("bzr", "tags")
 	if err != nil {
-		return []string{}, err
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
 	}
 	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
 	return tags, nil
@@ -193,7 +199,7 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 			ts := strings.TrimSpace(strings.TrimPrefix(l, "timestamp:"))
 			ci.Date, err = time.Parse(format, ts)
 			if err != nil {
-				return nil, err
+				return nil, NewLocalError("Unable to retrieve commit information", err, string(out))
 			}
 		} else if strings.TrimSpace(l) == "message:" {
 			track = i

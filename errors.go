@@ -55,15 +55,30 @@ var (
 	ErrRevisionUnavailable = errors.New("Revision unavailable")
 )
 
-// GetError is returned when unable to retrieve a repository
-type GetError struct {
+// RemoteError is returned when an operation fails against a remote repo
+type RemoteError struct {
 	vcsError
 }
 
-// NewGetError constructs a GetError
-func NewGetError(err error, out string) error {
-	e := &GetError{}
-	e.s = "Unable to get repository"
+// NewRemoteError constructs a RemoteError
+func NewRemoteError(msg string, err error, out string) error {
+	e := &RemoteError{}
+	e.s = msg
+	e.e = err
+	e.o = out
+
+	return e
+}
+
+// LocalError is returned when a local operation has an error
+type LocalError struct {
+	vcsError
+}
+
+// NewLocalError constructs a LocalError
+func NewLocalError(msg string, err error, out string) error {
+	e := &LocalError{}
+	e.s = msg
 	e.e = err
 	e.o = out
 

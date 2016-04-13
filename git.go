@@ -33,7 +33,7 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 		c.Env = envForDir(c.Dir)
 		out, err := c.CombinedOutput()
 		if err != nil {
-			return nil, err
+			return nil, NewLocalError("Unable to retrieve local repo information", err, string(out))
 		}
 
 		localRemote := strings.TrimSpace(string(out))
@@ -75,58 +75,63 @@ func (s *GitRepo) Get() error {
 		if _, err := os.Stat(basePath); os.IsNotExist(err) {
 			err = os.MkdirAll(basePath, 0755)
 			if err != nil {
-				return NewGetError(err, "")
+				return NewLocalError("Unable to create directory", err, "")
 			}
 
 			out, err = s.run("git", "clone", s.Remote(), s.LocalPath())
 			if err != nil {
-				return NewGetError(err, string(out))
+				return NewRemoteError("Unable to get repository", err, string(out))
 			}
 			return err
 		}
 
 	} else if err != nil {
-		return NewGetError(err, string(out))
+		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 
-	return err
+	return nil
 }
 
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	_, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
+	out, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
 	if err != nil {
-		return err
+		return NewRemoteError("Unable to update repository", err, string(out))
 	}
 
 	// When in a detached head state, such as when an individual commit is checked
 	// out do not attempt a pull. It will cause an error.
 	detached, err := isDetachedHead(s.LocalPath())
-
 	if err != nil {
-		return err
+		return NewLocalError("Unable to update repository", err, "")
 	}
 
 	if detached == true {
 		return nil
 	}
 
-	_, err = s.RunFromDir("git", "pull")
-	return err
+	out, err = s.RunFromDir("git", "pull")
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return nil
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
 func (s *GitRepo) UpdateVersion(version string) error {
-	_, err := s.RunFromDir("git", "checkout", version)
-	return err
+	out, err := s.RunFromDir("git", "checkout", version)
+	if err != nil {
+		return NewLocalError("Unable to update checked out version", err, string(out))
+	}
+	return nil
 }
 
 // Version retrieves the current version.
 func (s *GitRepo) Version() (string, error) {
 	out, err := s.RunFromDir("git", "rev-parse", "HEAD")
 	if err != nil {
-		return "", err
+		return "", NewLocalError("Unable to retrieve checked out version", err, string(out))
 	}
 
 	return strings.TrimSpace(string(out)), nil
@@ -136,11 +141,11 @@ func (s *GitRepo) Version() (string, error) {
 func (s *GitRepo) Date() (time.Time, error) {
 	out, err := s.RunFromDir("git", "log", "-1", "--date=iso", "--pretty=format:%cd")
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, string(out))
 	}
 	t, err := time.Parse(longForm, string(out))
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, string(out))
 	}
 	return t, nil
 }
@@ -149,7 +154,7 @@ func (s *GitRepo) Date() (time.Time, error) {
 func (s *GitRepo) Branches() ([]string, error) {
 	out, err := s.RunFromDir("git", "show-ref")
 	if err != nil {
-		return []string{}, err
+		return []string{}, NewLocalError("Unable to retrieve branches", err, string(out))
 	}
 	branches := s.referenceList(string(out), `(?m-s)(?:`+s.RemoteLocation+`)/(\S+)$`)
 	return branches, nil
@@ -159,7 +164,7 @@ func (s *GitRepo) Branches() ([]string, error) {
 func (s *GitRepo) Tags() ([]string, error) {
 	out, err := s.RunFromDir("git", "show-ref")
 	if err != nil {
-		return []string{}, err
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
 	}
 	tags := s.referenceList(string(out), `(?m-s)(?:tags)/(\S+)$`)
 	return tags, nil
@@ -216,12 +221,12 @@ func (s *GitRepo) CommitInfo(id string) (*CommitInfo, error) {
 	}{}
 	err = xml.Unmarshal(out, &cis)
 	if err != nil {
-		return nil, err
+		return nil, NewLocalError("Unable to retrieve commit information", err, string(out))
 	}
 
 	t, err := time.Parse("Mon, _2 Jan 2006 15:04:05 -0700", cis.Date)
 	if err != nil {
-		return nil, err
+		return nil, NewLocalError("Unable to retrieve commit information", err, string(out))
 	}
 
 	ci := &CommitInfo{

@@ -5,16 +5,32 @@ import (
 	"testing"
 )
 
-func TestNewGetError(t *testing.T) {
+func TestNewRemoteError(t *testing.T) {
 	base := errors.New("Foo error")
 	out := "This is a test"
+	msg := "remote error msg"
 
-	e := NewGetError(base, out)
+	e := NewRemoteError(msg, base, out)
 
 	switch e.(type) {
-	case *GetError:
+	case *RemoteError:
 		// This is the right error type
 	default:
-		t.Error("Wrong error type returned from NewGetError")
+		t.Error("Wrong error type returned from NewRemoteError")
+	}
+}
+
+func TestNewLocalError(t *testing.T) {
+	base := errors.New("Foo error")
+	out := "This is a test"
+	msg := "local error msg"
+
+	e := NewLocalError(msg, base, out)
+
+	switch e.(type) {
+	case *LocalError:
+		// This is the right error type
+	default:
+		t.Error("Wrong error type returned from NewLocalError")
 	}
 }
