@@ -134,6 +134,14 @@ func TestSvn(t *testing.T) {
 		t.Error("Svn is incorrectly returning tags")
 	}
 
+	tags, err = repo.TagsFromCommit("2")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 0 {
+		t.Error("Svn is incorrectly returning tags for a commit")
+	}
+
 	branches, err := repo.Branches()
 	if err != nil {
 		t.Error(err)

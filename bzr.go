@@ -218,6 +218,17 @@ func (s *BzrRepo) CommitInfo(id string) (*CommitInfo, error) {
 	return ci, nil
 }
 
+// TagsFromCommit retrieves tags from a commit id.
+func (s *BzrRepo) TagsFromCommit(id string) ([]string, error) {
+	out, err := s.RunFromDir("bzr", "tags", "-r", id)
+	if err != nil {
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
+	}
+
+	tags := s.referenceList(string(out), `(?m-s)^(\S+)`)
+	return tags, nil
+}
+
 // Ping returns if remote location is accessible.
 func (s *BzrRepo) Ping() bool {
 

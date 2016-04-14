@@ -101,9 +101,6 @@ type Repo interface {
 	// Tags returns a list of available tags on the repository.
 	Tags() ([]string, error)
 
-	// TODO: Provide a consistent manner to get reference information across
-	// multiple VCS.
-
 	// IsReference returns if a string is a reference. A reference can be a
 	// commit id, branch, or tag.
 	IsReference(string) bool
@@ -114,6 +111,9 @@ type Repo interface {
 
 	// CommitInfo retrieves metadata about a commit.
 	CommitInfo(string) (*CommitInfo, error)
+
+	// TagsFromCommit retrieves tags from a commit id.
+	TagsFromCommit(string) ([]string, error)
 
 	// Ping returns if remote location is accessible.
 	Ping() bool

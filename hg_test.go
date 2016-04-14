@@ -123,6 +123,22 @@ func TestHg(t *testing.T) {
 		t.Error("Hg tags is not reporting the correct version")
 	}
 
+	tags, err = repo.TagsFromCommit("a5494ba2177f")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 0 {
+		t.Error("Hg is incorrectly returning tags for a commit")
+	}
+
+	tags, err = repo.TagsFromCommit("d680e82228d2")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 1 || tags[0] != "1.0.0" {
+		t.Error("Hg is incorrectly returning tags for a commit")
+	}
+
 	branches, err := repo.Branches()
 	if err != nil {
 		t.Error(err)
