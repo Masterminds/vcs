@@ -249,6 +249,13 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 	return ci, nil
 }
 
+// TagsFromCommit retrieves tags from a commit id.
+func (s *SvnRepo) TagsFromCommit(id string) ([]string, error) {
+	// Svn tags are a convention implemented as paths. See the details on the
+	// Tag() method for more information.
+	return []string{}, nil
+}
+
 // Ping returns if remote location is accessible.
 func (s *SvnRepo) Ping() bool {
 	_, err := s.run("svn", "--non-interactive", "info", s.Remote())

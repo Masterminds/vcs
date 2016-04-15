@@ -140,6 +140,22 @@ func TestGit(t *testing.T) {
 		t.Error("Git tags is not reporting the correct version")
 	}
 
+	tags, err = repo.TagsFromCommit("74dd547545b7df4aa285bcec1b54e2b76f726395")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 0 {
+		t.Error("Git is incorrectly returning tags for a commit")
+	}
+
+	tags, err = repo.TagsFromCommit("30605f6ac35fcb075ad0bfa9296f90a7d891523e")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(tags) != 1 || tags[0] != "1.0.0" {
+		t.Error("Git is incorrectly returning tags for a commit")
+	}
+
 	branches, err := repo.Branches()
 	if err != nil {
 		t.Error(err)

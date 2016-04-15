@@ -227,6 +227,40 @@ func (s *HgRepo) CommitInfo(id string) (*CommitInfo, error) {
 	return ci, nil
 }
 
+// TagsFromCommit retrieves tags from a commit id.
+func (s *HgRepo) TagsFromCommit(id string) ([]string, error) {
+	// Hg has a single tag per commit. If a second tag is added to a commit a
+	// new commit is created and the tag is attached to that new commit.
+	out, err := s.RunFromDir("hg", "log", "-r", id, "--style=xml")
+	if err != nil {
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
+	}
+
+	type Logentry struct {
+		Node string `xml:"node,attr"`
+		Tag  string `xml:"tag"`
+	}
+	type Log struct {
+		XMLName xml.Name   `xml:"log"`
+		Logs    []Logentry `xml:"logentry"`
+	}
+
+	logs := &Log{}
+	err = xml.Unmarshal(out, &logs)
+	if err != nil {
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
+	}
+	if len(logs.Logs) == 0 {
+		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
+	}
+
+	t := strings.TrimSpace(logs.Logs[0].Tag)
+	if t != "" {
+		return []string{t}, nil
+	}
+	return []string{}, nil
+}
+
 // Ping returns if remote location is accessible.
 func (s *HgRepo) Ping() bool {
 	_, err := s.run("hg", "identify", s.Remote())
