@@ -257,5 +257,7 @@ func TestBzrInit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Logf("bzr version: %v", v)
+	if v != "0" {
+		t.Errorf("Bzr Init returns wrong version: %s", v)
+	}
 }

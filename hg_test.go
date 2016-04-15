@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"strings"
 	"time"
 	//"log"
 	"os"
@@ -260,5 +261,7 @@ func TestHgInit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Logf("hg version: %s", v)
+	if !strings.HasPrefix(v, "000000") {
+		t.Errorf("Hg Init reporting wrong initial version: %s", v)
+	}
 }

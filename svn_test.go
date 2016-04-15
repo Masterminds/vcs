@@ -274,5 +274,7 @@ func TestSvnInit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Logf("svn version: %s", v)
+	if v != "0" {
+		t.Errorf("Svn Init returns wrong version: %s", v)
+	}
 }
