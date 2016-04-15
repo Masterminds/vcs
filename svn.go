@@ -81,7 +81,7 @@ func (s *SvnRepo) Get() error {
 
 // Init will create a svn repository at remote location.
 func (s *SvnRepo) Init() error {
-	_, err := s.run("svnadmin", "create", s.Remote())
+	out, err := s.run("svnadmin", "create", s.Remote())
 
 	if err != nil && s.isUnableToCreateDir(err) {
 
@@ -89,16 +89,21 @@ func (s *SvnRepo) Init() error {
 		if _, err := os.Stat(basePath); os.IsNotExist(err) {
 			err = os.MkdirAll(basePath, 0755)
 			if err != nil {
-				return err
+				return NewLocalError("Unable to initialize repository", err, "")
 			}
 
-			_, err = s.run("svnadmin", "create", s.Remote())
-			return err
+			out, err = s.run("svnadmin", "create", s.Remote())
+			if err != nil {
+				return NewLocalError("Unable to initialize repository", err, string(out))
+			}
+			return nil
 		}
 
+	} else if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 
-	return err
+	return nil
 }
 
 // Update performs an SVN update to an existing checkout.

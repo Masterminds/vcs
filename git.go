@@ -94,7 +94,7 @@ func (s *GitRepo) Get() error {
 
 // Init initializes a git repository at local location.
 func (s *GitRepo) Init() error {
-	_, err := s.run("git", "init", s.LocalPath())
+	out, err := s.run("git", "init", s.LocalPath())
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
@@ -105,16 +105,21 @@ func (s *GitRepo) Init() error {
 		if _, err := os.Stat(basePath); os.IsNotExist(err) {
 			err = os.MkdirAll(basePath, 0755)
 			if err != nil {
-				return err
+				return NewLocalError("Unable to initialize repository", err, "")
 			}
 
-			_, err = s.run("git", "init", s.LocalPath())
-			return err
+			out, err = s.run("git", "init", s.LocalPath())
+			if err != nil {
+				return NewLocalError("Unable to initialize repository", err, string(out))
+			}
+			return nil
 		}
 
+	} else if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 
-	return err
+	return nil
 }
 
 // Update performs an Git fetch and pull to an existing checkout.

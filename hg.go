@@ -75,8 +75,11 @@ func (s *HgRepo) Get() error {
 
 // Init will initialize a mercurial repository at local location.
 func (s *HgRepo) Init() error {
-	_, err := s.run("hg", "init", s.LocalPath())
-	return err
+	out, err := s.run("hg", "init", s.LocalPath())
+	if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
+	}
+	return nil
 }
 
 // Update performs a Mercurial pull to an existing checkout.

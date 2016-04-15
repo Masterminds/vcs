@@ -84,9 +84,9 @@ func (s *BzrRepo) Get() error {
 	return nil
 }
 
-// Init initializees a bazaar repository at local location.
+// Init initializes a bazaar repository at local location.
 func (s *BzrRepo) Init() error {
-	_, err := s.run("bzr", "init", s.LocalPath())
+	out, err := s.run("bzr", "init", s.LocalPath())
 
 	// There are some windows cases where bazaar cannot create the parent
 	// directory if it does not already exist, to the location it's trying
@@ -97,16 +97,21 @@ func (s *BzrRepo) Init() error {
 		if _, err := os.Stat(basePath); os.IsNotExist(err) {
 			err = os.MkdirAll(basePath, 0755)
 			if err != nil {
-				return err
+				return NewLocalError("Unable to initialize repository", err, "")
 			}
 
-			_, err = s.run("bzr", "init", s.LocalPath())
-			return err
+			out, err = s.run("bzr", "init", s.LocalPath())
+			if err != nil {
+				return NewLocalError("Unable to initialize repository", err, string(out))
+			}
+			return nil
 		}
 
+	} else if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 
-	return err
+	return nil
 }
 
 // Update performs a Bzr pull and update to an existing checkout.
