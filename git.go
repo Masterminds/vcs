@@ -274,14 +274,8 @@ func (s *GitRepo) TagsFromCommit(id string) ([]string, error) {
 	// This is imperfect and a better method would be great.
 
 	var re []string
-	// Get the one we think is right first. This only returns a single tag.
-	out, err := s.RunFromDir("git", "describe", "--tags", "--exact-match", id)
-	if err == nil {
-		// If there is no tag describing the commit it returns an error.
-		re = append(re, strings.TrimSpace(string(out)))
-	}
 
-	out, err = s.RunFromDir("git", "show-ref", "-d")
+	out, err := s.RunFromDir("git", "show-ref", "-d")
 	if err != nil {
 		return []string{}, NewLocalError("Unable to retrieve tags", err, string(out))
 	}
@@ -294,19 +288,8 @@ func (s *GitRepo) TagsFromCommit(id string) ([]string, error) {
 		}
 	}
 	tags := s.referenceList(strings.Join(list, "\n"), `(?m-s)(?:tags)/(\S+)$`)
-	var found bool
 	for _, t := range tags {
-		found = false
-		for _, v := range re {
-			if v == t {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			re = append(re, t)
-		}
+		re = append(re, t)
 	}
 
 	return re, nil
