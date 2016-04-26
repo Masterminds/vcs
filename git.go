@@ -289,7 +289,8 @@ func (s *GitRepo) TagsFromCommit(id string) ([]string, error) {
 	}
 	tags := s.referenceList(strings.Join(list, "\n"), `(?m-s)(?:tags)/(\S+)$`)
 	for _, t := range tags {
-		re = append(re, t)
+		// Dereferenced tags have ^{} appended to them.
+		re = append(re, strings.TrimSuffix(t, "^{}"))
 	}
 
 	return re, nil
