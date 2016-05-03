@@ -87,6 +87,14 @@ func TestSvn(t *testing.T) {
 	// 	t.Error("Wrong version returned from NewRepo")
 	// }
 
+	v, err := repo.Current()
+	if err != nil {
+		t.Errorf("Error trying Svn Current: %s", err)
+	}
+	if v != "HEAD" {
+		t.Errorf("Current failed to detect Svn on HEAD. Got version: %s", v)
+	}
+
 	// Update the version to a previous version.
 	err = repo.UpdateVersion("r2")
 	if err != nil {
@@ -94,12 +102,20 @@ func TestSvn(t *testing.T) {
 	}
 
 	// Use Version to verify we are on the right version.
-	v, err := repo.Version()
+	v, err = repo.Version()
 	if v != "2" {
 		t.Error("Error checking checked SVN out version")
 	}
 	if err != nil {
 		t.Error(err)
+	}
+
+	v, err = repo.Current()
+	if err != nil {
+		t.Errorf("Error trying Svn Current for ref: %s", err)
+	}
+	if v != "2" {
+		t.Errorf("Current failed to detect Svn on HEAD. Got version: %s", v)
 	}
 
 	// Perform an update which should take up back to the latest version.

@@ -169,6 +169,34 @@ func (s *GitRepo) Version() (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+// Current returns the current version-ish. This means:
+// * Branch name if on the tip of the branch
+// * Tag if on a tag
+// * Otherwise a revision id
+func (s *GitRepo) Current() (string, error) {
+	out, err := s.RunFromDir("git", "symbolic-ref", "HEAD")
+	if err == nil {
+		o := bytes.TrimSpace(bytes.TrimPrefix(out, []byte("refs/heads/")))
+		return string(o), nil
+	}
+
+	v, err := s.Version()
+	if err != nil {
+		return "", err
+	}
+
+	ts, err := s.TagsFromCommit(v)
+	if err != nil {
+		return "", err
+	}
+
+	if len(ts) > 0 {
+		return ts[0], nil
+	}
+
+	return v, nil
+}
+
 // Date retrieves the date on the latest commit.
 func (s *GitRepo) Date() (time.Time, error) {
 	out, err := s.RunFromDir("git", "log", "-1", "--date=iso", "--pretty=format:%cd")

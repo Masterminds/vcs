@@ -92,6 +92,12 @@ type Repo interface {
 	// Version retrieves the current version.
 	Version() (string, error)
 
+	// Current retrieves the current version-ish. This is different from the
+	// Version method. The output could be a branch name if on the tip of a
+	// branch (git), a tag if on a tag, a revision if on a specific revision
+	// that's not the tip of the branch. The values here vary based on the VCS.
+	Current() (string, error)
+
 	// Date retrieves the date on the latest commit.
 	Date() (time.Time, error)
 
