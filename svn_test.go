@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"io/ioutil"
+	"path/filepath"
 	"time"
 	//"log"
 	"os"
@@ -186,6 +187,38 @@ func TestSvn(t *testing.T) {
 	_, err = repo.CommitInfo("555555555")
 	if err != ErrRevisionUnavailable {
 		t.Error("Svn didn't return expected ErrRevisionUnavailable")
+	}
+
+	tempDir2, err := ioutil.TempDir("", "go-vcs-svn-tests-export")
+	if err != nil {
+		t.Fatalf("Error creating temp directory: %s", err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir2)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	exportDir := filepath.Join(tempDir2, "src")
+
+	err = repo.ExportDir(exportDir)
+	if err != nil {
+		t.Errorf("Unable to export Svn repo. Err was %s", err)
+	}
+
+	_, err = os.Stat(filepath.Join(exportDir, "Readme.md"))
+	if err != nil {
+		t.Errorf("Error checking exported file in Svn: %s", err)
+	}
+
+	_, err = os.Stat(filepath.Join(exportDir, string(repo.Vcs())))
+	if err != nil {
+		if found := os.IsNotExist(err); found == false {
+			t.Errorf("Error checking exported metadata in Svn: %s", err)
+		}
+	} else {
+		t.Error("Error checking Svn metadata. It exists.")
 	}
 }
 

@@ -314,6 +314,23 @@ func (s *GitRepo) Ping() bool {
 	return true
 }
 
+// ExportDir exports the current revision to the passed in directory.
+func (s *GitRepo) ExportDir(dir string) error {
+
+	// Without the trailing / there can be problems.
+	if !strings.HasSuffix(dir, string(os.PathSeparator)) {
+		dir = dir + string(os.PathSeparator)
+	}
+
+	out, err := s.RunFromDir("git", "checkout-index", "-f", "-a", "--prefix="+dir)
+	s.log(out)
+	if err != nil {
+		return NewLocalError("Unable to export source", err, string(out))
+	}
+
+	return nil
+}
+
 // isDetachedHead will detect if git repo is in "detached head" state.
 func isDetachedHead(dir string) (bool, error) {
 	p := filepath.Join(dir, ".git", "HEAD")

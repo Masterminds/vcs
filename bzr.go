@@ -291,6 +291,17 @@ func (s *BzrRepo) Ping() bool {
 	return true
 }
 
+// ExportDir exports the current revision to the passed in directory.
+func (s *BzrRepo) ExportDir(dir string) error {
+	out, err := s.RunFromDir("bzr", "export", dir)
+	s.log(out)
+	if err != nil {
+		return NewLocalError("Unable to export source", err, string(out))
+	}
+
+	return nil
+}
+
 // Multi-lingual manner check for the VCS error that it couldn't create directory.
 // https://bazaar.launchpad.net/~bzr-pqm/bzr/bzr.dev/files/head:/po/
 func (s *BzrRepo) isUnableToCreateDir(err error) bool {

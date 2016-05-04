@@ -123,6 +123,9 @@ type Repo interface {
 
 	// RunFromDir executes a command from repo's directory.
 	RunFromDir(cmd string, args ...string) ([]byte, error)
+
+	// ExportDir exports the current revision to the passed in directory.
+	ExportDir(string) error
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
