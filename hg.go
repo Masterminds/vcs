@@ -307,3 +307,15 @@ func (s *HgRepo) Ping() bool {
 
 	return true
 }
+
+// ExportDir exports the current revision to the passed in directory.
+func (s *HgRepo) ExportDir(dir string) error {
+
+	out, err := s.RunFromDir("hg", "archive", dir)
+	s.log(out)
+	if err != nil {
+		return NewLocalError("Unable to export source", err, string(out))
+	}
+
+	return nil
+}

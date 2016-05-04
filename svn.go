@@ -322,6 +322,18 @@ func (s *SvnRepo) Ping() bool {
 	return true
 }
 
+// ExportDir exports the current revision to the passed in directory.
+func (s *SvnRepo) ExportDir(dir string) error {
+
+	out, err := s.RunFromDir("svn", "export", ".", dir)
+	s.log(out)
+	if err != nil {
+		return NewLocalError("Unable to export source", err, string(out))
+	}
+
+	return nil
+}
+
 // isUnableToCreateDir checks for an error in Init() to see if an error
 // where the parent directory of the VCS local path doesn't exist.
 func (s *SvnRepo) isUnableToCreateDir(err error) bool {
