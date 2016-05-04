@@ -82,6 +82,14 @@ func TestGit(t *testing.T) {
 		t.Error(err)
 	}
 
+	v, err := repo.Current()
+	if err != nil {
+		t.Errorf("Error trying Git Current: %s", err)
+	}
+	if v != "master" {
+		t.Errorf("Current failed to detect Git on tip of master. Got version: %s", v)
+	}
+
 	// Set the version using the short hash.
 	err = repo.UpdateVersion("806b07b")
 	if err != nil {
@@ -98,12 +106,20 @@ func TestGit(t *testing.T) {
 	}
 
 	// Use Version to verify we are on the right version.
-	v, err := repo.Version()
+	v, err = repo.Version()
 	if v != "806b07b08faa21cfbdae93027904f80174679402" {
 		t.Error("Error checking checked out Git version")
 	}
 	if err != nil {
 		t.Error(err)
+	}
+
+	v, err = repo.Current()
+	if err != nil {
+		t.Errorf("Error trying Git Current for ref: %s", err)
+	}
+	if v != "806b07b08faa21cfbdae93027904f80174679402" {
+		t.Errorf("Current failed to detect Git on ref of branch. Got version: %s", v)
 	}
 
 	// Use Date to verify we are on the right commit.

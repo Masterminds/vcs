@@ -106,7 +106,7 @@ func (s *HgRepo) UpdateVersion(version string) error {
 
 // Version retrieves the current version.
 func (s *HgRepo) Version() (string, error) {
-	out, err := s.RunFromDir("hg", "identify")
+	out, err := s.RunFromDir("hg", "--debug", "identify")
 	if err != nil {
 		return "", NewLocalError("Unable to retrieve checked out version", err, string(out))
 	}
@@ -114,6 +114,43 @@ func (s *HgRepo) Version() (string, error) {
 	parts := strings.SplitN(string(out), " ", 2)
 	sha := parts[0]
 	return strings.TrimSpace(sha), nil
+}
+
+// Current returns the current version-ish. This means:
+// * Branch name if on the tip of the branch
+// * Tag if on a tag
+// * Otherwise a revision id
+func (s *HgRepo) Current() (string, error) {
+	out, err := s.RunFromDir("hg", "branch")
+	if err != nil {
+		return "", err
+	}
+	branch := strings.TrimSpace(string(out))
+
+	tip, err := s.CommitInfo("max(branch(" + branch + "))")
+	if err != nil {
+		return "", err
+	}
+
+	curr, err := s.Version()
+	if err != nil {
+		return "", err
+	}
+
+	if tip.Commit == curr {
+
+		return branch, nil
+	}
+
+	ts, err := s.TagsFromCommit(curr)
+	if err != nil {
+		return "", err
+	}
+	if len(ts) > 0 {
+		return ts[0], nil
+	}
+
+	return curr, nil
 }
 
 // Date retrieves the date on the latest commit.
