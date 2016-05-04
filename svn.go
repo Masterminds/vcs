@@ -72,27 +72,28 @@ func (s *SvnRepo) GetCmd() (string, []string) {
 	return "svn", []string{"checkout", remote, s.LocalPath()}
 }
 
-// Get is used to perform an initial checkout of a repository.
-// Note, because SVN isn't distributed this is a checkout without
-// a clone.
-func (s *SvnRepo) Get() error {
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
+func (s *SvnRepo) GetError(out []byte, err error) error {
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 	return nil
 }
 
+// Get is used to perform an initial checkout of a repository.
+// Note, because SVN isn't distributed this is a checkout without
+// a clone.
+func (s *SvnRepo) Get() error {
+	name, args := s.GetCmd()
+	out, err := s.run(name, args...)
+
+	return s.GetError(out, err)
+}
+
 func (s *SvnRepo) InitCmd() (string, []string) {
 	return "svnadmin", []string{"create", s.Remote()}
 }
 
-// Init will create a svn repository at remote location.
-func (s *SvnRepo) Init() error {
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
-
+func (s *SvnRepo) InitError(out []byte, err error) error {
 	if err != nil && s.isUnableToCreateDir(err) {
 
 		basePath := filepath.Dir(filepath.FromSlash(s.Remote()))
@@ -116,18 +117,31 @@ func (s *SvnRepo) Init() error {
 	return nil
 }
 
+// Init will create a svn repository at remote location.
+func (s *SvnRepo) Init() error {
+	name, args := s.InitCmd()
+	out, err := s.run(name, args...)
+
+	return s.InitError(out, err)
+}
+
 func (s *SvnRepo) UpdateCmd() (string, []string) {
 	return "svn", []string{"update"}
+}
+
+func (s *SvnRepo) UpdateError(out []byte, err error) error {
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return err
 }
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
 	cmd, args := s.UpdateCmd()
 	out, err := s.RunFromDir(cmd, args...)
-	if err != nil {
-		return NewRemoteError("Unable to update repository", err, string(out))
-	}
-	return err
+
+	return s.UpdateError(out, err)
 }
 
 // UpdateVersion sets the version of a package currently checked out via SVN.
