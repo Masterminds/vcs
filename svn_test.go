@@ -207,7 +207,7 @@ func TestSvn(t *testing.T) {
 		t.Errorf("Unable to export Svn repo. Err was %s", err)
 	}
 
-	_, err = os.Stat(filepath.Join(exportDir, "Readme.md"))
+	_, err = os.Stat(filepath.Join(exportDir, "README.md"))
 	if err != nil {
 		t.Errorf("Error checking exported file in Svn: %s", err)
 	}
