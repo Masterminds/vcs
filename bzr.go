@@ -130,7 +130,7 @@ func (s *BzrRepo) UpdateCmd() (string, []string) {
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
 	name, args := s.UpdateCmd()
-	out, err := s.run(name, args...)
+	out, err := s.RunFromDir(name, args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

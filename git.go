@@ -155,9 +155,14 @@ func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
 	cmd, args := s.FetchCmd()
 	out, err := s.RunFromDir(cmd, args...)
+
 	err = s.FetchError(out, err)
-	if strings.Contains(err.Error(), "In detached head state, do not pull") {
-		return nil
+	if err != nil {
+		if strings.Contains(err.Error(), "In detached head state, do not pull") {
+			return nil
+		} else {
+			return err
+		}
 	}
 	cmd, args = s.UpdateCmd()
 	out, err = s.RunFromDir(cmd, args...)

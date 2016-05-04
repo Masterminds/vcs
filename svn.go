@@ -85,7 +85,7 @@ func (s *SvnRepo) Get() error {
 }
 
 func (s *SvnRepo) InitCmd() (string, []string) {
-	return "svn", []string{"svnadmin", "create", s.Remote()}
+	return "svnadmin", []string{"create", s.Remote()}
 }
 
 // Init will create a svn repository at remote location.
