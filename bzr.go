@@ -65,9 +65,12 @@ func (s BzrRepo) Vcs() Type {
 	return Bzr
 }
 
+func (s *BzrRepo) GetCmd() (string, []string) {
+	return "bzr", []string{"branch", s.Remote(), s.LocalPath()}
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
-
 	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
 		err = os.MkdirAll(basePath, 0755)
@@ -76,7 +79,8 @@ func (s *BzrRepo) Get() error {
 		}
 	}
 
-	out, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	name, args := s.GetCmd()
+	out, err := s.run(name, args...)
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -84,9 +88,14 @@ func (s *BzrRepo) Get() error {
 	return nil
 }
 
+func (s *BzrRepo) InitCmd() (string, []string) {
+	return "bzr", []string{"init", s.LocalPath()}
+}
+
 // Init initializes a bazaar repository at local location.
 func (s *BzrRepo) Init() error {
-	out, err := s.run("bzr", "init", s.LocalPath())
+	name, args := s.InitCmd()
+	out, err := s.run(name, args...)
 
 	// There are some windows cases where bazaar cannot create the parent
 	// directory if it does not already exist, to the location it's trying
@@ -114,9 +123,14 @@ func (s *BzrRepo) Init() error {
 	return nil
 }
 
+func (s *BzrRepo) UpdateCmd() (string, []string) {
+	return "bzr", []string{"pull"}
+}
+
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	out, err := s.RunFromDir("bzr", "pull")
+	name, args := s.UpdateCmd()
+	out, err := s.run(name, args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

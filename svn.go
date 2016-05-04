@@ -64,24 +64,34 @@ func (s SvnRepo) Vcs() Type {
 	return Svn
 }
 
-// Get is used to perform an initial checkout of a repository.
-// Note, because SVN isn't distributed this is a checkout without
-// a clone.
-func (s *SvnRepo) Get() error {
+func (s *SvnRepo) GetCmd() (string, []string) {
 	remote := s.Remote()
 	if strings.HasPrefix(remote, "/") {
 		remote = "file://" + remote
 	}
-	out, err := s.run("svn", "checkout", remote, s.LocalPath())
+	return "svn", []string{"checkout", remote, s.LocalPath()}
+}
+
+// Get is used to perform an initial checkout of a repository.
+// Note, because SVN isn't distributed this is a checkout without
+// a clone.
+func (s *SvnRepo) Get() error {
+	name, args := s.GetCmd()
+	out, err := s.run(name, args...)
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 	return nil
 }
 
+func (s *SvnRepo) InitCmd() (string, []string) {
+	return "svn", []string{"svnadmin", "create", s.Remote()}
+}
+
 // Init will create a svn repository at remote location.
 func (s *SvnRepo) Init() error {
-	out, err := s.run("svnadmin", "create", s.Remote())
+	name, args := s.InitCmd()
+	out, err := s.run(name, args...)
 
 	if err != nil && s.isUnableToCreateDir(err) {
 
@@ -106,9 +116,14 @@ func (s *SvnRepo) Init() error {
 	return nil
 }
 
+func (s *SvnRepo) UpdateCmd() (string, []string) {
+	return "svn", []string{"update"}
+}
+
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-	out, err := s.RunFromDir("svn", "update")
+	cmd, args := s.UpdateCmd()
+	out, err := s.RunFromDir(cmd, args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

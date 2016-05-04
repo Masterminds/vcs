@@ -64,13 +64,22 @@ func (s GitRepo) Vcs() Type {
 	return Git
 }
 
+func (s *GitRepo) GetCmd() (string, []string) {
+	return "git", []string{"clone", s.Remote(), s.LocalPath()}
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	out, err := s.run("git", "clone", s.Remote(), s.LocalPath())
+	name, args := s.GetCmd()
+	out, err := s.run(name, args...)
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
 	// repo. Catch that error and try to handle it.
+	return s.HandleError(out, err)
+}
+
+func (s *GitRepo) HandleError(out []byte, err error) error {
 	if err != nil && s.isUnableToCreateDir(err) {
 
 		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
@@ -94,9 +103,14 @@ func (s *GitRepo) Get() error {
 	return nil
 }
 
+func (s *GitRepo) InitCmd() (string, []string) {
+	return "git", []string{"init", s.LocalPath()}
+}
+
 // Init initializes a git repository at local location.
 func (s *GitRepo) Init() error {
-	out, err := s.run("git", "init", s.LocalPath())
+	name, args := s.InitCmd()
+	out, err := s.run(name, args...)
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
@@ -124,10 +138,19 @@ func (s *GitRepo) Init() error {
 	return nil
 }
 
+func (s *GitRepo) FetchCmd() (string, []string) {
+	return "git", []string{"fetch", s.RemoteLocation}
+}
+
+func (s *GitRepo) UpdateCmd() (string, []string) {
+	return "git", []string{"pull"}
+}
+
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	out, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
+	cmd, args := s.FetchCmd()
+	out, err := s.RunFromDir(cmd, args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
@@ -143,7 +166,8 @@ func (s *GitRepo) Update() error {
 		return nil
 	}
 
-	out, err = s.RunFromDir("git", "pull")
+	cmd, args = s.UpdateCmd()
+	out, err = s.RunFromDir(cmd, args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

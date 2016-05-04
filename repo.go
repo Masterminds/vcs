@@ -80,11 +80,20 @@ type Repo interface {
 	// Get is used to perform an initial clone/checkout of a repository.
 	Get() error
 
+	// GetCmd retrieves the arguments for the GetCommand
+	GetCmd() (string, []string)
+
 	// Initializes a new repository locally.
 	Init() error
 
+	// InitCmd retrieves the command to initialize repo.
+	InitCmd() (string, []string)
+
 	// Update performs an update to an existing checkout of a repository.
 	Update() error
+
+	// UpdateCmd returns command to update repo
+	UpdateCmd() (string, []string)
 
 	// UpdateVersion sets the version of a package of a repository.
 	UpdateVersion(string) error
@@ -209,6 +218,15 @@ func (b *base) setRemote(remote string) {
 
 func (b *base) setLocalPath(local string) {
 	b.local = local
+}
+
+func (b base) command(cmd string, args ...string) ([]byte, error) {
+	out, err := exec.Command(cmd, args...).CombinedOutput()
+	b.log(out)
+	if err != nil {
+		err = fmt.Errorf("%s: %s", out, err)
+	}
+	return out, err
 }
 
 func (b base) run(cmd string, args ...string) ([]byte, error) {
