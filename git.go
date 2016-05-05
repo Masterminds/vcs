@@ -70,76 +70,35 @@ func (s *GitRepo) GetCmd() (string, []string) {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
-
-	// There are some windows cases where Git cannot create the parent directory,
-	// if it does not already exist, to the location it's trying to create the
-	// repo. Catch that error and try to handle it.
-	return s.GetError(out, err)
-}
-
-func (s *GitRepo) GetError(out []byte, err error) error {
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to create directory", err, "")
-			}
-
-			out, err = s.run("git", "clone", s.Remote(), s.LocalPath())
-			if err != nil {
-				return NewRemoteError("Unable to get repository", err, string(out))
-			}
-			return err
-		}
-
-	} else if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+	if err := s.EnsureParentDir(); err != nil {
+		return err
 	}
 
-	return nil
+	name, args := s.GetCmd()
+	out, err := s.run(name, args...)
+	if err != nil {
+		return NewRemoteError("Unable to get repository", err, string(out))
+	}
+	return err
 }
 
 func (s *GitRepo) InitCmd() (string, []string) {
 	return "git", []string{"init", s.LocalPath()}
 }
 
-func (s *GitRepo) InitError(out []byte, err error) error {
-	// There are some windows cases where Git cannot create the parent directory,
-	// if it does not already exist, to the location it's trying to create the
-	// repo. Catch that error and try to handle it.
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, "")
-			}
-
-			out, err = s.run("git", "init", s.LocalPath())
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, string(out))
-			}
-			return nil
-		}
-
-	} else if err != nil {
-		return NewLocalError("Unable to initialize repository", err, string(out))
-	}
-
-	return err
-}
-
 // Init initializes a git repository at local location.
 func (s *GitRepo) Init() error {
+	if err := s.EnsureParentDir(); err != nil {
+		return err
+	}
+
 	name, args := s.InitCmd()
 	out, err := s.run(name, args...)
 
-	return s.InitError(out, err)
+	if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
+	}
+	return nil
 }
 
 func (s *GitRepo) FetchCmd() (string, []string) {
@@ -167,7 +126,10 @@ func (s *GitRepo) Update() error {
 	cmd, args = s.UpdateCmd()
 	out, err = s.RunFromDir(cmd, args...)
 
-	return s.UpdateError(out, err)
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return nil
 }
 
 func (s *GitRepo) FetchError(out []byte, err error) error {
@@ -187,13 +149,6 @@ func (s *GitRepo) FetchError(out []byte, err error) error {
 	}
 
 	return err
-}
-
-func (s *GitRepo) UpdateError(out []byte, err error) error {
-	if err != nil {
-		return NewRemoteError("Unable to update repository", err, string(out))
-	}
-	return nil
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.

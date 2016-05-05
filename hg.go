@@ -82,30 +82,19 @@ func (s *HgRepo) InitCmd() (string, []string) {
 	return "hg", []string{"init", s.LocalPath()}
 }
 
-func (s *HgRepo) InitError(out []byte, err error) error {
+// Init will initialize a mercurial repository at local location.
+func (s *HgRepo) Init() error {
+	name, args := s.InitCmd()
+	out, err := s.run(name, args...)
+
 	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 	return err
 }
 
-// Init will initialize a mercurial repository at local location.
-func (s *HgRepo) Init() error {
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
-
-	return s.InitError(out, err)
-}
-
 func (s *HgRepo) UpdateCmd() (string, []string) {
 	return "hg", []string{"update"}
-}
-
-func (s *HgRepo) UpdateError(out []byte, err error) error {
-	if err != nil {
-		return NewRemoteError("Unable to update repository", err, string(out))
-	}
-	return err
 }
 
 // Update performs a Mercurial pull to an existing checkout.
@@ -113,7 +102,10 @@ func (s *HgRepo) Update() error {
 	name, args := s.UpdateCmd()
 	out, err := s.RunFromDir(name, args...)
 
-	return s.UpdateError(out, err)
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Hg.

@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -72,13 +71,6 @@ func (s *SvnRepo) GetCmd() (string, []string) {
 	return "svn", []string{"checkout", remote, s.LocalPath()}
 }
 
-func (s *SvnRepo) GetError(out []byte, err error) error {
-	if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
-	}
-	return nil
-}
-
 // Get is used to perform an initial checkout of a repository.
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
@@ -86,54 +78,31 @@ func (s *SvnRepo) Get() error {
 	name, args := s.GetCmd()
 	out, err := s.run(name, args...)
 
-	return s.GetError(out, err)
+	if err != nil {
+		return NewRemoteError("Unable to get repository", err, string(out))
+	}
+	return nil
 }
 
 func (s *SvnRepo) InitCmd() (string, []string) {
 	return "svnadmin", []string{"create", s.Remote()}
 }
 
-func (s *SvnRepo) InitError(out []byte, err error) error {
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.Remote()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, "")
-			}
-
-			out, err = s.run("svnadmin", "create", s.Remote())
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, string(out))
-			}
-			return nil
-		}
-
-	} else if err != nil {
-		return NewLocalError("Unable to initialize repository", err, string(out))
-	}
-
-	return nil
-}
-
 // Init will create a svn repository at remote location.
 func (s *SvnRepo) Init() error {
+	if err := s.EnsureParentDir(); err != nil {
+		return err
+	}
 	name, args := s.InitCmd()
 	out, err := s.run(name, args...)
-
-	return s.InitError(out, err)
+	if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
+	}
+	return nil
 }
 
 func (s *SvnRepo) UpdateCmd() (string, []string) {
 	return "svn", []string{"update"}
-}
-
-func (s *SvnRepo) UpdateError(out []byte, err error) error {
-	if err != nil {
-		return NewRemoteError("Unable to update repository", err, string(out))
-	}
-	return err
 }
 
 // Update performs an SVN update to an existing checkout.
@@ -141,7 +110,10 @@ func (s *SvnRepo) Update() error {
 	cmd, args := s.UpdateCmd()
 	out, err := s.RunFromDir(cmd, args...)
 
-	return s.UpdateError(out, err)
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return nil
 }
 
 // UpdateVersion sets the version of a package currently checked out via SVN.

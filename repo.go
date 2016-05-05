@@ -31,6 +31,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -254,6 +255,20 @@ func (b *base) referenceList(c, r string) []string {
 	}
 
 	return out
+}
+
+// EnsureParentDir checks if parent dir exists, if not, creates dirs
+// recursively up to and including the parent dir.
+// There are some windows cases where Git cannot create the parent directory,
+func (b *base) EnsureParentDir() error {
+	basePath := filepath.Dir(filepath.FromSlash(b.LocalPath()))
+	if _, err := os.Stat(basePath); os.IsNotExist(err) {
+		err = os.MkdirAll(basePath, 0755)
+		if err != nil {
+			return NewLocalError("Unable to create directory", err, "")
+		}
+	}
+	return nil
 }
 
 func envForDir(dir string) []string {

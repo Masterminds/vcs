@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -71,12 +70,8 @@ func (s *BzrRepo) GetCmd() (string, []string) {
 
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
-	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-	if _, err := os.Stat(basePath); os.IsNotExist(err) {
-		err = os.MkdirAll(basePath, 0755)
-		if err != nil {
-			return NewLocalError("Unable to create directory", err, "")
-		}
+	if err := s.EnsureParentDir(); err != nil {
+		return err
 	}
 
 	name, args := s.GetCmd()
@@ -94,29 +89,13 @@ func (s *BzrRepo) InitCmd() (string, []string) {
 
 // Init initializes a bazaar repository at local location.
 func (s *BzrRepo) Init() error {
+	if err := s.EnsureParentDir(); err != nil {
+		return err
+	}
+
 	name, args := s.InitCmd()
 	out, err := s.run(name, args...)
-
-	// There are some windows cases where bazaar cannot create the parent
-	// directory if it does not already exist, to the location it's trying
-	// to create the repo. Catch that error and try to handle it.
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, "")
-			}
-
-			out, err = s.run("bzr", "init", s.LocalPath())
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, string(out))
-			}
-			return nil
-		}
-
-	} else if err != nil {
+	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 
