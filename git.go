@@ -113,7 +113,7 @@ func (s *GitRepo) UpdateCmd() *exec.Cmd {
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	out, err := s.RunCommandFromDir(s.FetchCmd())
+	out, err := s.RunCmdFromDir(s.FetchCmd())
 
 	if err = s.FetchError(out, err); err != nil {
 		if strings.Contains(err.Error(), "In detached head state, do not pull") {
@@ -122,7 +122,7 @@ func (s *GitRepo) Update() error {
 		return err
 	}
 
-	out, err = s.RunCommandFromDir(s.UpdateCmd())
+	out, err = s.RunCmdFromDir(s.UpdateCmd())
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

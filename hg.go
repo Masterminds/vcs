@@ -100,7 +100,7 @@ func (s *HgRepo) UpdateCmd() *exec.Cmd {
 
 // Update performs a Mercurial pull to an existing checkout.
 func (s *HgRepo) Update() error {
-	out, err := s.RunCommandFromDir(s.UpdateCmd())
+	out, err := s.RunCmdFromDir(s.UpdateCmd())
 
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))

@@ -239,13 +239,13 @@ func (b base) runCommand(cmd *exec.Cmd) ([]byte, error) {
 
 // Run a command from repo's local path
 func (b *base) RunFromDir(cmd string, args ...string) ([]byte, error) {
-	out, errc := b.RunCommandFromDir(exec.Command(cmd, args...))
+	out, errc := b.RunCmdFromDir(exec.Command(cmd, args...))
 
 	return out, errc
 }
 
 // Run a command from directory
-func (b *base) RunCommandFromDir(c *exec.Cmd) ([]byte, error) {
+func (b *base) RunCmdFromDir(c *exec.Cmd) ([]byte, error) {
 	c.Dir = b.local
 	c.Env = envForDir(c.Dir)
 	out, err := c.CombinedOutput()
