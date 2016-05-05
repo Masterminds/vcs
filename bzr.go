@@ -64,6 +64,7 @@ func (s BzrRepo) Vcs() Type {
 	return Bzr
 }
 
+// GetCmd returns the command to clone a bazaar repo.
 func (s *BzrRepo) GetCmd() (string, []string) {
 	return "bzr", []string{"branch", s.Remote(), s.LocalPath()}
 }
@@ -83,6 +84,7 @@ func (s *BzrRepo) Get() error {
 	return nil
 }
 
+// InitCmd returns the command to create a new bazaar repo.
 func (s *BzrRepo) InitCmd() (string, []string) {
 	return "bzr", []string{"init", s.LocalPath()}
 }
@@ -102,6 +104,7 @@ func (s *BzrRepo) Init() error {
 	return nil
 }
 
+// UpdateCmd returns command to update bazaar repo.
 func (s *BzrRepo) UpdateCmd() (string, []string) {
 	return "bzr", []string{"pull"}
 }

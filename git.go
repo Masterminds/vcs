@@ -64,6 +64,7 @@ func (s GitRepo) Vcs() Type {
 	return Git
 }
 
+// GetCmd will clone git repo
 func (s *GitRepo) GetCmd() (string, []string) {
 	return "git", []string{"clone", s.Remote(), s.LocalPath()}
 }
@@ -82,6 +83,7 @@ func (s *GitRepo) Get() error {
 	return err
 }
 
+// InitCmd will return command to git init a new repo.
 func (s *GitRepo) InitCmd() (string, []string) {
 	return "git", []string{"init", s.LocalPath()}
 }
@@ -101,10 +103,12 @@ func (s *GitRepo) Init() error {
 	return nil
 }
 
+// FetchCmd will return command to fetch repo.
 func (s *GitRepo) FetchCmd() (string, []string) {
 	return "git", []string{"fetch", s.RemoteLocation}
 }
 
+// UpdateCmd will return command to pull changes for repo.
 func (s *GitRepo) UpdateCmd() (string, []string) {
 	return "git", []string{"pull"}
 }
@@ -115,13 +119,11 @@ func (s *GitRepo) Update() error {
 	cmd, args := s.FetchCmd()
 	out, err := s.RunFromDir(cmd, args...)
 
-	err = s.FetchError(out, err)
-	if err != nil {
+	if err = s.FetchError(out, err); err != nil {
 		if strings.Contains(err.Error(), "In detached head state, do not pull") {
 			return nil
-		} else {
-			return err
 		}
+		return err
 	}
 	cmd, args = s.UpdateCmd()
 	out, err = s.RunFromDir(cmd, args...)
@@ -132,6 +134,8 @@ func (s *GitRepo) Update() error {
 	return nil
 }
 
+// FetchError will pass through the error response of FetchCmd and handle
+// the case where the repo may be inside an "detached head" state.
 func (s *GitRepo) FetchError(out []byte, err error) error {
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))

@@ -63,6 +63,7 @@ func (s SvnRepo) Vcs() Type {
 	return Svn
 }
 
+// GetCmd returns command to checkout svn repo.
 func (s *SvnRepo) GetCmd() (string, []string) {
 	remote := s.Remote()
 	if strings.HasPrefix(remote, "/") {
@@ -84,6 +85,7 @@ func (s *SvnRepo) Get() error {
 	return nil
 }
 
+// InitCmd returns command to create svn repo via svnadmin(1).
 func (s *SvnRepo) InitCmd() (string, []string) {
 	return "svnadmin", []string{"create", s.Remote()}
 }
@@ -101,6 +103,7 @@ func (s *SvnRepo) Init() error {
 	return nil
 }
 
+// UpdateCmd returns command to update svn repo.
 func (s *SvnRepo) UpdateCmd() (string, []string) {
 	return "svn", []string{"update"}
 }

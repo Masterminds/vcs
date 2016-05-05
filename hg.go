@@ -64,6 +64,7 @@ func (s HgRepo) Vcs() Type {
 	return Hg
 }
 
+// GetCmd returns command to clone hg repo.
 func (s *HgRepo) GetCmd() (string, []string) {
 	return "hg", []string{"clone", s.Remote(), s.LocalPath()}
 }
@@ -78,6 +79,7 @@ func (s *HgRepo) Get() error {
 	return nil
 }
 
+// InitCmd returns command to init hg repo
 func (s *HgRepo) InitCmd() (string, []string) {
 	return "hg", []string{"init", s.LocalPath()}
 }
@@ -93,6 +95,7 @@ func (s *HgRepo) Init() error {
 	return err
 }
 
+// UpdateCmd returns command to update an hg repo.
 func (s *HgRepo) UpdateCmd() (string, []string) {
 	return "hg", []string{"update"}
 }

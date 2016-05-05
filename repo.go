@@ -230,6 +230,7 @@ func (b base) run(cmd string, args ...string) ([]byte, error) {
 	return out, err
 }
 
+// Run a command from repo's local path
 func (b *base) RunFromDir(cmd string, args ...string) ([]byte, error) {
 	c := exec.Command(cmd, args...)
 	c.Dir = b.local
@@ -249,8 +250,8 @@ func (b *base) referenceList(c, r string) []string {
 }
 
 // EnsureParentDir checks if parent dir exists, if not, creates dirs
-// recursively up to and including the parent dir.
-// There are some windows cases where Git cannot create the parent directory,
+// recursively up to and including the parent dir. Most VCS will *not*
+// do this for you, and instead show an error.
 func (b *base) EnsureParentDir() error {
 	basePath := filepath.Dir(filepath.FromSlash(b.LocalPath()))
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
