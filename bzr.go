@@ -65,8 +65,8 @@ func (s BzrRepo) Vcs() Type {
 }
 
 // GetCmd returns the command to clone a bazaar repo.
-func (s *BzrRepo) GetCmd() (string, []string) {
-	return "bzr", []string{"branch", s.Remote(), s.LocalPath()}
+func (s *BzrRepo) GetCmd() *exec.Cmd {
+	return exec.Command("bzr", "branch", s.Remote(), s.LocalPath())
 }
 
 // Get is used to perform an initial clone of a repository.
@@ -75,8 +75,7 @@ func (s *BzrRepo) Get() error {
 		return err
 	}
 
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.GetCmd())
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -85,8 +84,8 @@ func (s *BzrRepo) Get() error {
 }
 
 // InitCmd returns the command to create a new bazaar repo.
-func (s *BzrRepo) InitCmd() (string, []string) {
-	return "bzr", []string{"init", s.LocalPath()}
+func (s *BzrRepo) InitCmd() *exec.Cmd {
+	return exec.Command("bzr", "init", s.LocalPath())
 }
 
 // Init initializes a bazaar repository at local location.
@@ -95,8 +94,7 @@ func (s *BzrRepo) Init() error {
 		return err
 	}
 
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.InitCmd())
 	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
@@ -105,14 +103,13 @@ func (s *BzrRepo) Init() error {
 }
 
 // UpdateCmd returns command to update bazaar repo.
-func (s *BzrRepo) UpdateCmd() (string, []string) {
-	return "bzr", []string{"pull"}
+func (s *BzrRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("bzr", "pull")
 }
 
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	name, args := s.UpdateCmd()
-	out, err := s.RunFromDir(name, args...)
+	out, err := s.RunCommandFromDir(s.UpdateCmd())
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

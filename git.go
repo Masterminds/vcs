@@ -65,8 +65,8 @@ func (s GitRepo) Vcs() Type {
 }
 
 // GetCmd will clone git repo
-func (s *GitRepo) GetCmd() (string, []string) {
-	return "git", []string{"clone", s.Remote(), s.LocalPath()}
+func (s *GitRepo) GetCmd() *exec.Cmd {
+	return exec.Command("git", "clone", s.Remote(), s.LocalPath())
 }
 
 // Get is used to perform an initial clone of a repository.
@@ -75,8 +75,7 @@ func (s *GitRepo) Get() error {
 		return err
 	}
 
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.GetCmd())
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -84,8 +83,8 @@ func (s *GitRepo) Get() error {
 }
 
 // InitCmd will return command to git init a new repo.
-func (s *GitRepo) InitCmd() (string, []string) {
-	return "git", []string{"init", s.LocalPath()}
+func (s *GitRepo) InitCmd() *exec.Cmd {
+	return exec.Command("git", "init", s.LocalPath())
 }
 
 // Init initializes a git repository at local location.
@@ -94,9 +93,7 @@ func (s *GitRepo) Init() error {
 		return err
 	}
 
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
-
+	out, err := s.runCommand(s.InitCmd())
 	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
@@ -104,20 +101,19 @@ func (s *GitRepo) Init() error {
 }
 
 // FetchCmd will return command to fetch repo.
-func (s *GitRepo) FetchCmd() (string, []string) {
-	return "git", []string{"fetch", s.RemoteLocation}
+func (s *GitRepo) FetchCmd() *exec.Cmd {
+	return exec.Command("git", "fetch", s.RemoteLocation)
 }
 
 // UpdateCmd will return command to pull changes for repo.
-func (s *GitRepo) UpdateCmd() (string, []string) {
-	return "git", []string{"pull"}
+func (s *GitRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("git", "pull")
 }
 
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	cmd, args := s.FetchCmd()
-	out, err := s.RunFromDir(cmd, args...)
+	out, err := s.RunCommandFromDir(s.FetchCmd())
 
 	if err = s.FetchError(out, err); err != nil {
 		if strings.Contains(err.Error(), "In detached head state, do not pull") {
@@ -125,9 +121,8 @@ func (s *GitRepo) Update() error {
 		}
 		return err
 	}
-	cmd, args = s.UpdateCmd()
-	out, err = s.RunFromDir(cmd, args...)
 
+	out, err = s.RunCommandFromDir(s.UpdateCmd())
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

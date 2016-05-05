@@ -65,14 +65,13 @@ func (s HgRepo) Vcs() Type {
 }
 
 // GetCmd returns command to clone hg repo.
-func (s *HgRepo) GetCmd() (string, []string) {
-	return "hg", []string{"clone", s.Remote(), s.LocalPath()}
+func (s *HgRepo) GetCmd() *exec.Cmd {
+	return exec.Command("hg", "clone", s.Remote(), s.LocalPath())
 }
 
 // Get is used to perform an initial clone of a repository.
 func (s *HgRepo) Get() error {
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.GetCmd())
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -80,14 +79,13 @@ func (s *HgRepo) Get() error {
 }
 
 // InitCmd returns command to init hg repo
-func (s *HgRepo) InitCmd() (string, []string) {
-	return "hg", []string{"init", s.LocalPath()}
+func (s *HgRepo) InitCmd() *exec.Cmd {
+	return exec.Command("hg", "init", s.LocalPath())
 }
 
 // Init will initialize a mercurial repository at local location.
 func (s *HgRepo) Init() error {
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.InitCmd())
 
 	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
@@ -96,14 +94,13 @@ func (s *HgRepo) Init() error {
 }
 
 // UpdateCmd returns command to update an hg repo.
-func (s *HgRepo) UpdateCmd() (string, []string) {
-	return "hg", []string{"update"}
+func (s *HgRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("hg", "update")
 }
 
 // Update performs a Mercurial pull to an existing checkout.
 func (s *HgRepo) Update() error {
-	name, args := s.UpdateCmd()
-	out, err := s.RunFromDir(name, args...)
+	out, err := s.RunCommandFromDir(s.UpdateCmd())
 
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))

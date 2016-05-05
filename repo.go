@@ -81,20 +81,20 @@ type Repo interface {
 	// Get is used to perform an initial clone/checkout of a repository.
 	Get() error
 
-	// GetCmd retrieves the arguments for the GetCommand
-	GetCmd() (string, []string)
+	// GetCmd retrieves the arguments for retrieving a remote repo.
+	GetCmd() *exec.Cmd
 
 	// Initializes a new repository locally.
 	Init() error
 
 	// InitCmd retrieves the command to initialize repo.
-	InitCmd() (string, []string)
+	InitCmd() *exec.Cmd
 
 	// Update performs an update to an existing checkout of a repository.
 	Update() error
 
-	// UpdateCmd returns command to update repo
-	UpdateCmd() (string, []string)
+	// UpdateCmd returns command for updating a local repo with the latest commits from remote
+	UpdateCmd() *exec.Cmd
 
 	// UpdateVersion sets the version of a package of a repository.
 	UpdateVersion(string) error
@@ -221,8 +221,15 @@ func (b *base) setLocalPath(local string) {
 	b.local = local
 }
 
+// Legacy function which runs a command and returns
+// with combined output.
+// Will be deprecated in future release
 func (b base) run(cmd string, args ...string) ([]byte, error) {
-	out, err := exec.Command(cmd, args...).CombinedOutput()
+	return b.runCommand(exec.Command(cmd, args...))
+}
+
+func (b base) runCommand(cmd *exec.Cmd) ([]byte, error) {
+	out, err := cmd.CombinedOutput()
 	b.log(out)
 	if err != nil {
 		err = fmt.Errorf("%s: %s", out, err)
@@ -232,7 +239,13 @@ func (b base) run(cmd string, args ...string) ([]byte, error) {
 
 // Run a command from repo's local path
 func (b *base) RunFromDir(cmd string, args ...string) ([]byte, error) {
-	c := exec.Command(cmd, args...)
+	out, errc := b.RunCommandFromDir(exec.Command(cmd, args...))
+
+	return out, errc
+}
+
+// Run a command from directory
+func (b *base) RunCommandFromDir(c *exec.Cmd) ([]byte, error) {
 	c.Dir = b.local
 	c.Env = envForDir(c.Dir)
 	out, err := c.CombinedOutput()

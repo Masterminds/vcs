@@ -64,20 +64,19 @@ func (s SvnRepo) Vcs() Type {
 }
 
 // GetCmd returns command to checkout svn repo.
-func (s *SvnRepo) GetCmd() (string, []string) {
+func (s *SvnRepo) GetCmd() *exec.Cmd {
 	remote := s.Remote()
 	if strings.HasPrefix(remote, "/") {
 		remote = "file://" + remote
 	}
-	return "svn", []string{"checkout", remote, s.LocalPath()}
+	return exec.Command("svn", "checkout", remote, s.LocalPath())
 }
 
 // Get is used to perform an initial checkout of a repository.
 // Note, because SVN isn't distributed this is a checkout without
 // a clone.
 func (s *SvnRepo) Get() error {
-	name, args := s.GetCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.GetCmd())
 
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
@@ -86,8 +85,8 @@ func (s *SvnRepo) Get() error {
 }
 
 // InitCmd returns command to create svn repo via svnadmin(1).
-func (s *SvnRepo) InitCmd() (string, []string) {
-	return "svnadmin", []string{"create", s.Remote()}
+func (s *SvnRepo) InitCmd() *exec.Cmd {
+	return exec.Command("svnadmin", "create", s.Remote())
 }
 
 // Init will create a svn repository at remote location.
@@ -95,8 +94,7 @@ func (s *SvnRepo) Init() error {
 	if err := s.EnsureParentDir(); err != nil {
 		return err
 	}
-	name, args := s.InitCmd()
-	out, err := s.run(name, args...)
+	out, err := s.runCommand(s.InitCmd())
 	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
@@ -104,14 +102,13 @@ func (s *SvnRepo) Init() error {
 }
 
 // UpdateCmd returns command to update svn repo.
-func (s *SvnRepo) UpdateCmd() (string, []string) {
-	return "svn", []string{"update"}
+func (s *SvnRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("svn", "update")
 }
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-	cmd, args := s.UpdateCmd()
-	out, err := s.RunFromDir(cmd, args...)
+	out, err := s.RunCommandFromDir(s.UpdateCmd())
 
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
