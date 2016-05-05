@@ -221,15 +221,6 @@ func (b *base) setLocalPath(local string) {
 	b.local = local
 }
 
-func (b base) command(cmd string, args ...string) ([]byte, error) {
-	out, err := exec.Command(cmd, args...).CombinedOutput()
-	b.log(out)
-	if err != nil {
-		err = fmt.Errorf("%s: %s", out, err)
-	}
-	return out, err
-}
-
 func (b base) run(cmd string, args ...string) ([]byte, error) {
 	out, err := exec.Command(cmd, args...).CombinedOutput()
 	b.log(out)
