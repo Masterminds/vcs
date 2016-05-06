@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -65,18 +64,18 @@ func (s BzrRepo) Vcs() Type {
 	return Bzr
 }
 
+// GetCmd returns the command to clone a bazaar repo.
+func (s *BzrRepo) GetCmd() *exec.Cmd {
+	return exec.Command("bzr", "branch", s.Remote(), s.LocalPath())
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *BzrRepo) Get() error {
-
-	basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-	if _, err := os.Stat(basePath); os.IsNotExist(err) {
-		err = os.MkdirAll(basePath, 0755)
-		if err != nil {
-			return NewLocalError("Unable to create directory", err, "")
-		}
+	if err := s.EnsureParentDir(); err != nil {
+		return err
 	}
 
-	out, err := s.run("bzr", "branch", s.Remote(), s.LocalPath())
+	out, err := s.runCommand(s.GetCmd())
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -84,39 +83,33 @@ func (s *BzrRepo) Get() error {
 	return nil
 }
 
+// InitCmd returns the command to create a new bazaar repo.
+func (s *BzrRepo) InitCmd() *exec.Cmd {
+	return exec.Command("bzr", "init", s.LocalPath())
+}
+
 // Init initializes a bazaar repository at local location.
 func (s *BzrRepo) Init() error {
-	out, err := s.run("bzr", "init", s.LocalPath())
+	if err := s.EnsureParentDir(); err != nil {
+		return err
+	}
 
-	// There are some windows cases where bazaar cannot create the parent
-	// directory if it does not already exist, to the location it's trying
-	// to create the repo. Catch that error and try to handle it.
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, "")
-			}
-
-			out, err = s.run("bzr", "init", s.LocalPath())
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, string(out))
-			}
-			return nil
-		}
-
-	} else if err != nil {
+	out, err := s.runCommand(s.InitCmd())
+	if err != nil {
 		return NewLocalError("Unable to initialize repository", err, string(out))
 	}
 
 	return nil
 }
 
+// UpdateCmd returns command to update bazaar repo.
+func (s *BzrRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("bzr", "pull")
+}
+
 // Update performs a Bzr pull and update to an existing checkout.
 func (s *BzrRepo) Update() error {
-	out, err := s.RunFromDir("bzr", "pull")
+	out, err := s.RunCmdFromDir(s.UpdateCmd())
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}

@@ -64,70 +64,74 @@ func (s GitRepo) Vcs() Type {
 	return Git
 }
 
+// GetCmd will clone git repo
+func (s *GitRepo) GetCmd() *exec.Cmd {
+	return exec.Command("git", "clone", s.Remote(), s.LocalPath())
+}
+
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	out, err := s.run("git", "clone", s.Remote(), s.LocalPath())
-
-	// There are some windows cases where Git cannot create the parent directory,
-	// if it does not already exist, to the location it's trying to create the
-	// repo. Catch that error and try to handle it.
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to create directory", err, "")
-			}
-
-			out, err = s.run("git", "clone", s.Remote(), s.LocalPath())
-			if err != nil {
-				return NewRemoteError("Unable to get repository", err, string(out))
-			}
-			return err
-		}
-
-	} else if err != nil {
-		return NewRemoteError("Unable to get repository", err, string(out))
+	if err := s.EnsureParentDir(); err != nil {
+		return err
 	}
 
-	return nil
+	out, err := s.runCommand(s.GetCmd())
+	if err != nil {
+		return NewRemoteError("Unable to get repository", err, string(out))
+	}
+	return err
+}
+
+// InitCmd will return command to git init a new repo.
+func (s *GitRepo) InitCmd() *exec.Cmd {
+	return exec.Command("git", "init", s.LocalPath())
 }
 
 // Init initializes a git repository at local location.
 func (s *GitRepo) Init() error {
-	out, err := s.run("git", "init", s.LocalPath())
-
-	// There are some windows cases where Git cannot create the parent directory,
-	// if it does not already exist, to the location it's trying to create the
-	// repo. Catch that error and try to handle it.
-	if err != nil && s.isUnableToCreateDir(err) {
-
-		basePath := filepath.Dir(filepath.FromSlash(s.LocalPath()))
-		if _, err := os.Stat(basePath); os.IsNotExist(err) {
-			err = os.MkdirAll(basePath, 0755)
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, "")
-			}
-
-			out, err = s.run("git", "init", s.LocalPath())
-			if err != nil {
-				return NewLocalError("Unable to initialize repository", err, string(out))
-			}
-			return nil
-		}
-
-	} else if err != nil {
-		return NewLocalError("Unable to initialize repository", err, string(out))
+	if err := s.EnsureParentDir(); err != nil {
+		return err
 	}
 
+	out, err := s.runCommand(s.InitCmd())
+	if err != nil {
+		return NewLocalError("Unable to initialize repository", err, string(out))
+	}
 	return nil
+}
+
+// FetchCmd will return command to fetch repo.
+func (s *GitRepo) FetchCmd() *exec.Cmd {
+	return exec.Command("git", "fetch", s.RemoteLocation)
+}
+
+// UpdateCmd will return command to pull changes for repo.
+func (s *GitRepo) UpdateCmd() *exec.Cmd {
+	return exec.Command("git", "pull")
 }
 
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	out, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
+	out, err := s.RunCmdFromDir(s.FetchCmd())
+
+	if err = s.FetchError(out, err); err != nil {
+		if strings.Contains(err.Error(), "In detached head state, do not pull") {
+			return nil
+		}
+		return err
+	}
+
+	out, err = s.RunCmdFromDir(s.UpdateCmd())
+	if err != nil {
+		return NewRemoteError("Unable to update repository", err, string(out))
+	}
+	return nil
+}
+
+// FetchError will pass through the error response of FetchCmd and handle
+// the case where the repo may be inside an "detached head" state.
+func (s *GitRepo) FetchError(out []byte, err error) error {
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
@@ -140,14 +144,10 @@ func (s *GitRepo) Update() error {
 	}
 
 	if detached == true {
-		return nil
+		return NewLocalError("In detached head state, do not pull", err, "")
 	}
 
-	out, err = s.RunFromDir("git", "pull")
-	if err != nil {
-		return NewRemoteError("Unable to update repository", err, string(out))
-	}
-	return nil
+	return err
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
