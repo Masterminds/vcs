@@ -186,6 +186,7 @@ type CommitInfo struct {
 
 type base struct {
 	remote, local string
+	extraArgs     []string
 	Logger        *log.Logger
 }
 
@@ -209,6 +210,10 @@ func (b *base) setRemote(remote string) {
 
 func (b *base) setLocalPath(local string) {
 	b.local = local
+}
+
+func (b *base) setExtraArgs(extraArgs []string) {
+	b.extraArgs = extraArgs
 }
 
 func (b base) run(cmd string, args ...string) ([]byte, error) {

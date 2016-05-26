@@ -16,7 +16,7 @@ var svnDetectURL = regexp.MustCompile("URL: (?P<foo>.+)\n")
 // need to be passed in. The remote location should include the branch for SVN.
 // For example, if the package is https://github.com/Masterminds/cookoo/ the remote
 // should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
-func NewSvnRepo(remote, local string) (*SvnRepo, error) {
+func NewSvnRepo(remote, local string, args ...string) (*SvnRepo, error) {
 	ltype, err := DetectVcsFromFS(local)
 
 	// Found a VCS other than Svn. Need to report an error.
@@ -27,6 +27,7 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 	r := &SvnRepo{}
 	r.setRemote(remote)
 	r.setLocalPath(local)
+	r.setExtraArgs(args)
 	r.Logger = Logger
 
 	// Make sure the local SVN repo is configured the same as the remote when
@@ -34,13 +35,15 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 	if err == nil && r.CheckLocal() == true {
 		// An SVN repo was found so test that the URL there matches
 		// the repo passed in here.
-		out, err := exec.Command("svn", "info", local).CombinedOutput()
+		args := append(r.extraArgs[:], "info", local)
+		out, err := exec.Command("svn", args...).CombinedOutput()
 		if err != nil {
 			return nil, NewLocalError("Unable to retrieve local repo information", err, string(out))
 		}
 
 		m := svnDetectURL.FindStringSubmatch(string(out))
-		if m[1] != "" && m[1] != remote {
+		svnUrl := strings.Trim(strings.Trim(m[1], "\n"), "\r")
+		if svnUrl != "" && svnUrl != remote {
 			return nil, ErrWrongRemote
 		}
 
@@ -72,7 +75,8 @@ func (s *SvnRepo) Get() error {
 	if strings.HasPrefix(remote, "/") {
 		remote = "file://" + remote
 	}
-	out, err := s.run("svn", "checkout", remote, s.LocalPath())
+	args := append(s.extraArgs[:], "checkout", remote, s.LocalPath())
+	out, err := s.run("svn", args...)
 	if err != nil {
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
@@ -108,7 +112,8 @@ func (s *SvnRepo) Init() error {
 
 // Update performs an SVN update to an existing checkout.
 func (s *SvnRepo) Update() error {
-	out, err := s.RunFromDir("svn", "update")
+	args := append(s.extraArgs[:], "update")
+	out, err := s.RunFromDir("svn", args...)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
@@ -117,7 +122,8 @@ func (s *SvnRepo) Update() error {
 
 // UpdateVersion sets the version of a package currently checked out via SVN.
 func (s *SvnRepo) UpdateVersion(version string) error {
-	out, err := s.RunFromDir("svn", "update", "-r", version)
+	args := append(s.extraArgs[:], "update", "-r", version)
+	out, err := s.RunFromDir("svn", args...)
 	if err != nil {
 		return NewRemoteError("Unable to update checked out version", err, string(out))
 	}
@@ -132,8 +138,8 @@ func (s *SvnRepo) Version() (string, error) {
 	type Info struct {
 		Commit Commit `xml:"entry>commit"`
 	}
-
-	out, err := s.RunFromDir("svn", "info", "--xml")
+	args := append(s.extraArgs[:], "info", "--xml")
+	out, err := s.RunFromDir("svn", args...)
 	s.log(out)
 	infos := &Info{}
 	err = xml.Unmarshal(out, &infos)
@@ -171,7 +177,8 @@ func (s *SvnRepo) Date() (time.Time, error) {
 	if err != nil {
 		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, "")
 	}
-	out, err := s.RunFromDir("svn", "pget", "svn:date", "--revprop", "-r", version)
+	args := append(s.extraArgs[:], "pget", "svn:date", "--revprop", "-r", version)
+	out, err := s.RunFromDir("svn", args...)
 	if err != nil {
 		return time.Time{}, NewLocalError("Unable to retrieve revision date", err, string(out))
 	}
@@ -216,7 +223,8 @@ func (s *SvnRepo) Branches() ([]string, error) {
 // IsReference returns if a string is a reference. A reference is a commit id.
 // Branches and tags are part of the path.
 func (s *SvnRepo) IsReference(r string) bool {
-	out, err := s.RunFromDir("svn", "log", "-r", r)
+	args := append(s.extraArgs[:], "log", "-r", r)
+	out, err := s.RunFromDir("svn", args...)
 
 	// This is a complete hack. There must be a better way to do this. Pull
 	// requests welcome. When the reference isn't real you get a line of
@@ -234,7 +242,8 @@ func (s *SvnRepo) IsReference(r string) bool {
 // IsDirty returns if the checkout has been modified from the checked
 // out reference.
 func (s *SvnRepo) IsDirty() bool {
-	out, err := s.RunFromDir("svn", "diff")
+	args := append(s.extraArgs[:], "diff")
+	out, err := s.RunFromDir("svn", args...)
 	return err != nil || len(out) != 0
 }
 
@@ -251,8 +260,8 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 		type Info struct {
 			Commit Commit `xml:"entry>commit"`
 		}
-
-		out, err := s.RunFromDir("svn", "info", "-r", id, "--xml")
+		args := append(s.extraArgs[:], "info", "-r", id, "--xml")
+		out, err := s.RunFromDir("svn", args...)
 		infos := &Info{}
 		err = xml.Unmarshal(out, &infos)
 		if err != nil {
@@ -264,8 +273,8 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 			return nil, ErrRevisionUnavailable
 		}
 	}
-
-	out, err := s.RunFromDir("svn", "log", "-r", id, "--xml")
+	args := append(s.extraArgs[:], "log", "-r", id, "--xml")
+	out, err := s.RunFromDir("svn", args...)
 	if err != nil {
 		return nil, NewRemoteError("Unable to retrieve commit information", err, string(out))
 	}
@@ -314,7 +323,8 @@ func (s *SvnRepo) TagsFromCommit(id string) ([]string, error) {
 
 // Ping returns if remote location is accessible.
 func (s *SvnRepo) Ping() bool {
-	_, err := s.run("svn", "--non-interactive", "info", s.Remote())
+	args := append(s.extraArgs[:], "--non-interactive", "info", s.Remote())
+	_, err := s.run("svn", args...)
 	if err != nil {
 		return false
 	}
@@ -324,8 +334,8 @@ func (s *SvnRepo) Ping() bool {
 
 // ExportDir exports the current revision to the passed in directory.
 func (s *SvnRepo) ExportDir(dir string) error {
-
-	out, err := s.RunFromDir("svn", "export", ".", dir)
+	args := append(s.extraArgs[:], "export", ".", dir)
+	out, err := s.RunFromDir("svn", args...)
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Unable to export source", err, string(out))
