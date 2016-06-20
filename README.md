@@ -12,6 +12,16 @@ Quick usage:
 	remote := "https://github.com/Masterminds/vcs"
     local, _ := ioutil.TempDir("", "go-vcs")
     repo, err := NewRepo(remote, local)
+        
+    remote := "svn://git.oschina.net/goops/FirstProject"
+    // local, _ := ioutil.TempDir("", "go-vcs")
+    local := dir + path + "md"
+    args := []string{"--username", "xxx@gmail.com", "--password", "xxxxxx"}
+    repo, err := vcs.NewSvnRepo(remote, local, args...)
+    if err != nil {
+        log.Fatalln(err)
+    }
+    log.Println(repo.Get())
 
 In this case `NewRepo` will detect the VCS is Git and return a `GitRepo`. All of
 the repos implement the `Repo` interface with a common set of features between
