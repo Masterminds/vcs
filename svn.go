@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"encoding/xml"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -185,12 +186,15 @@ func (s *SvnRepo) Date() (time.Time, error) {
 
 // CheckLocal verifies the local location is an SVN repo.
 func (s *SvnRepo) CheckLocal() bool {
-	if _, err := os.Stat(s.LocalPath() + "/.svn"); err == nil {
-		return true
+	sep := fmt.Sprintf("%c", os.PathSeparator)
+	psplit := strings.Split(s.LocalPath(), sep)
+	for i := 0; i < len(psplit); i++ {
+		path := fmt.Sprintf("%s%s", sep, filepath.Join(psplit[0:(len(psplit)-(i+1))]...))
+		if _, err := os.Stat(filepath.Join(path, ".svn")); err == nil {
+			return true
+		}
 	}
-
 	return false
-
 }
 
 // Tags returns []string{} as there are no formal tags in SVN. Tags are a
