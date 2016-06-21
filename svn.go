@@ -189,7 +189,7 @@ func (s *SvnRepo) CheckLocal() bool {
 	sep := fmt.Sprintf("%c", os.PathSeparator)
 	psplit := strings.Split(s.LocalPath(), sep)
 	for i := 0; i < len(psplit); i++ {
-		path := fmt.Sprintf("%s%s", sep, filepath.Join(psplit[0:(len(psplit)-(i+1))]...))
+		path := fmt.Sprintf("%s%s", sep, filepath.Join(psplit[0:(len(psplit)-(i))]...))
 		if _, err := os.Stat(filepath.Join(path, ".svn")); err == nil {
 			return true
 		}
