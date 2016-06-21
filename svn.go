@@ -6,12 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
-
-var svnDetectURL = regexp.MustCompile("URL: (?P<foo>.+)\n")
 
 // NewSvnRepo creates a new instance of SvnRepo. The remote and local directories
 // need to be passed in. The remote location should include the branch for SVN.
@@ -40,15 +37,18 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 			return nil, NewLocalError("Unable to retrieve local repo information", err, string(out))
 		}
 
-		m := svnDetectURL.FindStringSubmatch(string(out))
-		if m[1] != "" && m[1] != remote {
+		detectedRemote, err := detectRemoteFromInfoCommand(string(out))
+		if err != nil {
+			return nil, err
+		}
+		if detectedRemote != "" && remote != "" && detectedRemote != remote {
 			return nil, ErrWrongRemote
 		}
 
 		// If no remote was passed in but one is configured for the locally
 		// checked out Svn repo use that one.
-		if remote == "" && m[1] != "" {
-			r.setRemote(m[1])
+		if remote == "" && detectedRemote != "" {
+			r.setRemote(detectedRemote)
 		}
 	}
 
@@ -347,4 +347,25 @@ func (s *SvnRepo) isUnableToCreateDir(err error) bool {
 	}
 
 	return false
+}
+
+// detectRemoteFromInfoCommand finds the remote url from the `svn info`
+// command's output without using  a regex. We avoid regex because URLs
+// are notoriously complex to accurately match with a regex and
+// splitting strings is less complex and often faster
+func detectRemoteFromInfoCommand(infoOut string) (string, error) {
+	sBytes := []byte(infoOut)
+	urlIndex := strings.Index(infoOut, "URL: ")
+	if urlIndex == -1 {
+		return "", fmt.Errorf("Remote not specified in svn info")
+	}
+	urlEndIndex := strings.Index(string(sBytes[urlIndex:]), "\n")
+	if urlEndIndex == -1 {
+		urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\r")
+		if urlEndIndex == -1 {
+			return "", fmt.Errorf("Unable to parse remote URL for svn info")
+		}
+	}
+
+	return string(sBytes[(urlIndex + 5):(urlIndex + urlEndIndex)]), nil
 }
