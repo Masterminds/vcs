@@ -39,7 +39,7 @@ func NewSvnRepo(remote, local string) (*SvnRepo, error) {
 
 		detectedRemote, err := detectRemoteFromInfoCommand(string(out))
 		if err != nil {
-			return nil, err
+			return nil, NewLocalError("Unable to retrieve local repo information", err, string(out))
 		}
 		if detectedRemote != "" && remote != "" && detectedRemote != remote {
 			return nil, ErrWrongRemote
