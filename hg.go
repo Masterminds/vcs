@@ -14,6 +14,10 @@ var hgDetectURL = regexp.MustCompile("default = (?P<foo>.+)\n")
 // NewHgRepo creates a new instance of HgRepo. The remote and local directories
 // need to be passed in.
 func NewHgRepo(remote, local string) (*HgRepo, error) {
+	ins := depInstalled("hg")
+	if !ins {
+		return nil, NewLocalError("hg is not installed", nil, "")
+	}
 	ltype, err := DetectVcsFromFS(local)
 
 	// Found a VCS other than Hg. Need to report an error.

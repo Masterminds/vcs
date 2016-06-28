@@ -15,6 +15,10 @@ import (
 // For example, if the package is https://github.com/Masterminds/cookoo/ the remote
 // should be https://github.com/Masterminds/cookoo/trunk for the trunk branch.
 func NewSvnRepo(remote, local string) (*SvnRepo, error) {
+	ins := depInstalled("svn")
+	if !ins {
+		return nil, NewLocalError("svn is not installed", nil, "")
+	}
 	ltype, err := DetectVcsFromFS(local)
 
 	// Found a VCS other than Svn. Need to report an error.
