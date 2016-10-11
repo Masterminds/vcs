@@ -153,8 +153,23 @@ func TestGit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if tags[0] != "1.0.0" {
-		t.Error("Git tags is not reporting the correct version")
+
+	var hasRelTag bool
+	var hasOffMasterTag bool
+
+	for _, tv := range tags {
+		if tv == "1.0.0" {
+			hasRelTag = true
+		} else if tv == "off-master-tag" {
+			hasOffMasterTag = true
+		}
+	}
+
+	if !hasRelTag {
+		t.Error("Git tags unable to find release tag on master")
+	}
+	if !hasOffMasterTag {
+		t.Error("Git tags did not fetch tags not on master")
 	}
 
 	tags, err = repo.TagsFromCommit("74dd547545b7df4aa285bcec1b54e2b76f726395")
@@ -177,8 +192,8 @@ func TestGit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	// The branches should be HEAD, master, and test.
-	if branches[2] != "test" {
+	// The branches should be HEAD, master, other, and test.
+	if branches[3] != "test" {
 		t.Error("Git is incorrectly returning branches")
 	}
 
