@@ -1,6 +1,11 @@
-# 1.8.1 (unreleased)
+# 1.9.0 (unreleased)
 
-- Fixed #53: Git not fetching tags off branch
+## Changed
+- Removed auto-detection for Google Code as the service is deprecated
+- Added auto-detection of git.openstack.org
+
+## Fixed
+- #53: Git not fetching tags off branch
 
 # 1.8.0 (2016-06-29)
 
