@@ -1,3 +1,7 @@
+# 1.8.1 (unreleased)
+
+- Fixed #53: Git not fetching tags off branch
+
 # 1.8.0 (2016-06-29)
 
 ## Added

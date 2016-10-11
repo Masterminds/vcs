@@ -131,7 +131,7 @@ func (s *GitRepo) Init() error {
 // Update performs an Git fetch and pull to an existing checkout.
 func (s *GitRepo) Update() error {
 	// Perform a fetch to make sure everything is up to date.
-	out, err := s.RunFromDir("git", "fetch", s.RemoteLocation)
+	out, err := s.RunFromDir("git", "fetch", "--tags", s.RemoteLocation)
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
