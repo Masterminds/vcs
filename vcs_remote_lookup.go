@@ -55,17 +55,6 @@ var vcsList = []*vcsInfo{
 		vcs:     Git,
 		pattern: `^(go\.googlesource\.com/[A-Za-z0-9_.\-]+/?)$`,
 	},
-	// TODO: Once Google Code becomes fully deprecated this can be removed.
-	{
-		host:     "code.google.com",
-		addCheck: checkGoogle,
-		pattern:  `^(code\.google\.com/[pr]/(?P<project>[a-z0-9\-]+)(\.(?P<repo>[a-z0-9\-]+))?)(/[A-Za-z0-9_.\-]+)*$`,
-	},
-	// Alternative Google setup. This is the previous structure but it still works... until Google Code goes away.
-	{
-		addCheck: checkURL,
-		pattern:  `^([a-z0-9_\-.]+)\.googlecode\.com/(?P<type>git|hg|svn)(/.*)?$`,
-	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
 	{

@@ -24,8 +24,6 @@ func TestVCSLookup(t *testing.T) {
 		"https://hub.jazz.net/git/user1/pkgname":                           {work: true, t: Git},
 		"https://hub.jazz.net/git/user1/pkgname/subpkg/subpkg/subpkg":      {work: true, t: Git},
 		"https://hubs.jazz.net/git/user1/pkgname":                          {work: false, t: Git},
-		"http://farbtastic.googlecode.com/svn/":                            {work: true, t: Svn},
-		"http://farbtastic.googlecode.com/svn/trunk":                       {work: true, t: Svn},
 		"https://example.com/foo/bar.git":                                  {work: true, t: Git},
 		"https://example.com/foo/bar.svn":                                  {work: true, t: Svn},
 		"https://example.com/foo/bar/baz.bzr":                              {work: true, t: Bzr},
