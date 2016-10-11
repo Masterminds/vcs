@@ -55,6 +55,11 @@ var vcsList = []*vcsInfo{
 		vcs:     Git,
 		pattern: `^(go\.googlesource\.com/[A-Za-z0-9_.\-]+/?)$`,
 	},
+	{
+		host:    "git.openstack.org",
+		vcs:     Git,
+		pattern: `^(git\.openstack\.org/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)$`,
+	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
 	{
