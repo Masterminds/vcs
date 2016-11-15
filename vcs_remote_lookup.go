@@ -152,6 +152,11 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 		}
 	}
 
+	// Detect file schemes
+	if u.Scheme == "file" {
+		return DetectVcsFromFS(u.Path)
+	}
+
 	if u.Host == "" {
 		return "", ErrCannotDetectVCS
 	}
