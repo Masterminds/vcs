@@ -1,6 +1,9 @@
 package vcs
 
 import (
+	"io/ioutil"
+	"os"
+	"os/exec"
 	"strings"
 	"testing"
 )
@@ -69,6 +72,35 @@ func TestVCSLookup(t *testing.T) {
 		if c.work == true && ty != c.t {
 			t.Errorf("Incorrect VCS type returned(%s)", u)
 		}
+	}
+}
+
+func TestVCSFileLookup(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-file-lookup-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	_, err = exec.Command("git", "init", tempDir).CombinedOutput()
+	if err != nil {
+		t.Error(err)
+	}
+
+	pth := "file://" + tempDir
+	ty, _, err := detectVcsFromRemote(pth)
+
+	if err != nil {
+		t.Errorf("Unable to detect file:// path: %s", err)
+	}
+
+	if ty != Git {
+		t.Errorf("Detected wrong type from file:// path. Found type %v", ty)
 	}
 }
 

@@ -1,5 +1,8 @@
 # 1.9.0 (unreleased)
 
+## Added
+- #50: Auto-detect remotes with file:// prefix.
+
 ## Changed
 - Removed auto-detection for Google Code as the service is deprecated
 - Added auto-detection of git.openstack.org
