@@ -1,7 +1,8 @@
-# 1.9.0 (unreleased)
+# 1.9.0 (2016-11-18)
 
 ## Added
 - #50: Auto-detect remotes with file:// prefix.
+- #59: Testing against Go 1.7
 
 ## Changed
 - Removed auto-detection for Google Code as the service is deprecated
