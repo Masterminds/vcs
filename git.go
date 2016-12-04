@@ -151,7 +151,8 @@ func (s *GitRepo) Update() error {
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
-	return nil
+
+	return s.defendAgainstSubmodules()
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
@@ -160,6 +161,30 @@ func (s *GitRepo) UpdateVersion(version string) error {
 	if err != nil {
 		return NewLocalError("Unable to update checked out version", err, string(out))
 	}
+
+	return s.defendAgainstSubmodules()
+}
+
+// defendAgainstSubmodules tries to keep repo state sane in the event of
+// submodules. Or nested submodules. What a great idea, submodules.
+func (s *GitRepo) defendAgainstSubmodules() error {
+	// First, update them to whatever they shoudl be, if there should happen to be any.
+	out, err = s.RunFromDir("git", "submodule", "update", "--init", "--recursive")
+	if err != nil {
+		return NewLocalError("Unexpected error while defensively updating submodules", err, string(out))
+	}
+	// Now, do a special extra-aggressive clean in case changing versions caused
+	// one or more submodules to go away.
+	out, err = s.RunFromDir("git", "clean", "-x", "-d", "-f", "-f")
+	if err != nil {
+		return NewLocalError("Unexpected while defensively cleaning up after possible submodules", err, string(out))
+	}
+	// Then, repeat just in case there are any nested submodules that went away.
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "clean", "-x", "-d", "-f", "-f")
+	if err != nil {
+		return NewLocalError("Unexpected while defensively cleaning up after possible submodules", err, string(out))
+	}
+
 	return nil
 }
 
