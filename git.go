@@ -70,7 +70,7 @@ func (s GitRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	out, err := s.run("git", "clone", s.Remote(), s.LocalPath())
+	out, err := s.run("git", "clone", "--recursive", s.Remote(), s.LocalPath())
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
