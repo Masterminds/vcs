@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"time"
@@ -355,4 +356,129 @@ func TestGitInit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestGitSubmoduleHandling(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-git-submodule-tests")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	dumplocal := func(err error) string {
+		if terr, ok := err.(*LocalError); ok {
+			return fmt.Sprintf("msg: %s\norig: %s\nout: %s", terr.Error(), terr.Original(), terr.Out())
+		}
+		return err.Error()
+	}
+
+	subdirExists := func(dir ...string) bool {
+		_, err := os.Stat(filepath.Join(append([]string{tempDir}, dir...)...))
+		return err == nil
+	}
+
+	// Initial clone should get version with two submodules, each of which have
+	// their own submodule
+	repo, err := NewGitRepo("https://github.com/sdboyer/subm", tempDir)
+	if err != nil {
+		t.Fatal(dumplocal(err))
+	}
+	err = repo.Get()
+	if err != nil {
+		t.Fatalf("unable to clone Git repo. Err was %s", dumplocal(err))
+	}
+
+	// Verify we are on the right version.
+	v, err := repo.Version()
+	if v != "18e3a5f6fc7f6d577e732e7a5ab2caf990efbf8f" {
+		t.Fatalf("did not start from expected rev, tests could fail - bailing out (got %s)", v)
+	}
+	if err != nil {
+		t.Fatal(dumplocal(err))
+	}
+
+	if !subdirExists("subm1", ".git") {
+		t.Fatal("subm1 submodule does not exist on initial clone/checkout")
+	}
+	if !subdirExists("subm1", "dep-test", ".git") {
+		t.Fatal("dep-test submodule nested under subm1 does not exist on initial clone/checkout")
+	}
+
+	if !subdirExists("subm-again", ".git") {
+		t.Fatal("subm-again submodule does not exist on initial clone/checkout")
+	}
+	if !subdirExists("subm-again", "dep-test", ".git") {
+		t.Fatal("dep-test submodule nested under subm-again does not exist on initial clone/checkout")
+	}
+
+	// Now switch to version with no submodules, make sure they all go away
+	err = repo.UpdateVersion("e677f82015f72ac1c8fafa66b5463163b3597af2")
+	if err != nil {
+		t.Fatalf("checking out needed version failed with err: %s", dumplocal(err))
+	}
+
+	if subdirExists("subm1") {
+		t.Fatal("checking out version without submodule did not clean up immediate submodules")
+	}
+	if subdirExists("subm1", "dep-test") {
+		t.Fatal("checking out version without submodule did not clean up nested submodules")
+	}
+	if subdirExists("subm-again") {
+		t.Fatal("checking out version without submodule did not clean up immediate submodules")
+	}
+	if subdirExists("subm-again", "dep-test") {
+		t.Fatal("checking out version without submodule did not clean up nested submodules")
+	}
+
+	err = repo.UpdateVersion("aaf7aa1bc4c3c682cc530eca8f80417088ee8540")
+	if err != nil {
+		t.Fatalf("checking out needed version failed with err: %s", dumplocal(err))
+	}
+
+	if !subdirExists("subm1", ".git") {
+		t.Fatal("checking out version with immediate submodule did not set up git subrepo")
+	}
+
+	err = repo.UpdateVersion("6cc4669af468f3b4f16e7e96275ad01ade5b522f")
+	if err != nil {
+		t.Fatalf("checking out needed version failed with err: %s", dumplocal(err))
+	}
+
+	if !subdirExists("subm1", "dep-test", ".git") {
+		t.Fatal("checking out version with nested submodule did not set up nested git subrepo")
+	}
+
+	err = repo.UpdateVersion("aaf7aa1bc4c3c682cc530eca8f80417088ee8540")
+	if err != nil {
+		t.Fatalf("checking out needed version failed with err: %s", dumplocal(err))
+	}
+
+	if subdirExists("subm1", "dep-test") {
+		t.Fatal("rolling back to version without nested submodule did not clean up the nested submodule")
+	}
+
+	err = repo.UpdateVersion("18e3a5f6fc7f6d577e732e7a5ab2caf990efbf8f")
+	if err != nil {
+		t.Fatalf("checking out needed version failed with err: %s", dumplocal(err))
+	}
+
+	if !subdirExists("subm1", ".git") {
+		t.Fatal("subm1 submodule does not exist after switch from other commit")
+	}
+	if !subdirExists("subm1", "dep-test", ".git") {
+		t.Fatal("dep-test submodule nested under subm1 does not exist after switch from other commit")
+	}
+
+	if !subdirExists("subm-again", ".git") {
+		t.Fatal("subm-again submodule does not exist after switch from other commit")
+	}
+	if !subdirExists("subm-again", "dep-test", ".git") {
+		t.Fatal("dep-test submodule nested under subm-again does not exist after switch from other commit")
+	}
+
 }
