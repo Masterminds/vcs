@@ -70,7 +70,7 @@ func (s GitRepo) Vcs() Type {
 
 // Get is used to perform an initial clone of a repository.
 func (s *GitRepo) Get() error {
-	out, err := s.run("git", "clone", s.Remote(), s.LocalPath())
+	out, err := s.run("git", "clone", "--recursive", s.Remote(), s.LocalPath())
 
 	// There are some windows cases where Git cannot create the parent directory,
 	// if it does not already exist, to the location it's trying to create the
@@ -151,7 +151,8 @@ func (s *GitRepo) Update() error {
 	if err != nil {
 		return NewRemoteError("Unable to update repository", err, string(out))
 	}
-	return nil
+
+	return s.defendAgainstSubmodules()
 }
 
 // UpdateVersion sets the version of a package currently checked out via Git.
@@ -160,6 +161,30 @@ func (s *GitRepo) UpdateVersion(version string) error {
 	if err != nil {
 		return NewLocalError("Unable to update checked out version", err, string(out))
 	}
+
+	return s.defendAgainstSubmodules()
+}
+
+// defendAgainstSubmodules tries to keep repo state sane in the event of
+// submodules. Or nested submodules. What a great idea, submodules.
+func (s *GitRepo) defendAgainstSubmodules() error {
+	// First, update them to whatever they should be, if there should happen to be any.
+	out, err := s.RunFromDir("git", "submodule", "update", "--init", "--recursive")
+	if err != nil {
+		return NewLocalError("Unexpected error while defensively updating submodules", err, string(out))
+	}
+	// Now, do a special extra-aggressive clean in case changing versions caused
+	// one or more submodules to go away.
+	out, err = s.RunFromDir("git", "clean", "-x", "-d", "-f", "-f")
+	if err != nil {
+		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict submodule directories", err, string(out))
+	}
+	// Then, repeat just in case there are any nested submodules that went away.
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "clean", "-x", "-d", "-f", "-f")
+	if err != nil {
+		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict nested submodule directories", err, string(out))
+	}
+
 	return nil
 }
 
@@ -358,6 +383,12 @@ func (s *GitRepo) ExportDir(dir string) error {
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Unable to export source", err, string(out))
+	}
+	// and now, the horror of submodules
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "'git checkout-index -f -a --prefix=\""+filepath.Join(dir, "$path")+"\"'")
+	s.log(out)
+	if err != nil {
+		return NewLocalError("Error while exporting submodule sources", err, string(out))
 	}
 
 	return nil
