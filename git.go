@@ -33,7 +33,7 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 
 	// Make sure the local Git repo is configured the same as the remote when
 	// A remote value was passed in.
-	if err == nil && r.CheckLocal() == true {
+	if err == nil && r.CheckLocal() {
 		c := exec.Command("git", "config", "--get", "remote.origin.url")
 		c.Dir = local
 		c.Env = envForDir(c.Dir)
@@ -143,7 +143,7 @@ func (s *GitRepo) Update() error {
 		return NewLocalError("Unable to update repository", err, "")
 	}
 
-	if detached == true {
+	if detached {
 		return nil
 	}
 
@@ -280,11 +280,7 @@ func (s *GitRepo) IsReference(r string) bool {
 	// not been checked out yet. This next step should pickup the other
 	// possible references.
 	_, err = s.RunFromDir("git", "show-ref", r)
-	if err == nil {
-		return true
-	}
-
-	return false
+	return err == nil
 }
 
 // IsDirty returns if the checkout has been modified from the checked
@@ -364,11 +360,7 @@ func (s *GitRepo) Ping() bool {
 	// remote needs to be different.
 	c.Env = mergeEnvLists([]string{"GIT_TERMINAL_PROMPT=0"}, os.Environ())
 	_, err := c.CombinedOutput()
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 // ExportDir exports the current revision to the passed in directory.

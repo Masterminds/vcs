@@ -49,15 +49,15 @@ func TestVCSLookup(t *testing.T) {
 
 	for u, c := range urlList {
 		ty, _, err := detectVcsFromRemote(u)
-		if err == nil && c.work == false {
+		if err == nil && !c.work {
 			t.Errorf("Error detecting VCS from URL(%s)", u)
 		}
 
-		if err == ErrCannotDetectVCS && c.work == true {
+		if err == ErrCannotDetectVCS && c.work {
 			t.Errorf("Error detecting VCS from URL(%s)", u)
 		}
 
-		if err != nil && c.work == true {
+		if err != nil && c.work {
 			t.Errorf("Error detecting VCS from URL(%s): %s", u, err)
 		}
 
@@ -65,11 +65,11 @@ func TestVCSLookup(t *testing.T) {
 			err != ErrCannotDetectVCS &&
 			!strings.HasSuffix(err.Error(), "Not Found") &&
 			!strings.HasSuffix(err.Error(), "Access Denied") &&
-			c.work == false {
+			!c.work {
 			t.Errorf("Unexpected error returned (%s): %s", u, err)
 		}
 
-		if c.work == true && ty != c.t {
+		if c.work && ty != c.t {
 			t.Errorf("Incorrect VCS type returned(%s)", u)
 		}
 	}

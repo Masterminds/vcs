@@ -266,37 +266,6 @@ func checkBitbucket(i map[string]string, ul *url.URL) (Type, error) {
 
 }
 
-// Google supports Git, Hg, and Svn. The SVN style is only
-// supported through their legacy setup at <project>.googlecode.com.
-// I wonder if anyone is actually using SVN support.
-func checkGoogle(i map[string]string, u *url.URL) (Type, error) {
-
-	// To figure out which of the VCS types is used in Google Code you need
-	// to parse a web page and find it. Ugh. I mean... ugh.
-	var hack = regexp.MustCompile(`id="checkoutcmd">(hg|git|svn)`)
-
-	d, err := get(expand(i, "https://code.google.com/p/{project}/source/checkout?repo={repo}"))
-	if err != nil {
-		return "", err
-	}
-
-	if m := hack.FindSubmatch(d); m != nil {
-		if vcs := string(m[1]); vcs != "" {
-			if vcs == "svn" {
-				// While Google supports SVN it can only be used with the legacy
-				// urls of <project>.googlecode.com. I considered creating a new
-				// error for this problem but Google Code is going away and there
-				// is support for the legacy structure.
-				return "", ErrCannotDetectVCS
-			}
-
-			return Type(vcs), nil
-		}
-	}
-
-	return "", ErrCannotDetectVCS
-}
-
 // Expect a type key on i with the exact type detected from the regex.
 func checkURL(i map[string]string, u *url.URL) (Type, error) {
 	return Type(i["type"]), nil

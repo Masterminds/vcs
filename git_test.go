@@ -54,7 +54,7 @@ func TestGit(t *testing.T) {
 	}
 
 	// Verify Git repo is a Git repo
-	if repo.CheckLocal() == false {
+	if !repo.CheckLocal() {
 		t.Error("Problem checking out repo or Git CheckLocal is not working")
 	}
 
@@ -74,7 +74,7 @@ func TestGit(t *testing.T) {
 		t.Error(nrerr)
 	}
 	// Verify the right oject is returned. It will check the local repo type.
-	if nrepo.CheckLocal() == false {
+	if !nrepo.CheckLocal() {
 		t.Error("Wrong version returned from NewRepo")
 	}
 
@@ -198,15 +198,15 @@ func TestGit(t *testing.T) {
 		t.Error("Git is incorrectly returning branches")
 	}
 
-	if repo.IsReference("1.0.0") != true {
+	if !repo.IsReference("1.0.0") {
 		t.Error("Git is reporting a reference is not one")
 	}
 
-	if repo.IsReference("foo") == true {
-		t.Error("Git is reporting a non-existant reference is one")
+	if repo.IsReference("foo") {
+		t.Error("Git is reporting a non-existent reference is one")
 	}
 
-	if repo.IsDirty() == true {
+	if repo.IsDirty() {
 		t.Error("Git incorrectly reporting dirty")
 	}
 
@@ -261,7 +261,7 @@ func TestGit(t *testing.T) {
 
 	_, err = os.Stat(filepath.Join(exportDir, string(repo.Vcs())))
 	if err != nil {
-		if found := os.IsNotExist(err); found == false {
+		if found := os.IsNotExist(err); !found {
 			t.Errorf("Error checking exported metadata in Git: %s", err)
 		}
 	} else {
@@ -284,7 +284,7 @@ func TestGitCheckLocal(t *testing.T) {
 	}()
 
 	repo, _ := NewGitRepo("", tempDir)
-	if repo.CheckLocal() == true {
+	if repo.CheckLocal() {
 		t.Error("Git CheckLocal does not identify non-Git location")
 	}
 
