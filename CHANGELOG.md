@@ -1,3 +1,9 @@
+# 1.10.0 (2017-01-09)
+
+## Added
+- #60: Handle Git submodules (thanks @sdboyer)
+- #61: Add gometalinter to testing
+
 # 1.9.0 (2016-11-18)
 
 ## Added
