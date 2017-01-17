@@ -371,6 +371,14 @@ func (s *GitRepo) ExportDir(dir string) error {
 		dir = dir + string(os.PathSeparator)
 	}
 
+	// checkout-index on some systems, such as some Windows cases, does not
+	// create the parent directory to export into if it does not exist. Explicitly
+	// creating it.
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return NewLocalError("Unable to create directory", err, "")
+	}
+
 	out, err := s.RunFromDir("git", "checkout-index", "-f", "-a", "--prefix="+dir)
 	s.log(out)
 	if err != nil {
