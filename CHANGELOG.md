@@ -1,3 +1,8 @@
+# 1.10.1 (2017-01-18)
+
+## Fixed
+- #62: Added windows testing via appveyor and fixed issues under windows.
+
 # 1.10.0 (2017-01-09)
 
 ## Added
