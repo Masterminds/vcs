@@ -385,7 +385,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 		return NewLocalError("Unable to export source", err, string(out))
 	}
 	// and now, the horror of submodules
-	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "'git checkout-index -f -a --prefix=\""+filepath.Join(dir, "$path")+"\"'")
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git checkout-index -f -a --prefix=\""+filepath.Join(dir, "$path")+"/\"")
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Error while exporting submodule sources", err, string(out))
