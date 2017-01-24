@@ -82,8 +82,6 @@ func (s *SvnRepo) Get() error {
 	}
 	out, err := s.run("svn", "checkout", remote, s.LocalPath())
 	if err != nil {
-		fmt.Println(string(out))
-		fmt.Println(err.Error())
 		return NewRemoteError("Unable to get repository", err, string(out))
 	}
 	return nil
