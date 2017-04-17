@@ -1,3 +1,5 @@
+// +build all errors
+
 package vcs
 
 import (

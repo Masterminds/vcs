@@ -1,3 +1,5 @@
+// +build all git
+
 package vcs
 
 import (
