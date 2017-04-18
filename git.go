@@ -3,6 +3,7 @@ package vcs
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -366,10 +367,12 @@ func (s *GitRepo) Ping() bool {
 // ExportDir exports the current revision to the passed in directory.
 func (s *GitRepo) ExportDir(dir string) error {
 
+	fmt.Printf("dir: \"%s\"\n", dir)
 	// Without the trailing / there can be problems.
 	if !strings.HasSuffix(dir, string(os.PathSeparator)) {
 		dir = dir + string(os.PathSeparator)
 	}
+	fmt.Printf("dir: \"%s\"\n", dir)
 
 	// checkout-index on some systems, such as some Windows cases, does not
 	// create the parent directory to export into if it does not exist. Explicitly

@@ -27,6 +27,7 @@ func TestGit(t *testing.T) {
 			t.Error(err)
 		}
 	}()
+	fmt.Printf("tempDir: \"%s\"\n", tempDir)
 
 	repo, err := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
 	if err != nil {
@@ -248,6 +249,7 @@ func TestGit(t *testing.T) {
 	}()
 
 	exportDir := filepath.Join(tempDir2, "src")
+	fmt.Printf("exportDir: \"%s\"\n", exportDir)
 
 	err = repo.ExportDir(exportDir)
 	if err != nil {
@@ -369,6 +371,7 @@ func TestGitSubmoduleHandling(t *testing.T) {
 			t.Error(err)
 		}
 	}()
+	fmt.Printf("tempDir: \"%s\"\n", tempDir)
 
 	dumplocal := func(err error) string {
 		if terr, ok := err.(*LocalError); ok {
@@ -429,6 +432,7 @@ func TestGitSubmoduleHandling(t *testing.T) {
 	}()
 
 	exportDir := filepath.Join(tempDir2, "src")
+	fmt.Printf("exportDir: \"%s\"\n", exportDir)
 
 	err = repo.ExportDir(exportDir)
 	if err != nil {
