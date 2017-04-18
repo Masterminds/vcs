@@ -416,6 +416,39 @@ func TestGitSubmoduleHandling(t *testing.T) {
 		t.Fatal("dep-test submodule nested under subm-again does not exist on initial clone/checkout")
 	}
 
+	// Test if we can export project with multiple submodules
+	tempDir2, err := ioutil.TempDir("", "go-vcs-git-tests-export")
+	if err != nil {
+		t.Fatalf("Error creating temp directory: %s", err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir2)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	exportDir := filepath.Join(tempDir2, "src")
+
+	err = repo.ExportDir(exportDir)
+	if err != nil {
+		t.Errorf("Unable to export Git repo. Err was %s", err)
+	}
+
+	_, err = os.Stat(filepath.Join(exportDir, "README.md"))
+	if err != nil {
+		t.Errorf("Error checking exported file in Git: %s", err)
+	}
+
+	_, err = os.Stat(filepath.Join(exportDir, string(repo.Vcs())))
+	if err != nil {
+		if found := os.IsNotExist(err); !found {
+			t.Errorf("Error checking exported metadata in Git: %s", err)
+		}
+	} else {
+		t.Error("Error checking Git metadata. It exists.")
+	}
+
 	// Now switch to version with no submodules, make sure they all go away
 	err = repo.UpdateVersion("e677f82015f72ac1c8fafa66b5463163b3597af2")
 	if err != nil {
