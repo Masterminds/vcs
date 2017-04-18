@@ -3,7 +3,6 @@ package vcs
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -387,7 +386,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 	}
 
 	// and now, the horror of submodules
-	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git checkout-index -f -a --prefix="+filepath.Join(dir, "$path")+string(os.PathSeparator))
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "checkout-index", "-f", "-a", "--prefix="+filepath.Join(dir, "$path")+string(os.PathSeparator))
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Error while exporting submodule sources", err, string(out))
