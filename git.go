@@ -367,12 +367,10 @@ func (s *GitRepo) Ping() bool {
 // ExportDir exports the current revision to the passed in directory.
 func (s *GitRepo) ExportDir(dir string) error {
 
-	fmt.Printf("dir: \"%s\"\n", dir)
 	// Without the trailing / there can be problems.
 	if !strings.HasSuffix(dir, string(os.PathSeparator)) {
 		dir = dir + string(os.PathSeparator)
 	}
-	fmt.Printf("dir: \"%s\"\n", dir)
 
 	// checkout-index on some systems, such as some Windows cases, does not
 	// create the parent directory to export into if it does not exist. Explicitly
@@ -389,13 +387,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 	}
 
 	// and now, the horror of submodules
-	out, err = s.RunFromDir("git", "submodule", "update", "--init", "--recursive" )
-	s.log(out)
-	if err != nil {
-		return NewLocalError("Error while updating submodule sources", err, string(out))
-	}
-
-	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git checkout-index -f -a --prefix=\""+filepath.Join(dir, "$path")+string(filepath.Separator)+"\"")
+	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git checkout-index -f -a --prefix="+filepath.Join(dir, "$path")+string(os.PathSeparator))
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Error while exporting submodule sources", err, string(out))
