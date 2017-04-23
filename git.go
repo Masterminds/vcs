@@ -370,7 +370,7 @@ func EscapePathSeparator(path string) (string) {
 	switch runtime.GOOS {
 	case `windows`:
 		//On Windows, triple all path separators.
-		//Needed to escape backslash(s) preceding doublequotes, 
+		//Needed to escape backslash(s) preceding doublequotes,
 		//because of how Windows strings treats backslash+doublequote combo,
 		//and Go seems to be implicitly passing around a doublequoted string on Windows,
 		//so we cannnot use default string instead.
