@@ -369,17 +369,17 @@ func (s *GitRepo) Ping() bool {
 func EscapePathSeparator(path string) (string) {
 	switch runtime.GOOS {
 	case `windows`:
-		//On Windows, triple all path separators.
-		//Needed to escape backslash(s) preceding doublequotes,
-		//because of how Windows strings treats backslash+doublequote combo,
-		//and Go seems to be implicitly passing around a doublequoted string on Windows,
-		//so we cannnot use default string instead.
-		//See: https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
-		//e.g., C:\foo\bar\ -> C:\\\foo\\\bar\\\
-		//used with --prefix, like this: --prefix=C:\foo\bar\ -> --prefix=C:\\\foo\\\bar\\\
+		// On Windows, triple all path separators.
+		// Needed to escape backslash(s) preceding doublequotes,
+		// because of how Windows strings treats backslash+doublequote combo,
+		// and Go seems to be implicitly passing around a doublequoted string on Windows,
+		// so we cannnot use default string instead.
+		// See: https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
+		// e.g., C:\foo\bar\ -> C:\\\foo\\\bar\\\
+		// used with --prefix, like this: --prefix=C:\foo\bar\ -> --prefix=C:\\\foo\\\bar\\\
 		return strings.Replace(path,
 			string(os.PathSeparator),
-			string(os.PathSeparator)+string(os.PathSeparator)+string(os.PathSeparator),
+			string(os.PathSeparator) + string(os.PathSeparator) + string(os.PathSeparator),
 			-1)
 	default:
 		return path
