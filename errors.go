@@ -1,6 +1,9 @@
 package vcs
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // The vcs package provides ways to work with errors that hide the underlying
 // implementation details but make them accessible if needed. For basic errors
@@ -93,7 +96,7 @@ type vcsError struct {
 
 // Error implements the Error interface
 func (e *vcsError) Error() string {
-	return e.s
+	return fmt.Sprintf("%s: %v, %s", e.s, e.e, e.o)
 }
 
 // Original retrieves the underlying implementation specific error.
