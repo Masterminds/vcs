@@ -1,3 +1,5 @@
+// +build all bzr
+
 package vcs
 
 import (

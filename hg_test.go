@@ -1,3 +1,5 @@
+// +build all hg
+
 package vcs
 
 import (

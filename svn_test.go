@@ -1,3 +1,5 @@
+// +build all svn
+
 package vcs
 
 import (

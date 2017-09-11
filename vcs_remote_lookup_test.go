@@ -1,3 +1,5 @@
+// +build all vcs_remote_lookup
+
 package vcs
 
 import (

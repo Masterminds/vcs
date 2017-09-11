@@ -6,7 +6,7 @@ setup:
 .PHONY: test
 test: validate lint
 	@echo "==> Running tests"
-	go test -v
+	go test -v -tags all
 
 .PHONY: validate
 validate:

@@ -21,6 +21,6 @@ build_script:
   - go install -v ./...
 
 test_script:
-  - go test -v
+  - go test -v -tags all
 
 deploy: off
