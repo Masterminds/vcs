@@ -64,6 +64,11 @@ type BzrRepo struct {
 	base
 }
 
+// SetRecursive is not used for bzr repositories.
+func (BzrRepo) SetRecursive(bool) {
+	// Do Nothing
+}
+
 // Vcs retrieves the underlying VCS being implemented.
 func (s BzrRepo) Vcs() Type {
 	return Bzr

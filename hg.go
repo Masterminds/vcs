@@ -63,6 +63,11 @@ type HgRepo struct {
 	base
 }
 
+// SetRecursive is not used for hg repositories.
+func (HgRepo) SetRecursive(bool) {
+	// Do Nothing
+}
+
 // Vcs retrieves the underlying VCS being implemented.
 func (s HgRepo) Vcs() Type {
 	return Hg

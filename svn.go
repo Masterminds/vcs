@@ -65,6 +65,11 @@ type SvnRepo struct {
 	base
 }
 
+// SetRecursive is not used for svn repositories.
+func (SvnRepo) SetRecursive(bool) {
+	// Do Nothing
+}
+
 // Vcs retrieves the underlying VCS being implemented.
 func (s SvnRepo) Vcs() Type {
 	return Svn

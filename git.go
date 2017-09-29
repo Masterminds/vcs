@@ -3,6 +3,7 @@ package vcs
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -31,6 +32,7 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 	r.setLocalPath(local)
 	r.RemoteLocation = "origin"
 	r.Logger = Logger
+	r.recursive = true
 
 	// Make sure the local Git repo is configured the same as the remote when
 	// A remote value was passed in.
@@ -62,6 +64,12 @@ func NewGitRepo(remote, local string) (*GitRepo, error) {
 type GitRepo struct {
 	base
 	RemoteLocation string
+	recursive      bool
+}
+
+// SetRecursive sets if submodule updates should be recursive or not.
+func (s *GitRepo) SetRecursive(enable bool) {
+	s.recursive = enable
 }
 
 // Vcs retrieves the underlying VCS being implemented.
@@ -169,10 +177,14 @@ func (s *GitRepo) UpdateVersion(version string) error {
 // defendAgainstSubmodules tries to keep repo state sane in the event of
 // submodules. Or nested submodules. What a great idea, submodules.
 func (s *GitRepo) defendAgainstSubmodules() error {
+	cmd := []string{"submodule", "update", "--init"}
+	if s.recursive {
+		cmd = append(cmd, "--recursive")
+	}
 	// First, update them to whatever they should be, if there should happen to be any.
-	out, err := s.RunFromDir("git", "submodule", "update", "--init", "--recursive")
+	out, err := s.RunFromDir("git", cmd...)
 	if err != nil {
-		return NewLocalError("Unexpected error while defensively updating submodules", err, string(out))
+		return NewLocalError(fmt.Sprintf("Unexpected error while defensively updating submodules (recursive:%v)", s.recursive), err, string(out))
 	}
 	// Now, do a special extra-aggressive clean in case changing versions caused
 	// one or more submodules to go away.
@@ -180,10 +192,12 @@ func (s *GitRepo) defendAgainstSubmodules() error {
 	if err != nil {
 		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict submodule directories", err, string(out))
 	}
-	// Then, repeat just in case there are any nested submodules that went away.
-	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "clean", "-x", "-d", "-f", "-f")
-	if err != nil {
-		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict nested submodule directories", err, string(out))
+	if s.recursive {
+		// Then, repeat just in case there are any nested submodules that went away.
+		out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "clean", "-x", "-d", "-f", "-f")
+		if err != nil {
+			return NewLocalError("Unexpected error while defensively cleaning up after possible derelict nested submodule directories", err, string(out))
+		}
 	}
 
 	return nil
@@ -366,7 +380,7 @@ func (s *GitRepo) Ping() bool {
 
 // EscapePathSeparator escapes the path separator by replacing it with several.
 // Note: this is harmless on Unix, and needed on Windows.
-func EscapePathSeparator(path string) (string) {
+func EscapePathSeparator(path string) string {
 	switch runtime.GOOS {
 	case `windows`:
 		// On Windows, triple all path separators.
@@ -379,7 +393,7 @@ func EscapePathSeparator(path string) (string) {
 		// used with --prefix, like this: --prefix=C:\foo\bar\ -> --prefix=C:\\\foo\\\bar\\\
 		return strings.Replace(path,
 			string(os.PathSeparator),
-			string(os.PathSeparator) + string(os.PathSeparator) + string(os.PathSeparator),
+			string(os.PathSeparator)+string(os.PathSeparator)+string(os.PathSeparator),
 			-1)
 	default:
 		return path
@@ -404,7 +418,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 		return NewLocalError("Unable to create directory", err, "")
 	}
 
-	path = EscapePathSeparator( dir )
+	path = EscapePathSeparator(dir)
 	out, err := s.RunFromDir("git", "checkout-index", "-f", "-a", "--prefix="+path)
 	s.log(out)
 	if err != nil {
@@ -412,7 +426,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 	}
 
 	// and now, the horror of submodules
-	path = EscapePathSeparator( dir + "$path" + string(os.PathSeparator) )
+	path = EscapePathSeparator(dir + "$path" + string(os.PathSeparator))
 	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git checkout-index -f -a --prefix="+path)
 	s.log(out)
 	if err != nil {
