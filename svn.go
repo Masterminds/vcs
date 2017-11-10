@@ -347,8 +347,8 @@ func (s *SvnRepo) Ping() bool {
 
 // ExportDir exports the current revision to the passed in directory.
 func (s *SvnRepo) ExportDir(dir string) error {
-
-	out, err := s.RunFromDir("svn", "export", ".", dir)
+	os.Mkdir(dir, 0755)
+	out, err := s.RunFromDir("svn", "export", "--force", ".", dir)
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Unable to export source", err, string(out))
