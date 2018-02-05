@@ -34,7 +34,6 @@ func TestVCSLookup(t *testing.T) {
 		"https://example.com/foo/bar/baz.hg":                               {work: true, t: Hg},
 		"https://gopkg.in/tomb.v1":                                         {work: true, t: Git},
 		"https://golang.org/x/net":                                         {work: true, t: Git},
-		"https://speter.net/go/exp/math/dec/inf":                           {work: true, t: Git},
 		"https://git.openstack.org/foo/bar":                                {work: true, t: Git},
 		"git@github.com:Masterminds/vcs.git":                               {work: true, t: Git},
 		"git@example.com:foo.git":                                          {work: true, t: Git},
