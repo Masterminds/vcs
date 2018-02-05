@@ -158,9 +158,12 @@ func (s *GitRepo) Update() error {
 
 // UpdateVersion sets the version of a package currently checked out via Git.
 func (s *GitRepo) UpdateVersion(version string) error {
-	out, err := s.RunFromDir("git", "checkout", version)
-	if err != nil {
-		return NewLocalError("Unable to update checked out version", err, string(out))
+	// NOTE: as of git 2.16, `git checkout ""` returns an error. On previous releases this was a no-op.
+	if version != "" {
+		out, err := s.RunFromDir("git", "checkout", version)
+		if err != nil {
+			return NewLocalError("Unable to update checked out version", err, string(out))
+		}
 	}
 
 	return s.defendAgainstSubmodules()
