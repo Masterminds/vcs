@@ -98,6 +98,12 @@ func TestGit(t *testing.T) {
 		t.Errorf("Unable to update Git repo version. Err was %s", err)
 	}
 
+	// ensure that supplying an empty string is a no-op.
+	err = repo.UpdateVersion("")
+	if err != nil {
+		t.Errorf("Unable to update Git repo version. Err was %s", err)
+	}
+
 	// Once a ref has been checked out the repo is in a detached head state.
 	// Trying to pull in an update in this state will cause an error. Update
 	// should cleanly handle this. Pulling on a branch (tested elsewhere) and
@@ -559,7 +565,6 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 		t.Errorf("Current failed to detect Git on tip of master. Got version: %s", v)
 	}
 
-
 	tempDir2, err := ioutil.TempDir("", "go-vcs-git-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
@@ -583,7 +588,7 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 		t.Errorf("Error checking exported file in Git: %s", err)
 	}
 
-	_, err = os.Stat(filepath.Join( filepath.Join(exportDir, "definitions"), "README.md"))
+	_, err = os.Stat(filepath.Join(filepath.Join(exportDir, "definitions"), "README.md"))
 	if err != nil {
 		t.Errorf("Error checking exported file in Git: %s", err)
 	}
