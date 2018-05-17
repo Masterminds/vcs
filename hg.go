@@ -25,7 +25,11 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 		return nil, ErrWrongVCS
 	}
 
-	r := &HgRepo{}
+	r := &HgRepo{
+		base{
+			envOverride: []string{"HGRCPATH="},
+		},
+	}
 	r.setRemote(remote)
 	r.setLocalPath(local)
 	r.Logger = Logger

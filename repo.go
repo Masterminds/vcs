@@ -191,6 +191,7 @@ type CommitInfo struct {
 type base struct {
 	remote, local string
 	Logger        *log.Logger
+	envOverride   []string
 }
 
 func (b *base) log(v interface{}) {
@@ -227,7 +228,7 @@ func (b base) run(cmd string, args ...string) ([]byte, error) {
 func (b *base) CmdFromDir(cmd string, args ...string) *exec.Cmd {
 	c := exec.Command(cmd, args...)
 	c.Dir = b.local
-	c.Env = envForDir(c.Dir)
+	c.Env = append(envForDir(c.Dir), b.envOverride...)
 	return c
 }
 
