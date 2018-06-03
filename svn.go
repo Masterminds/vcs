@@ -375,6 +375,10 @@ func detectRemoteFromInfoCommand(infoOut string) (string, error) {
 		return "", fmt.Errorf("Remote not specified in svn info")
 	}
 	urlEndIndex := strings.Index(string(sBytes[urlIndex:]), "\n")
+	urlEndIndexCRLF := strings.Index(string(sBytes[urlIndex:]), "\r\n")
+	if urlEndIndexCRLF != -1 {
+		urlEndIndex = urlEndIndexCRLF
+	}
 	if urlEndIndex == -1 {
 		urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\r")
 		if urlEndIndex == -1 {
