@@ -110,27 +110,3 @@ func TestVCSFileLookup(t *testing.T) {
 		t.Errorf("Detected wrong type from file:// path. Found type %v", ty)
 	}
 }
-
-func TestNotFound(t *testing.T) {
-	_, _, err := detectVcsFromRemote("https://mattfarina.com/notfound")
-	if err == nil || !strings.HasSuffix(err.Error(), " Not Found") {
-		t.Errorf("Failed to find not found repo")
-	}
-
-	_, err = NewRepo("https://mattfarina.com/notfound", "")
-	if err == nil || !strings.HasSuffix(err.Error(), " Not Found") {
-		t.Errorf("Failed to find not found repo")
-	}
-}
-
-func TestAccessDenied(t *testing.T) {
-	_, _, err := detectVcsFromRemote("https://bitbucket.org/mattfarina/private-repo-for-vcs-testing")
-	if err == nil || err.Error() != "Access Denied" {
-		t.Errorf("Failed to detect access denied")
-	}
-
-	_, err = NewRepo("https://bitbucket.org/mattfarina/private-repo-for-vcs-testing", "")
-	if err == nil || err.Error() != "Access Denied" {
-		t.Errorf("Failed to detect access denied")
-	}
-}
