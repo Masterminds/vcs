@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.13.0 (2019-02-27)
+
+### Changed
+
+- #92: Allow non-200 remote lookup responses for Go style redirects
+
+### Fixed
+
+- #91: For Mercurial/Hg return an error if Version() called and Hg prints to stderr
+- #87 and #93: Fix CI issues
+
 ## 1.12.0 (2017-09-11)
 
 ### Changed
