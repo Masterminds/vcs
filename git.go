@@ -181,7 +181,12 @@ func (s *GitRepo) defendAgainstSubmodules() error {
 		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict submodule directories", err, string(out))
 	}
 	// Then, repeat just in case there are any nested submodules that went away.
-	out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "clean", "-x", "-d", "-f", "-f")
+	if runtime.GOOS == "windows" {
+		out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git", "clean", "-x", "-d", "-f", "-f")
+	} else {
+		out, err = s.RunFromDir("git", "submodule", "foreach", "--recursive", "git clean -x -d -f -f")
+	}
+
 	if err != nil {
 		return NewLocalError("Unexpected error while defensively cleaning up after possible derelict nested submodule directories", err, string(out))
 	}
