@@ -136,6 +136,10 @@ type Repo interface {
 
 	// ExportDir exports the current revision to the passed in directory.
 	ExportDir(string) error
+
+	// SetRecursive allows setting if the recursive option should be used
+	// with Git submodule calls.  This only applies to Git.
+	SetRecursive(bool)
 }
 
 // NewRepo returns a Repo based on trying to detect the source control from the
