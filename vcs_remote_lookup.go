@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -33,7 +32,7 @@ var vcsList = []*vcsInfo{
 	{
 		host:     "bitbucket.org",
 		pattern:  `^(bitbucket\.org/(?P<name>[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+))(/[A-Za-z0-9_.\-]+)*$`,
-		addCheck: checkBitbucket,
+		vcs: Git,
 	},
 	{
 		host:    "launchpad.net",
@@ -59,6 +58,21 @@ var vcsList = []*vcsInfo{
 		host:    "git.openstack.org",
 		vcs:     Git,
 		pattern: `^(git\.openstack\.org/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)$`,
+	},
+	{
+		host:     "hg.code.sf.net",
+		pattern:  `^(hg.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs: Hg,
+	},
+	{
+		host:     "git.code.sf.net",
+		pattern:  `^(git.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs: Git,
+	},
+	{
+		host:     "svn.code.sf.net",
+		pattern:  `^(svn.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs: Svn,
 	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
@@ -222,40 +236,6 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 
 	// Unable to determine the vcs from the url.
 	return "", ErrCannotDetectVCS
-}
-
-// Figure out the type for Bitbucket by the passed in information
-// or via the public API.
-func checkBitbucket(i map[string]string, ul *url.URL) (Type, error) {
-
-	// Fast path for ssh urls where we may not even be able to
-	// anonymously get details from the API.
-	if ul.User != nil {
-		un := ul.User.Username()
-		if un == "git" {
-			return Git, nil
-		} else if un == "hg" {
-			return Hg, nil
-		}
-	}
-
-	// The part of the response we care about.
-	var response struct {
-		SCM Type `json:"scm"`
-	}
-
-	u := expand(i, "https://api.bitbucket.org/2.0/repositories/{name}?fields=scm")
-	data, err := get(u)
-	if err != nil {
-		return "", err
-	}
-
-	if err := json.Unmarshal(data, &response); err != nil {
-		return "", fmt.Errorf("Decoding error %s: %v", u, err)
-	}
-
-	return response.SCM, nil
-
 }
 
 // Expect a type key on i with the exact type detected from the regex.

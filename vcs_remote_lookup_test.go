@@ -17,9 +17,7 @@ func TestVCSLookup(t *testing.T) {
 	}{
 		"https://github.com/masterminds":                                   {work: false, t: Git},
 		"https://github.com/Masterminds/VCSTestRepo":                       {work: true, t: Git},
-		"https://bitbucket.org/mattfarina/testhgrepo":                      {work: true, t: Hg},
-		"https://bitbucket.org/mattfarina/repo-does-not-exist":             {work: false, t: Hg},
-		"https://bitbucket.org/mattfarina/private-repo-for-vcs-testing":    {work: false, t: Hg},
+		"https://bitbucket.org/mattfarina/atest":                           {work: true, t: Git},
 		"https://launchpad.net/govcstestbzrrepo/trunk":                     {work: true, t: Bzr},
 		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo":       {work: true, t: Bzr},
 		"https://launchpad.net/~mattfarina/+junk/mygovcstestbzrrepo/trunk": {work: true, t: Bzr},
@@ -37,7 +35,7 @@ func TestVCSLookup(t *testing.T) {
 		"https://git.openstack.org/foo/bar":                                {work: true, t: Git},
 		"git@github.com:Masterminds/vcs.git":                               {work: true, t: Git},
 		"git@example.com:foo.git":                                          {work: true, t: Git},
-		"ssh://hg@bitbucket.org/mattfarina/testhgrepo":                     {work: true, t: Hg},
+		"ssh://bitbucket.org/mattfarina/testhgrepo":                        {work: true, t: Git},
 		"git@bitbucket.org:mattfarina/glide-bitbucket-example.git":         {work: true, t: Git},
 		"git+ssh://example.com/foo/bar":                                    {work: true, t: Git},
 		"git://example.com/foo/bar":                                        {work: true, t: Git},
@@ -45,6 +43,9 @@ func TestVCSLookup(t *testing.T) {
 		"svn+ssh://example.com/foo/bar":                                    {work: true, t: Svn},
 		"git@example.com:foo/bar":                                          {work: true, t: Git},
 		"hg@example.com:foo/bar":                                           {work: true, t: Hg},
+		"http://hg.code.sf.net/p/masterminds/test":                        {work: true, t: Hg},
+		"http://git.code.sf.net/p/masterminds/test":                       {work: true, t: Git},
+		"http://svn.code.sf.net/p/masterminds/test":                       {work: true, t: Svn},
 	}
 
 	for u, c := range urlList {
