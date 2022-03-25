@@ -18,6 +18,9 @@ var _ Repo = &BzrRepo{}
 // repos these tests are structured to work together.
 
 func TestBzr(t *testing.T) {
+	if os.Getenv("SKIP_BZR") == "true" {
+		t.Skip("Skipping bzr tests")
+	}
 
 	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
 	if err != nil {
@@ -237,6 +240,10 @@ func TestBzr(t *testing.T) {
 }
 
 func TestBzrCheckLocal(t *testing.T) {
+	if os.Getenv("SKIP_BZR") == "true" {
+		t.Skip("Skipping bzr tests")
+	}
+
 	// Verify repo.CheckLocal fails for non-Bzr directories.
 	// TestBzr is already checking on a valid repo
 	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
@@ -264,6 +271,10 @@ func TestBzrCheckLocal(t *testing.T) {
 }
 
 func TestBzrPing(t *testing.T) {
+	if os.Getenv("SKIP_BZR") == "true" {
+		t.Skip("Skipping bzr tests")
+	}
+
 	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
 	if err != nil {
 		t.Error(err)
@@ -297,6 +308,10 @@ func TestBzrPing(t *testing.T) {
 }
 
 func TestBzrInit(t *testing.T) {
+	if os.Getenv("SKIP_BZR") == "true" {
+		t.Skip("Skipping bzr tests")
+	}
+
 	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
 	repoDir := tempDir + "/repo"
 	if err != nil {
