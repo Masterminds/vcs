@@ -30,9 +30,9 @@ var vcsList = []*vcsInfo{
 		pattern: `^(github\.com[/|:][A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)*$`,
 	},
 	{
-		host:     "bitbucket.org",
-		pattern:  `^(bitbucket\.org/(?P<name>[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+))(/[A-Za-z0-9_.\-]+)*$`,
-		vcs: Git,
+		host:    "bitbucket.org",
+		pattern: `^(bitbucket\.org/(?P<name>[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+))(/[A-Za-z0-9_.\-]+)*$`,
+		vcs:     Git,
 	},
 	{
 		host:    "launchpad.net",
@@ -60,19 +60,19 @@ var vcsList = []*vcsInfo{
 		pattern: `^(git\.openstack\.org/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)$`,
 	},
 	{
-		host:     "hg.code.sf.net",
-		pattern:  `^(hg.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
-		vcs: Hg,
+		host:    "hg.code.sf.net",
+		pattern: `^(hg.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs:     Hg,
 	},
 	{
-		host:     "git.code.sf.net",
-		pattern:  `^(git.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
-		vcs: Git,
+		host:    "git.code.sf.net",
+		pattern: `^(git.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs:     Git,
 	},
 	{
-		host:     "svn.code.sf.net",
-		pattern:  `^(svn.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
-		vcs: Svn,
+		host:    "svn.code.sf.net",
+		pattern: `^(svn.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
+		vcs:     Svn,
 	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
@@ -262,13 +262,6 @@ func get(url string) ([]byte, error) {
 		return nil, fmt.Errorf("%s: %v", url, err)
 	}
 	return b, nil
-}
-
-func expand(match map[string]string, s string) string {
-	for k, v := range match {
-		s = strings.Replace(s, "{"+k+"}", v, -1)
-	}
-	return s
 }
 
 func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err error) {

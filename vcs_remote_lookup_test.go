@@ -43,9 +43,9 @@ func TestVCSLookup(t *testing.T) {
 		"svn+ssh://example.com/foo/bar":                                    {work: true, t: Svn},
 		"git@example.com:foo/bar":                                          {work: true, t: Git},
 		"hg@example.com:foo/bar":                                           {work: true, t: Hg},
-		"http://hg.code.sf.net/p/masterminds/test":                        {work: true, t: Hg},
-		"http://git.code.sf.net/p/masterminds/test":                       {work: true, t: Git},
-		"http://svn.code.sf.net/p/masterminds/test":                       {work: true, t: Svn},
+		"http://hg.code.sf.net/p/masterminds/test":                         {work: true, t: Hg},
+		"http://git.code.sf.net/p/masterminds/test":                        {work: true, t: Git},
+		"http://svn.code.sf.net/p/masterminds/test":                        {work: true, t: Svn},
 	}
 
 	for u, c := range urlList {
