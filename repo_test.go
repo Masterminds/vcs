@@ -3,6 +3,7 @@ package vcs
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 )
@@ -71,4 +72,17 @@ func TestDepInstalled(t *testing.T) {
 	if i {
 		t.Error("depInstalled finding not installed dep.")
 	}
+}
+
+func testLogger(t *testing.T) *log.Logger {
+	return log.New(testWriter{t}, "test", log.LstdFlags)
+}
+
+type testWriter struct {
+	t *testing.T
+}
+
+func (tw testWriter) Write(p []byte) (n int, err error) {
+	tw.t.Log(string(p))
+	return len(p), nil
 }

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"time"
+
 	//"log"
 	"os"
 	"testing"
@@ -571,6 +572,9 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 	}()
 
 	exportDir := filepath.Join(tempDir2, "src")
+
+	tl := testLogger(t)
+	repo.Logger = tl
 
 	err = repo.ExportDir(exportDir)
 	if err != nil {

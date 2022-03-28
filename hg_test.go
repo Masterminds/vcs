@@ -28,7 +28,7 @@ func TestHg(t *testing.T) {
 		}
 	}()
 
-	repo, err := NewHgRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	repo, err := NewHgRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir+"/testhgrepo")
 	if err != nil {
 		t.Error(err)
 	}
@@ -38,7 +38,7 @@ func TestHg(t *testing.T) {
 	}
 
 	// Check the basic getters.
-	if repo.Remote() != "https://bitbucket.org/mattfarina/testhgrepo" {
+	if repo.Remote() != "http://hg.code.sf.net/p/vcstesthgrepo/code" {
 		t.Error("Remote not set properly")
 	}
 	if repo.LocalPath() != tempDir+"/testhgrepo" {
@@ -69,7 +69,7 @@ func TestHg(t *testing.T) {
 
 	// Test NewRepo on existing checkout. This should simply provide a working
 	// instance without error based on looking at the local directory.
-	nrepo, nrerr := NewRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	nrepo, nrerr := NewRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir+"/testhgrepo")
 	if nrerr != nil {
 		t.Error(nrerr)
 	}
@@ -87,14 +87,14 @@ func TestHg(t *testing.T) {
 	}
 
 	// Set the version using the short hash.
-	err = repo.UpdateVersion("a5494ba2177f")
+	err = repo.UpdateVersion("059e82823f3e")
 	if err != nil {
 		t.Errorf("Unable to update Hg repo version. Err was %s", err)
 	}
 
 	// Use Version to verify we are on the right version.
 	v, err = repo.Version()
-	if v != "a5494ba2177ff9ef26feb3c155dfecc350b1a8ef" {
+	if v != "059e82823f3ec23fceb532621ee7c15d5624f35f" {
 		t.Errorf("Error checking checked out Hg version: %s", v)
 	}
 	if err != nil {
@@ -105,7 +105,7 @@ func TestHg(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error trying Hg Current for ref: %s", err)
 	}
-	if v != "a5494ba2177ff9ef26feb3c155dfecc350b1a8ef" {
+	if v != "059e82823f3ec23fceb532621ee7c15d5624f35f" {
 		t.Errorf("Current failed to detect Hg on ref of branch. Got version: %s", v)
 	}
 
@@ -114,7 +114,7 @@ func TestHg(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if d.Format(longForm) != "2015-07-30 16:14:08 -0400" {
+	if d.Format(longForm) != "2022-03-21 15:53:47 -0400" {
 		t.Error("Error checking checked out Hg commit date. Got wrong date:", d)
 	}
 
@@ -125,7 +125,7 @@ func TestHg(t *testing.T) {
 	}
 
 	v, err = repo.Version()
-	if v != "9c6ccbca73e8a1351c834f33f57f1f7a0329ad35" {
+	if v != "c068171728d3cc343fef21ffdff43cdb14e3c716" {
 		t.Errorf("Error checking checked out Hg version: %s", v)
 	}
 	if err != nil {
@@ -140,7 +140,7 @@ func TestHg(t *testing.T) {
 		t.Error("Hg tags is not reporting the correct version")
 	}
 
-	tags, err = repo.TagsFromCommit("a5494ba2177f")
+	tags, err = repo.TagsFromCommit("059e82823f3e")
 	if err != nil {
 		t.Error(err)
 	}
@@ -148,7 +148,7 @@ func TestHg(t *testing.T) {
 		t.Error("Hg is incorrectly returning tags for a commit")
 	}
 
-	tags, err = repo.TagsFromCommit("d680e82228d2")
+	tags, err = repo.TagsFromCommit("96379533a643")
 	if err != nil {
 		t.Error(err)
 	}
@@ -181,21 +181,21 @@ func TestHg(t *testing.T) {
 		t.Error("Hg incorrectly reporting dirty")
 	}
 
-	ci, err := repo.CommitInfo("a5494ba2177f")
+	ci, err := repo.CommitInfo("72a363187366")
 	if err != nil {
 		t.Error(err)
 	}
-	if ci.Commit != "a5494ba2177ff9ef26feb3c155dfecc350b1a8ef" {
+	if ci.Commit != "72a3631873669f4bd4c41e4d9146104e1e55e767" {
 		t.Error("Hg.CommitInfo wrong commit id")
 	}
 	if ci.Author != "Matt Farina <matt@mattfarina.com>" {
 		t.Error("Hg.CommitInfo wrong author")
 	}
-	if ci.Message != "A commit" {
+	if ci.Message != "Removing a" {
 		t.Error("Hg.CommitInfo wrong message")
 	}
 
-	ti := time.Unix(1438287248, 0)
+	ti := time.Unix(1647898961, 0)
 	if !ti.Equal(ci.Date) {
 		t.Error("Hg.CommitInfo wrong date")
 	}
@@ -223,7 +223,7 @@ func TestHg(t *testing.T) {
 		t.Errorf("Unable to export Hg repo. Err was %s", err)
 	}
 
-	_, err = os.Stat(filepath.Join(exportDir, "Readme.md"))
+	_, err = os.Stat(filepath.Join(exportDir, "README.md"))
 	if err != nil {
 		t.Errorf("Error checking exported file in Hg: %s", err)
 	}
@@ -259,7 +259,7 @@ func TestHgCheckLocal(t *testing.T) {
 
 	// Test NewRepo when there's no local. This should simply provide a working
 	// instance without error based on looking at the remote localtion.
-	_, nrerr := NewRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir+"/testhgrepo")
+	_, nrerr := NewRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir+"/testhgrepo")
 	if nrerr != nil {
 		t.Error(nrerr)
 	}
@@ -277,7 +277,7 @@ func TestHgPing(t *testing.T) {
 		}
 	}()
 
-	repo, err := NewHgRepo("https://bitbucket.org/mattfarina/testhgrepo", tempDir)
+	repo, err := NewHgRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir)
 	if err != nil {
 		t.Error(err)
 	}
@@ -287,7 +287,7 @@ func TestHgPing(t *testing.T) {
 		t.Error("Hg unable to ping working repo")
 	}
 
-	repo, err = NewHgRepo("https://bitbucket.org/mattfarina/ihopethisneverexistsbecauseitshouldnt", tempDir)
+	repo, err = NewHgRepo("http://bitbucket.org/mattfarina/ihopethisneverexistsbecauseitshouldnt", tempDir)
 	if err != nil {
 		t.Error(err)
 	}
