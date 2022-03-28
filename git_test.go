@@ -573,6 +573,9 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 
 	exportDir := filepath.Join(tempDir2, "src")
 
+	tl := testLogger(t)
+	repo.Logger = tl
+
 	err = repo.ExportDir(exportDir)
 	if err != nil {
 		t.Errorf("Unable to export Git repo. Err was %s", err)

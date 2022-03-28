@@ -25,4 +25,9 @@ jobs:
     - name: Test
       run: go test -v
       env:
+        # Skipping bzr tests on Windows as bzr does not install properly there.
+        # bzr development stopped in 2017 (when last change landed). The official
+        # windows installer is still bzr 2.5. The installer does not setup working
+        # cacerts. This needs to be manually modified to get working. Skipping
+        # tests in this environment as there are environment problems.
         SKIP_BZR: "true"
