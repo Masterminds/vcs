@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.13.1 (2022-03-xx)
+
+### Fixed
+
+- #103: Fixed CI testing. This included moving to GitHub Actions, updating the
+  the Git submodule handling, and skipping bzr tests on Windows (bzr has
+  discontinued and the installer now installs a broken environment)
+
 ## 1.13.1 (2019-07-09)
 
 ### Fixed
