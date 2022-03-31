@@ -6,6 +6,7 @@ interface.
 [![Linux Tests](https://github.com/Masterminds/vcs/actions/workflows/linux-tests.yaml/badge.svg)](https://github.com/Masterminds/vcs/actions/workflows/linux-tests.yaml) [![Go Report Card](https://goreportcard.com/badge/github.com/Masterminds/vcs)](https://goreportcard.com/report/github.com/Masterminds/vcs)
 [![Windows Tests](https://github.com/Masterminds/vcs/actions/workflows/windows-tests.yaml/badge.svg)](https://github.com/Masterminds/vcs/actions/workflows/windows-tests.yaml) [![Docs](https://img.shields.io/static/v1?label=docs&message=reference&color=blue)](https://pkg.go.dev/github.com/Masterminds/vcs)
 
+**Note: Module names are case sensitive. Please be sure to use `github.com/Masterminds/vcs` with the capital M.**
 
 ## Quick Usage
 

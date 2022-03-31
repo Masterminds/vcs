@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.3 (2022-03-31)
+
+### Fixed
+
+- Case sensitive use of the module name
+
 ## 1.13.2 (2022-03-30)
 
 ### Fixed
