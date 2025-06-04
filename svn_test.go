@@ -84,7 +84,7 @@ func TestSvn(t *testing.T) {
 	// if nrerr != nil {
 	// 	t.Error(nrerr)
 	// }
-	// // Verify the right oject is returned. It will check the local repo type.
+	// // Verify the right object is returned. It will check the local repo type.
 	// if nrepo.CheckLocal() == false {
 	// 	t.Error("Wrong version returned from NewRepo")
 	// }
