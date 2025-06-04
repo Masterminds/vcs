@@ -33,6 +33,9 @@ func ExampleNewRepo() {
 }
 
 func TestTypeSwitch(t *testing.T) {
+	if os.Getenv("SKIP_SVN") == "true" {
+		t.Skip("Skipping svn tests")
+	}
 
 	// To test repo type switching we checkout as SVN and then try to get it as
 	// a git repo afterwards.
