@@ -17,6 +17,9 @@ import (
 var _ Repo = &SvnRepo{}
 
 func TestSvn(t *testing.T) {
+	if os.Getenv("SKIP_SVN") == "true" {
+		t.Skip("Skipping svn tests")
+	}
 
 	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
 	if err != nil {
