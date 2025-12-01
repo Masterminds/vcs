@@ -3,7 +3,6 @@ package vcs
 import (
 	"fmt"
 	"log"
-	"os"
 	"testing"
 )
 
