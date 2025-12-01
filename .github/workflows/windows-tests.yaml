@@ -21,7 +21,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v1
     - name: Install dependencies
-      run: choco install svn hg
+      shell: powershell
+      run: |
+        winget install --id Slik.Subversion --accept-source-agreements --accept-package-agreements
+        winget install --id Mercurial.Mercurial --accept-source-agreements --accept-package-agreements
+        $env:PATH = "C:\Program Files\SlikSvn\bin;C:\Program Files\Mercurial;$env:PATH"
+        echo "C:\Program Files\SlikSvn\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo "C:\Program Files\Mercurial" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Test
       run: go test -v
       env:
