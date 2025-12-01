@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
@@ -79,7 +78,7 @@ func TestVCSLookup(t *testing.T) {
 }
 
 func TestVCSFileLookup(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-file-lookup-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-file-lookup-tests")
 	if err != nil {
 		t.Error(err)
 	}

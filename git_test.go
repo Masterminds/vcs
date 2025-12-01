@@ -2,13 +2,12 @@ package vcs
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
+	"testing"
 	"time"
 
 	//"log"
-	"os"
-	"testing"
 )
 
 // Canary test to ensure GitRepo implements the Repo interface.
@@ -18,7 +17,7 @@ var _ Repo = &GitRepo{}
 // with a known git service.
 
 func TestGit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -237,7 +236,7 @@ func TestGit(t *testing.T) {
 		t.Error("Git didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-git-tests-export")
+	tempDir2, err := os.MkdirTemp("", "go-vcs-git-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
 	}
@@ -273,7 +272,7 @@ func TestGit(t *testing.T) {
 func TestGitCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-Git directories.
 	// TestGit is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -298,7 +297,7 @@ func TestGitCheckLocal(t *testing.T) {
 }
 
 func TestGitPing(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -331,7 +330,7 @@ func TestGitPing(t *testing.T) {
 }
 
 func TestGitInit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
 	repoDir := tempDir + "/repo"
 	if err != nil {
 		t.Error(err)
@@ -360,7 +359,7 @@ func TestGitInit(t *testing.T) {
 }
 
 func TestGitSubmoduleHandling(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-submodule-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-submodule-tests")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -485,7 +484,7 @@ func TestGitSubmoduleHandling(t *testing.T) {
 }
 
 func TestGitSubmoduleHandling2(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-git-submodule-tests2")
+	tempDir, err := os.MkdirTemp("", "go-vcs-git-submodule-tests2")
 	if err != nil {
 		t.Error(err)
 	}
@@ -560,7 +559,7 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 		t.Errorf("Current failed to detect Git on tip of master. Got version: %s", v)
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-git-tests-export")
+	tempDir2, err := os.MkdirTemp("", "go-vcs-git-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
 	}

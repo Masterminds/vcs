@@ -3,7 +3,6 @@ package vcs
 import (
 	"bytes"
 	"encoding/xml"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -425,7 +424,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 // isDetachedHead will detect if git repo is in "detached head" state.
 func isDetachedHead(dir string) (bool, error) {
 	p := filepath.Join(dir, ".git", "HEAD")
-	contents, err := ioutil.ReadFile(p)
+	contents, err := os.ReadFile(p)
 	if err != nil {
 		return false, err
 	}

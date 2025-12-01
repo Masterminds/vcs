@@ -2,14 +2,14 @@ package vcs
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 )
 
 func ExampleNewRepo() {
 	remote := "https://github.com/Masterminds/vcs"
-	local, _ := ioutil.TempDir("", "go-vcs")
+	local, _ := os.MkdirTemp("", "go-vcs")
 	repo, _ := NewRepo(remote, local)
 	// Returns: instance of GitRepo
 

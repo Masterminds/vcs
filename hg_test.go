@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +16,7 @@ var _ Repo = &HgRepo{}
 
 func TestHg(t *testing.T) {
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-hg-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -205,7 +204,7 @@ func TestHg(t *testing.T) {
 		t.Error("Hg didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-hg-tests-export")
+	tempDir2, err := os.MkdirTemp("", "go-vcs-hg-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
 	}
@@ -241,7 +240,7 @@ func TestHg(t *testing.T) {
 func TestHgCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-Hg directories.
 	// TestHg is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-hg-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -266,7 +265,7 @@ func TestHgCheckLocal(t *testing.T) {
 }
 
 func TestHgPing(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-hg-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -299,7 +298,7 @@ func TestHgPing(t *testing.T) {
 }
 
 func TestHgInit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-hg-tests")
 	repoDir := tempDir + "/repo"
 	if err != nil {
 		t.Error(err)

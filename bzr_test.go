@@ -1,13 +1,12 @@
 package vcs
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
+	"testing"
 	"time"
 
 	//"log"
-	"os"
-	"testing"
 )
 
 // Canary test to ensure BzrRepo implements the Repo interface.
@@ -22,7 +21,7 @@ func TestBzr(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -206,7 +205,7 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-bzr-tests-export")
+	tempDir2, err := os.MkdirTemp("", "go-vcs-bzr-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
 	}
@@ -246,7 +245,7 @@ func TestBzrCheckLocal(t *testing.T) {
 
 	// Verify repo.CheckLocal fails for non-Bzr directories.
 	// TestBzr is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -275,7 +274,7 @@ func TestBzrPing(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -312,7 +311,7 @@ func TestBzrInit(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
 	repoDir := tempDir + "/repo"
 	if err != nil {
 		t.Error(err)

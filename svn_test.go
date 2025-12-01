@@ -1,13 +1,12 @@
 package vcs
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
+	"testing"
 	"time"
 
 	//"log"
-	"os"
-	"testing"
 )
 
 // To verify svn is working we perform integration testing
@@ -18,7 +17,7 @@ var _ Repo = &SvnRepo{}
 
 func TestSvn(t *testing.T) {
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-svn-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -217,7 +216,7 @@ func TestSvn(t *testing.T) {
 		t.Error("Svn didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-svn-tests-export")
+	tempDir2, err := os.MkdirTemp("", "go-vcs-svn-tests-export")
 	if err != nil {
 		t.Fatalf("Error creating temp directory: %s", err)
 	}
@@ -253,7 +252,7 @@ func TestSvn(t *testing.T) {
 func TestSvnCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-SVN directories.
 	// TestSvn is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-svn-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -278,7 +277,7 @@ func TestSvnCheckLocal(t *testing.T) {
 }
 
 func TestSvnPing(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-svn-tests")
 	if err != nil {
 		t.Error(err)
 	}
@@ -311,7 +310,7 @@ func TestSvnPing(t *testing.T) {
 }
 
 func TestSvnInit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	tempDir, err := os.MkdirTemp("", "go-vcs-svn-tests")
 	remoteDir := tempDir + string(os.PathSeparator) + "remoteDir"
 	localDir := tempDir + string(os.PathSeparator) + "localDir"
 	if err != nil {
