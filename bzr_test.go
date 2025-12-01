@@ -51,8 +51,11 @@ func TestBzrDeprecationWarning(t *testing.T) {
 	if !strings.Contains(output, "WARNING") {
 		t.Error("Expected WARNING in log output, got:", output)
 	}
-	if !strings.Contains(output, "Bazaar") || !strings.Contains(output, "bzr") {
-		t.Error("Expected deprecation message to mention Bazaar or bzr, got:", output)
+	if !strings.Contains(output, "Bazaar") {
+		t.Error("Expected deprecation message to mention Bazaar, got:", output)
+	}
+	if !strings.Contains(output, "bzr") {
+		t.Error("Expected deprecation message to mention bzr, got:", output)
 	}
 	if !strings.Contains(output, "deprecated") {
 		t.Error("Expected deprecation message to contain 'deprecated', got:", output)
