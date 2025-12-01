@@ -294,6 +294,10 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 
 	out, err := s.RunFromDir("svn", "log", "-r", id, "--xml")
 	if err != nil {
+		// Newer versions of svn can return an error here if a revision is not found.
+		if strings.Contains(string(out), "No such revision") {
+			return nil, ErrRevisionUnavailable
+		}
 		return nil, NewRemoteError("Unable to retrieve commit information", err, string(out))
 	}
 
