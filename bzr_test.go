@@ -21,16 +21,7 @@ func TestBzr(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/govcstestbzrrepo")
 	if err != nil {
@@ -205,16 +196,7 @@ func TestBzr(t *testing.T) {
 		t.Error("Bzr didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := os.MkdirTemp("", "go-vcs-bzr-tests-export")
-	if err != nil {
-		t.Fatalf("Error creating temp directory: %s", err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir2)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir2 := t.TempDir()
 
 	exportDir := filepath.Join(tempDir2, "src")
 
@@ -245,16 +227,7 @@ func TestBzrCheckLocal(t *testing.T) {
 
 	// Verify repo.CheckLocal fails for non-Bzr directories.
 	// TestBzr is already checking on a valid repo
-	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, _ := NewBzrRepo("", tempDir)
 	if repo.CheckLocal() {
@@ -274,16 +247,7 @@ func TestBzrPing(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir)
 	if err != nil {
@@ -311,17 +275,8 @@ func TestBzrInit(t *testing.T) {
 		t.Skip("Skipping bzr tests")
 	}
 
-	tempDir, err := os.MkdirTemp("", "go-vcs-bzr-tests")
+	tempDir := t.TempDir()
 	repoDir := tempDir + "/repo"
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
 
 	repo, err := NewBzrRepo(repoDir, repoDir)
 	if err != nil {

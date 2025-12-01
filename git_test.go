@@ -17,16 +17,7 @@ var _ Repo = &GitRepo{}
 // with a known git service.
 
 func TestGit(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir+"/VCSTestRepo")
 	if err != nil {
@@ -236,16 +227,7 @@ func TestGit(t *testing.T) {
 		t.Error("Git didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := os.MkdirTemp("", "go-vcs-git-tests-export")
-	if err != nil {
-		t.Fatalf("Error creating temp directory: %s", err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir2)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir2 := t.TempDir()
 
 	exportDir := filepath.Join(tempDir2, "src")
 
@@ -272,16 +254,7 @@ func TestGit(t *testing.T) {
 func TestGitCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-Git directories.
 	// TestGit is already checking on a valid repo
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, _ := NewGitRepo("", tempDir)
 	if repo.CheckLocal() {
@@ -297,16 +270,7 @@ func TestGitCheckLocal(t *testing.T) {
 }
 
 func TestGitPing(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewGitRepo("https://github.com/Masterminds/VCSTestRepo", tempDir)
 	if err != nil {
@@ -330,17 +294,8 @@ func TestGitPing(t *testing.T) {
 }
 
 func TestGitInit(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-tests")
+	tempDir := t.TempDir()
 	repoDir := tempDir + "/repo"
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
 
 	repo, err := NewGitRepo(repoDir, repoDir)
 	if err != nil {
@@ -359,16 +314,7 @@ func TestGitInit(t *testing.T) {
 }
 
 func TestGitSubmoduleHandling(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-submodule-tests")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	dumplocal := func(err error) string {
 		if terr, ok := err.(*LocalError); ok {
@@ -484,16 +430,7 @@ func TestGitSubmoduleHandling(t *testing.T) {
 }
 
 func TestGitSubmoduleHandling2(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "go-vcs-git-submodule-tests2")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewGitRepo("https://github.com/cloudfoundry/sonde-go", tempDir+"/VCSTestRepo2")
 	if err != nil {
@@ -559,16 +496,7 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 		t.Errorf("Current failed to detect Git on tip of master. Got version: %s", v)
 	}
 
-	tempDir2, err := os.MkdirTemp("", "go-vcs-git-tests-export")
-	if err != nil {
-		t.Fatalf("Error creating temp directory: %s", err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir2)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir2 := t.TempDir()
 
 	exportDir := filepath.Join(tempDir2, "src")
 
