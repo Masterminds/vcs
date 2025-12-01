@@ -4,9 +4,9 @@
 // This package includes a function that attempts to detect the repo type from
 // the remote URL and return the proper type. For example,
 //
-//     remote := "https://github.com/Masterminds/vcs"
-//     local, _ := os.MkdirTemp("", "go-vcs")
-//     repo, err := NewRepo(remote, local)
+//	remote := "https://github.com/Masterminds/vcs"
+//	local, _ := os.MkdirTemp("", "go-vcs")
+//	repo, err := NewRepo(remote, local)
 //
 // In this case repo will be a GitRepo instance. NewRepo can detect the VCS for
 // numerous popular VCS and from the URL. For example, a URL ending in .git

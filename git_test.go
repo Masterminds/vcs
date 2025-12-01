@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-
 	//"log"
 )
 
@@ -150,9 +149,10 @@ func TestGit(t *testing.T) {
 	var hasOffMasterTag bool
 
 	for _, tv := range tags {
-		if tv == "1.0.0" {
+		switch tv {
+		case "1.0.0":
 			hasRelTag = true
-		} else if tv == "off-master-tag" {
+		case "off-master-tag":
 			hasOffMasterTag = true
 		}
 	}

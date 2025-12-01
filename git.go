@@ -376,10 +376,9 @@ func EscapePathSeparator(path string) string {
 		// See: https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
 		// e.g., C:\foo\bar\ -> C:\\\foo\\\bar\\\
 		// used with --prefix, like this: --prefix=C:\foo\bar\ -> --prefix=C:\\\foo\\\bar\\\
-		return strings.Replace(path,
+		return strings.ReplaceAll(path,
 			string(os.PathSeparator),
-			string(os.PathSeparator)+string(os.PathSeparator)+string(os.PathSeparator),
-			-1)
+			string(os.PathSeparator)+string(os.PathSeparator)+string(os.PathSeparator))
 	default:
 		return path
 	}
@@ -411,8 +410,7 @@ func (s *GitRepo) ExportDir(dir string) error {
 	}
 
 	// and now, the horror of submodules
-	handleSubmodules(s, dir)
-
+	out, err = handleSubmodules(s, dir)
 	s.log(out)
 	if err != nil {
 		return NewLocalError("Error while exporting submodule sources", err, string(out))

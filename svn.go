@@ -337,7 +337,7 @@ func (s *SvnRepo) CommitInfo(id string) (*CommitInfo, error) {
 }
 
 // TagsFromCommit retrieves tags from a commit id.
-func (s *SvnRepo) TagsFromCommit(id string) ([]string, error) {
+func (s *SvnRepo) TagsFromCommit(_ string) ([]string, error) {
 	// Svn tags are a convention implemented as paths. See the details on the
 	// Tag() method for more information.
 	return []string{}, nil
@@ -382,7 +382,7 @@ func detectRemoteFromInfoCommand(infoOut string) (string, error) {
 	if urlEndIndex == -1 {
 		urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\r")
 		if urlEndIndex == -1 {
-			return "", fmt.Errorf("Unable to parse remote URL for svn info")
+			return "", fmt.Errorf("unable to parse remote URL for svn info")
 		}
 	}
 
