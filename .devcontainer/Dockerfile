@@ -1,5 +1,5 @@
 # Use SUSE BCI Golang as the base image
-FROM registry.suse.com/bci/golang:1.22
+FROM registry.suse.com/bci/golang:1.25
 
 # Install VCS tools and other dependencies
 RUN zypper --non-interactive refresh && \
