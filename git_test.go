@@ -586,7 +586,7 @@ func TestGitSubmoduleHandling2(t *testing.T) {
 		t.Errorf("Error checking exported file in Git: %s", err)
 	}
 
-	_, err = os.Stat(filepath.Join(filepath.Join(exportDir, "definitions"), "README.md"))
+	_, err = os.Stat(filepath.Join(filepath.Join(exportDir, "dropsonde-protocol"), "README.md"))
 	if err != nil {
 		t.Errorf("Error checking exported file in Git: %s", err)
 	}
