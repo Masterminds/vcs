@@ -29,7 +29,7 @@ func TestSvn(t *testing.T) {
 		}
 	}()
 
-	repo, err := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+string(os.PathSeparator)+"VCSTestRepo")
+	repo, err := NewSvnRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir+string(os.PathSeparator)+"VCSTestRepo")
 	if err != nil {
 		t.Error(err)
 	}
@@ -39,7 +39,7 @@ func TestSvn(t *testing.T) {
 	}
 
 	// Check the basic getters.
-	if repo.Remote() != "https://github.com/Masterminds/VCSTestRepo/trunk" {
+	if repo.Remote() != "https://svn.riouxsvn.com/vcs-test/trunk" {
 		t.Error("Remote not set properly")
 	}
 	if repo.LocalPath() != tempDir+string(os.PathSeparator)+"VCSTestRepo" {
@@ -60,7 +60,7 @@ func TestSvn(t *testing.T) {
 	}
 
 	// Verify an incorrect remote is caught when NewSvnRepo is used on an existing location
-	_, nrerr := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/unknownbranch", tempDir+"/VCSTestRepo")
+	_, nrerr := NewSvnRepo("https://svn.riouxsvn.com/vcs-test/unknownbranch", tempDir+"/VCSTestRepo")
 	if nrerr != ErrWrongRemote {
 		t.Error("ErrWrongRemote was not triggered for SVN")
 	}
@@ -80,7 +80,7 @@ func TestSvn(t *testing.T) {
 	//
 	// Test NewRepo on existing checkout. This should simply provide a working
 	// instance without error based on looking at the local directory.
-	// nrepo, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	// nrepo, nrerr := NewRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir+"/VCSTestRepo")
 	// if nrerr != nil {
 	// 	t.Error(nrerr)
 	// }
@@ -137,7 +137,8 @@ func TestSvn(t *testing.T) {
 
 	// Use Date to verify we are on the right commit.
 	d, err := repo.Date()
-	if d.Format(longForm) != "2015-07-29 13:47:03 +0000" {
+	if d.Format(longForm) != "2025-04-07 16:01:46 +0000" {
+		t.Logf("%s\n", d.Format(longForm))
 		t.Error("Error checking checked out Svn commit date")
 	}
 	if err != nil {
@@ -168,7 +169,7 @@ func TestSvn(t *testing.T) {
 		t.Error("Svn is incorrectly returning branches")
 	}
 
-	if !repo.IsReference("r4") {
+	if !repo.IsReference("r3") {
 		t.Error("Svn is reporting a reference is not one")
 	}
 
@@ -187,22 +188,32 @@ func TestSvn(t *testing.T) {
 	if ci.Commit != "2" {
 		t.Error("Svn.CommitInfo wrong commit id")
 	}
-	if ci.Author != "matt.farina" {
+	if ci.Author != "mattfarina" {
+		t.Logf("%s\n", ci.Author)
 		t.Error("Svn.CommitInfo wrong author")
 	}
-	if ci.Message != "Update README.md" {
+	if ci.Message != "Adding readme" {
+		t.Logf("%s\n", ci.Message)
 		t.Error("Svn.CommitInfo wrong message")
 	}
-	ti, err := time.Parse(time.RFC3339Nano, "2015-07-29T13:46:20.000000Z")
+	ti, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", "2025-04-07 16:00:29.418991 +0000 UTC")
 	if err != nil {
 		t.Error(err)
 	}
 	if !ti.Equal(ci.Date) {
+		t.Logf("%s\n", ti.String())
+		t.Logf("%s\n", ci.Date)
 		t.Error("Svn.CommitInfo wrong date")
 	}
 
 	_, err = repo.CommitInfo("555555555")
 	if err != ErrRevisionUnavailable {
+		if ve, ok := err.(*RemoteError); ok {
+			t.Log(ve.Out())
+		} else {
+			t.Log("unable to type switch")
+		}
+		t.Logf("%s\n", err)
 		t.Error("Svn didn't return expected ErrRevisionUnavailable")
 	}
 
@@ -260,7 +271,7 @@ func TestSvnCheckLocal(t *testing.T) {
 
 	// Test NewRepo when there's no local. This should simply provide a working
 	// instance without error based on looking at the remote localtion.
-	_, nrerr := NewRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir+"/VCSTestRepo")
+	_, nrerr := NewRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir+"/VCSTestRepo")
 	if nrerr != nil {
 		t.Error(nrerr)
 	}
@@ -278,7 +289,7 @@ func TestSvnPing(t *testing.T) {
 		}
 	}()
 
-	repo, err := NewSvnRepo("https://github.com/Masterminds/VCSTestRepo/trunk", tempDir)
+	repo, err := NewSvnRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir)
 	if err != nil {
 		t.Error(err)
 	}

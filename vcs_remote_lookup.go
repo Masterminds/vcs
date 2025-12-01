@@ -74,6 +74,11 @@ var vcsList = []*vcsInfo{
 		pattern: `^(svn.code.sf.net/p/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)*$`,
 		vcs:     Svn,
 	},
+	{
+		host:    "svn.riouxsvn.com",
+		pattern: `^(svn.riouxsvn.com/[A-Za-z0-9_.\-]+(.*)?)*$`,
+		vcs:     Svn,
+	},
 	// If none of the previous detect the type they will fall to this looking for the type in a generic sense
 	// by the extension to the path.
 	{
