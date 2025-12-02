@@ -13,7 +13,7 @@ interface.
 Quick usage:
 
 	remote := "https://github.com/Masterminds/vcs"
-    local, _ := ioutil.TempDir("", "go-vcs")
+    local, _ := os.TempDir("", "go-vcs")
     repo, err := NewRepo(remote, local)
 
 In this case `NewRepo` will detect the VCS is Git and return a `GitRepo`. All of
