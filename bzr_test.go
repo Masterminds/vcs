@@ -2,7 +2,6 @@ package vcs
 
 import (
 	"bytes"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,16 +15,7 @@ var _ Repo = &BzrRepo{}
 
 // TestBzrDeprecationWarning tests that a deprecation warning is logged when creating a BzrRepo
 func TestBzrDeprecationWarning(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-bzr-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	// Create a custom logger to capture output
 	var buf bytes.Buffer
@@ -42,7 +32,7 @@ func TestBzrDeprecationWarning(t *testing.T) {
 
 	// Create a BzrRepo instance - this may fail if bzr is not installed,
 	// but the warning should still be logged before that check
-	_, err = NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/test")
+	_, _ = NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/test")
 	// We don't check the error here because bzr might not be installed,
 	// but the warning should still be logged
 
