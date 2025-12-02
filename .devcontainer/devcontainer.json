@@ -1,0 +1,19 @@
+{
+	"name": "VCS Development Container",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"go.toolsManagement.checkForUpdates": "local",
+				"go.useLanguageServer": true
+			},
+			"extensions": [
+				"golang.go"
+			]
+		}
+	},
+	"postCreateCommand": "go mod download",
+	"remoteUser": "vscode"
+}
