@@ -17,7 +17,7 @@ var bzrDetectURL = regexp.MustCompile("parent branch: (?P<foo>.+)\n")
 // need to be passed in.
 func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 	// Log deprecation warning
-	Logger.Println("WARNING: Bazaar (bzr) is deprecated and no longer maintained. Support for bzr may be removed in a future version.")
+	Logger.Println("WARNING: The Bazaar (bzr) project has been retired and is no longer maintained. Support for bzr may be removed in a future version.")
 
 	ins := depInstalled("bzr")
 	if !ins {

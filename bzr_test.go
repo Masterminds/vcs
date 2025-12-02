@@ -38,17 +38,8 @@ func TestBzrDeprecationWarning(t *testing.T) {
 
 	// Check if deprecation warning was logged
 	output := buf.String()
-	if !strings.Contains(output, "WARNING") {
+	if !strings.Contains(output, "WARNING: The Bazaar (bzr) project has been retired and is no longer maintained. Support for bzr may be removed in a future version.") {
 		t.Error("Expected WARNING in log output, got:", output)
-	}
-	if !strings.Contains(output, "Bazaar") {
-		t.Error("Expected deprecation message to mention Bazaar, got:", output)
-	}
-	if !strings.Contains(output, "bzr") {
-		t.Error("Expected deprecation message to mention bzr, got:", output)
-	}
-	if !strings.Contains(output, "deprecated") {
-		t.Error("Expected deprecation message to contain 'deprecated', got:", output)
 	}
 }
 
