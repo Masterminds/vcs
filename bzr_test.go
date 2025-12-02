@@ -1,15 +1,47 @@
 package vcs
 
 import (
+	"bytes"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
-	//"log"
 )
 
 // Canary test to ensure BzrRepo implements the Repo interface.
 var _ Repo = &BzrRepo{}
+
+// TestBzrDeprecationWarning tests that a deprecation warning is logged when creating a BzrRepo
+func TestBzrDeprecationWarning(t *testing.T) {
+	tempDir := t.TempDir()
+
+	// Create a custom logger to capture output
+	var buf bytes.Buffer
+	customLogger := log.New(&buf, "", 0)
+
+	// Save original logger and restore it after test
+	originalLogger := Logger
+	defer func() {
+		Logger = originalLogger
+	}()
+
+	// Set custom logger
+	Logger = customLogger
+
+	// Create a BzrRepo instance - this may fail if bzr is not installed,
+	// but the warning should still be logged before that check
+	_, _ = NewBzrRepo("https://launchpad.net/govcstestbzrrepo", tempDir+"/test")
+	// We don't check the error here because bzr might not be installed,
+	// but the warning should still be logged
+
+	// Check if deprecation warning was logged
+	output := buf.String()
+	if !strings.Contains(output, "WARNING: The Bazaar (bzr) project has been retired and is no longer maintained. Support for bzr may be removed in a future version.") {
+		t.Error("Expected WARNING in log output, got:", output)
+	}
+}
 
 // To verify bzr is working we perform integration testing
 // with a known bzr service. Due to the long time of repeatedly checking out

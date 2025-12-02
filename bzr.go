@@ -16,6 +16,9 @@ var bzrDetectURL = regexp.MustCompile("parent branch: (?P<foo>.+)\n")
 // NewBzrRepo creates a new instance of BzrRepo. The remote and local directories
 // need to be passed in.
 func NewBzrRepo(remote, local string) (*BzrRepo, error) {
+	// Log deprecation warning
+	Logger.Println("WARNING: The Bazaar (bzr) project has been retired and is no longer maintained. Support for bzr may be removed in a future version.")
+
 	ins := depInstalled("bzr")
 	if !ins {
 		return nil, NewLocalError("bzr is not installed", nil, "")
