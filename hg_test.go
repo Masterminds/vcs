@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,16 +16,7 @@ var _ Repo = &HgRepo{}
 
 func TestHg(t *testing.T) {
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewHgRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir+"/testhgrepo")
 	if err != nil {
@@ -205,16 +195,7 @@ func TestHg(t *testing.T) {
 		t.Error("Hg didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-hg-tests-export")
-	if err != nil {
-		t.Fatalf("Error creating temp directory: %s", err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir2)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir2 := t.TempDir()
 
 	exportDir := filepath.Join(tempDir2, "src")
 
@@ -241,16 +222,7 @@ func TestHg(t *testing.T) {
 func TestHgCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-Hg directories.
 	// TestHg is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, _ := NewHgRepo("", tempDir)
 	if repo.CheckLocal() {
@@ -266,16 +238,7 @@ func TestHgCheckLocal(t *testing.T) {
 }
 
 func TestHgPing(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewHgRepo("http://hg.code.sf.net/p/vcstesthgrepo/code", tempDir)
 	if err != nil {
@@ -299,17 +262,8 @@ func TestHgPing(t *testing.T) {
 }
 
 func TestHgInit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	tempDir := t.TempDir()
 	repoDir := tempDir + "/repo"
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
 
 	repo, err := NewHgRepo(repoDir, repoDir)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -127,7 +126,7 @@ func detectVcsFromRemote(vcsURL string) (Type, string, error) {
 	if err != nil {
 		return NoVCS, "", ErrCannotDetectVCS
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	t, nu, err := parseImportFromBody(u, resp.Body)
 	if err != nil {
@@ -232,9 +231,10 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 	// Attempt to ascertain from the username passed in.
 	if u.User != nil {
 		un := u.User.Username()
-		if un == "git" {
+		switch un {
+		case "git":
 			return Git, nil
-		} else if un == "hg" {
+		case "hg":
 			return Hg, nil
 		}
 	}
@@ -244,7 +244,7 @@ func detectVcsFromURL(vcsURL string) (Type, error) {
 }
 
 // Expect a type key on i with the exact type detected from the regex.
-func checkURL(i map[string]string, u *url.URL) (Type, error) {
+func checkURL(i map[string]string, _ *url.URL) (Type, error) {
 	return Type(i["type"]), nil
 }
 
@@ -253,16 +253,17 @@ func get(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != 200 {
-		if resp.StatusCode == 404 {
+		switch resp.StatusCode {
+		case 404:
 			return nil, NewRemoteError("Not Found", err, resp.Status)
-		} else if resp.StatusCode == 401 || resp.StatusCode == 403 {
+		case 401, 403:
 			return nil, NewRemoteError("Access Denied", err, resp.Status)
 		}
 		return nil, fmt.Errorf("%s: %s", url, resp.Status)
 	}
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", url, err)
 	}
@@ -282,13 +283,13 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 				// got here.
 				err = ErrCannotDetectVCS
 			}
-			return
+			return tp, u, err
 		}
 		if e, ok := t.(xml.StartElement); ok && strings.EqualFold(e.Name.Local, "body") {
-			return
+			return tp, u, err
 		}
 		if e, ok := t.(xml.EndElement); ok && strings.EqualFold(e.Name.Local, "head") {
-			return
+			return tp, u, err
 		}
 		e, ok := t.(xml.StartElement)
 		if !ok || !strings.EqualFold(e.Name.Local, "meta") {
@@ -306,21 +307,20 @@ func parseImportFromBody(ur *url.URL, r io.ReadCloser) (tp Type, u string, err e
 			vcsURL := ur.Host + ur.Path
 			if !strings.HasPrefix(vcsURL, f[0]) {
 				continue
-			} else {
-				switch Type(f[1]) {
-				case Git:
-					tp = Git
-				case Svn:
-					tp = Svn
-				case Bzr:
-					tp = Bzr
-				case Hg:
-					tp = Hg
-				}
-
-				u = f[2]
-				return
 			}
+			switch Type(f[1]) {
+			case Git:
+				tp = Git
+			case Svn:
+				tp = Svn
+			case Bzr:
+				tp = Bzr
+			case Hg:
+				tp = Hg
+			}
+
+			u = f[2]
+			return tp, u, err
 		}
 	}
 }

@@ -1,24 +1,27 @@
+version: 2
+
 linters:
   disable-all: true
   enable:
-    - deadcode
     - dupl
-    - gofmt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
     - nakedret
     - revive
-    - structcheck
     - unused
-    - varcheck
     - staticcheck
 
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
 linters-settings:
+  dupl:
+    threshold: 400
+
+formatters-settings:
   gofmt:
     simplify: true
   goimports:
-    local-prefixes: helm.sh/helm/v3
-  dupl:
-    threshold: 400
+    local-prefixes: github.com/Masterminds/vcs

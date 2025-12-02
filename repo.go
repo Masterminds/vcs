@@ -4,9 +4,9 @@
 // This package includes a function that attempts to detect the repo type from
 // the remote URL and return the proper type. For example,
 //
-//     remote := "https://github.com/Masterminds/vcs"
-//     local, _ := ioutil.TempDir("", "go-vcs")
-//     repo, err := NewRepo(remote, local)
+//	remote := "https://github.com/Masterminds/vcs"
+//	local, _ := os.MkdirTemp("", "go-vcs")
+//	repo, err := NewRepo(remote, local)
 //
 // In this case repo will be a GitRepo instance. NewRepo can detect the VCS for
 // numerous popular VCS and from the URL. For example, a URL ending in .git
@@ -27,7 +27,7 @@ package vcs
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -46,7 +46,7 @@ func init() {
 	// Initialize the logger to one that does not actually log anywhere. This is
 	// to be overridden by the package user by setting vcs.Logger to a different
 	// logger.
-	Logger = log.New(ioutil.Discard, "go-vcs", log.LstdFlags)
+	Logger = log.New(io.Discard, "go-vcs", log.LstdFlags)
 }
 
 const longForm = "2006-01-02 15:04:05 -0700"

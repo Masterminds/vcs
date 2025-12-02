@@ -1,8 +1,6 @@
 package vcs
 
 import (
-	"io/ioutil"
-	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -79,18 +77,9 @@ func TestVCSLookup(t *testing.T) {
 }
 
 func TestVCSFileLookup(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-file-lookup-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
-	_, err = exec.Command("git", "init", tempDir).CombinedOutput()
+	_, err := exec.Command("git", "init", tempDir).CombinedOutput()
 	if err != nil {
 		t.Error(err)
 	}

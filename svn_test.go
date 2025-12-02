@@ -1,13 +1,11 @@
 package vcs
 
 import (
-	"io/ioutil"
-	"path/filepath"
-	"time"
-
-	//"log"
 	"os"
+	"path/filepath"
 	"testing"
+	"time"
+	//"log"
 )
 
 // To verify svn is working we perform integration testing
@@ -18,16 +16,7 @@ var _ Repo = &SvnRepo{}
 
 func TestSvn(t *testing.T) {
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewSvnRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir+string(os.PathSeparator)+"VCSTestRepo")
 	if err != nil {
@@ -217,16 +206,7 @@ func TestSvn(t *testing.T) {
 		t.Error("Svn didn't return expected ErrRevisionUnavailable")
 	}
 
-	tempDir2, err := ioutil.TempDir("", "go-vcs-svn-tests-export")
-	if err != nil {
-		t.Fatalf("Error creating temp directory: %s", err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir2)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir2 := t.TempDir()
 
 	exportDir := filepath.Join(tempDir2, "src")
 
@@ -253,16 +233,7 @@ func TestSvn(t *testing.T) {
 func TestSvnCheckLocal(t *testing.T) {
 	// Verify repo.CheckLocal fails for non-SVN directories.
 	// TestSvn is already checking on a valid repo
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, _ := NewSvnRepo("", tempDir)
 	if repo.CheckLocal() {
@@ -278,16 +249,7 @@ func TestSvnCheckLocal(t *testing.T) {
 }
 
 func TestSvnPing(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	tempDir := t.TempDir()
 
 	repo, err := NewSvnRepo("https://svn.riouxsvn.com/vcs-test/trunk", tempDir)
 	if err != nil {
@@ -311,18 +273,9 @@ func TestSvnPing(t *testing.T) {
 }
 
 func TestSvnInit(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "go-vcs-svn-tests")
+	tempDir := t.TempDir()
 	remoteDir := tempDir + string(os.PathSeparator) + "remoteDir"
 	localDir := tempDir + string(os.PathSeparator) + "localDir"
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
 
 	repo, err := NewSvnRepo(remoteDir, localDir)
 	if err != nil {

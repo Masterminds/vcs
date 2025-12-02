@@ -44,18 +44,18 @@ import (
 
 var (
 	// ErrWrongVCS is returned when an action is tried on the wrong VCS.
-	ErrWrongVCS = errors.New("Wrong VCS detected")
+	ErrWrongVCS = errors.New("wrong VCS detected")
 
 	// ErrCannotDetectVCS is returned when VCS cannot be detected from URI string.
-	ErrCannotDetectVCS = errors.New("Cannot detect VCS")
+	ErrCannotDetectVCS = errors.New("cannot detect VCS")
 
 	// ErrWrongRemote occurs when the passed in remote does not match the VCS
 	// configured endpoint.
-	ErrWrongRemote = errors.New("The Remote does not match the VCS endpoint")
+	ErrWrongRemote = errors.New("the remote does not match the VCS endpoint")
 
 	// ErrRevisionUnavailable happens when commit revision information is
 	// unavailable.
-	ErrRevisionUnavailable = errors.New("Revision unavailable")
+	ErrRevisionUnavailable = errors.New("revision unavailable")
 )
 
 // RemoteError is returned when an operation fails against a remote repo
