@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# DevContainer - allow developers to have their own setup
+.devcontainer/
