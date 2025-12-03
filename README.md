@@ -39,25 +39,6 @@ The constructors have the same signature as `NewRepo`.
 
 For more details see [the documentation](https://godoc.org/github.com/Masterminds/vcs).
 
-## Development
-
-### Using Dev Container
-
-This project includes a [development container](https://containers.dev/) configuration that provides a complete development environment with all required version control tools (Git, Mercurial, Subversion, and Bazaar) pre-installed.
-
-To use the dev container:
-
-1. Install [Docker](https://www.docker.com/products/docker-desktop) and [Visual Studio Code](https://code.visualstudio.com/)
-2. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code
-3. Open this repository in VS Code
-4. When prompted, click "Reopen in Container" (or use the command palette: "Dev Containers: Reopen in Container")
-
-The dev container is based on the SUSE BCI Golang image and includes:
-- Go development environment
-- Git, Mercurial (hg), Subversion (svn), and Bazaar (bzr)
-- Go language server and tools
-- All dependencies needed to run tests
-
 ## Motivation
 
 The package `golang.org/x/tools/go/vcs` provides some valuable functionality
