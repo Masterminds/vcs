@@ -378,11 +378,14 @@ func detectRemoteFromInfoCommand(infoOut string) (string, error) {
 	if urlIndex == -1 {
 		return "", fmt.Errorf("Remote not specified in svn info")
 	}
-	urlEndIndex := strings.Index(string(sBytes[urlIndex:]), "\n")
+	urlEndIndex := strings.Index(string(sBytes[urlIndex:]), "\r\n")
 	if urlEndIndex == -1 {
-		urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\r")
+		urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\n")
 		if urlEndIndex == -1 {
-			return "", fmt.Errorf("unable to parse remote URL for svn info")
+			urlEndIndex = strings.Index(string(sBytes[urlIndex:]), "\r")
+			if urlEndIndex == -1 {
+				return "", fmt.Errorf("unable to parse remote URL for svn info")
+			}
 		}
 	}
 

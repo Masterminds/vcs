@@ -300,3 +300,58 @@ func TestSvnInit(t *testing.T) {
 		t.Errorf("Svn Init returns wrong version: %s", v)
 	}
 }
+
+func TestDetectRemoteFromInfoCommand(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		hasError bool
+	}{
+		{
+			name:     "Unix line ending (LF)",
+			input:    "Path: /svn/repo\nURL: https://example.com/repo\nRepository Root: https://example.com\n",
+			expected: "https://example.com/repo",
+			hasError: false,
+		},
+		{
+			name:     "Windows line ending (CRLF)",
+			input:    "Path: /svn/repo\r\nURL: https://example.com/repo\r\nRepository Root: https://example.com\r\n",
+			expected: "https://example.com/repo",
+			hasError: false,
+		},
+		{
+			name:     "Old Mac line ending (CR)",
+			input:    "Path: /svn/repo\rURL: https://example.com/repo\rRepository Root: https://example.com\r",
+			expected: "https://example.com/repo",
+			hasError: false,
+		},
+		{
+			name:     "URL not found",
+			input:    "Path: /svn/repo\nRepository Root: https://example.com\n",
+			expected: "",
+			hasError: true,
+		},
+		{
+			name:     "URL with no line ending",
+			input:    "Path: /svn/repo\nURL: https://example.com/repo",
+			expected: "",
+			hasError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := detectRemoteFromInfoCommand(tt.input)
+			if tt.hasError && err == nil {
+				t.Errorf("expected error but got none")
+			}
+			if !tt.hasError && err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
