@@ -46,7 +46,7 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 		}
 
 		m := hgDetectURL.FindStringSubmatch(string(out))
-		if m[1] != "" && m[1] != remote {
+		if remote != "" && m[1] != remote {
 			return nil, ErrWrongRemote
 		}
 
