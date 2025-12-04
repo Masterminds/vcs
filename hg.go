@@ -46,14 +46,16 @@ func NewHgRepo(remote, local string) (*HgRepo, error) {
 		}
 
 		m := hgDetectURL.FindStringSubmatch(string(out))
-		if remote != "" && m[1] != remote {
-			return nil, ErrWrongRemote
-		}
+		if m != nil {
+			if remote != "" && m[1] != remote {
+				return nil, ErrWrongRemote
+			}
 
-		// If no remote was passed in but one is configured for the locally
-		// checked out Hg repo use that one.
-		if remote == "" && m[1] != "" {
-			r.setRemote(m[1])
+			// If no remote was passed in but one is configured for the locally
+			// checked out Hg repo use that one.
+			if remote == "" && m[1] != "" {
+				r.setRemote(m[1])
+			}
 		}
 	}
 
