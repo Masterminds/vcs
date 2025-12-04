@@ -54,7 +54,7 @@ func NewBzrRepo(remote, local string) (*BzrRepo, error) {
 
 		// If no remote was passed in but one is configured for the locally
 		// checked out Bzr repo use that one.
-		if m[1] != "" {
+		if m != nil && m[1] != "" {
 			r.setRemote(m[1])
 		}
 	}
