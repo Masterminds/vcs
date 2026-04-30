@@ -1,27 +1,26 @@
-version: 2
+version: "2"
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - dupl
     - govet
     - ineffassign
     - nakedret
     - revive
-    - unused
     - staticcheck
+    - unused
+  settings:
+    dupl:
+      threshold: 400
 
 formatters:
   enable:
     - gofmt
     - goimports
-
-linters-settings:
-  dupl:
-    threshold: 400
-
-formatters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/Masterminds/vcs
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/Masterminds/vcs
